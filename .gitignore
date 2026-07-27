@@ -8,3 +8,6 @@ dist/
 .vite/
 
 public/data/*.bak
+
+*.swp
+.swo
