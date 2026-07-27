@@ -34,4 +34,10 @@ export const SITE = {
     "Tifton",
   ] as const,
   states: ["Georgia", "Florida"] as const,
+  zillow: {
+    /** Public agent profile URL — set when known; used by sync script */
+    profileUrl: null as string | null,
+    agentName: "Leyanis Hernandez",
+    location: "Valdosta, GA",
+  },
 } as const;

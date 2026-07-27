@@ -36,11 +36,16 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
         />
         {badgeLabel && (
-          <span className="absolute left-4 top-4 rounded-full bg-ivory-50/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-pine-700 backdrop-blur">
+          <span className="absolute left-4 top-4 bg-ivory-50/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-pine-700 backdrop-blur">
             {badgeLabel}
           </span>
         )}
-        <span className="absolute right-4 bottom-4 rounded-full bg-pine-700/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-ivory-50 backdrop-blur">
+        {property.status && property.status !== "for_sale" && property.status !== "unknown" && (
+          <span className="absolute left-4 top-12 bg-clay-500/95 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-ivory-50 backdrop-blur">
+            {property.status.replace("_", " ")}
+          </span>
+        )}
+        <span className="absolute right-4 bottom-4 bg-pine-700/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-ivory-50 backdrop-blur">
           {t.listings.types[property.type]}
         </span>
       </div>

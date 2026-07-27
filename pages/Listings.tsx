@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, X, MapPin } from "lucide-react";
-import { listings as ALL, type PropertyType } from "../data/listings";
+import { type PropertyType } from "../data/listings";
 import { PropertyCard } from "../components/PropertyCard";
 import { useI18n } from "../i18n";
+import { useListings } from "../lib/useListings";
 
 type SortKey = "newest" | "price_asc" | "price_desc" | "sqft_desc";
 
@@ -19,6 +20,7 @@ const PROPERTY_TYPES: PropertyType[] = [
 export function ListingsPage() {
   const { t, lang } = useI18n();
   const isEs = lang === "es";
+  const { listings: ALL, loading, isLive, syncedAt } = useListings();
 
   // ── filters state ────────────────────────────────────────────────────────
   const [query, setQuery] = useState("");
@@ -32,12 +34,14 @@ export function ListingsPage() {
     let xs = ALL.filter((p) => {
       if (query) {
         const q = query.toLowerCase();
-        const hay = `${p.title} ${p.city} ${p.neighborhood} ${p.zip}`.toLowerCase();
+        const hay = `${p.title} ${p.city} ${p.neighborhood} ${p.zip} ${p.address ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (type && p.type !== type) return false;
       if (beds && p.beds < beds) return false;
       if (p.priceUsd > priceMax) return false;
+      // hide sold/off by default
+      if (p.status === "sold" || p.status === "off_market") return false;
       return true;
     });
 
@@ -50,14 +54,16 @@ export function ListingsPage() {
         case "sqft_desc":
           return b.sqft - a.sqft;
         case "newest":
-        default:
-          // usaremos año como proxy de "newest"
-          return b.yearBuilt - a.yearBuilt;
+        default: {
+          const ta = a.listedAt ? Date.parse(a.listedAt) : a.yearBuilt || 0;
+          const tb = b.listedAt ? Date.parse(b.listedAt) : b.yearBuilt || 0;
+          return tb - ta;
+        }
       }
     });
 
     return xs;
-  }, [query, type, beds, priceMax, sort]);
+  }, [ALL, query, type, beds, priceMax, sort]);
 
   const clearFilters = () => {
     setQuery("");
@@ -86,6 +92,19 @@ export function ListingsPage() {
             </h1>
             <p className="max-w-2xl text-lg text-ink-500 sm:text-xl">
               {t.listings.subtitle}
+            </p>
+            <p className="text-xs tracking-wide text-ink-400">
+              {loading
+                ? isEs
+                  ? "Cargando inventario…"
+                  : "Loading inventory…"
+                : isLive
+                  ? isEs
+                    ? `Inventario en vivo · actualizado ${syncedAt ? new Date(syncedAt).toLocaleString(lang === "es" ? "es-US" : "en-US") : "—"}`
+                    : `Live inventory · updated ${syncedAt ? new Date(syncedAt).toLocaleString("en-US") : "—"}`
+                  : isEs
+                    ? "Vista previa · conecta Zillow para inventario en vivo"
+                    : "Preview · connect Zillow for live inventory"}
             </p>
           </motion.div>
 

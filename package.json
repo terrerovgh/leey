@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sitio web de Leyanis “Leey” Hernandez — Lock & Key Realty (Sur Georgia / Norte Florida)",
+  "description": "Sitio web de Leyanis “Leey” Hernandez — Lock & Key Realty",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "sync:zillow": "node scripts/sync-zillow.mjs",
+    "sync:zillow:demo": "node scripts/sync-zillow.mjs --force-demo"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

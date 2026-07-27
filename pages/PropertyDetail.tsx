@@ -12,10 +12,11 @@ import {
   Mail,
   MapPin,
   CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
-import { listings } from "../data/listings";
 import { useI18n } from "../i18n";
 import { SITE } from "../lib/site";
+import { useProperty } from "../lib/useListings";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("en-US", {
@@ -26,11 +27,21 @@ const formatPrice = (n: number) =>
 
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const property = listings.find((p) => p.id === id);
+  const { property, loading, listings } = useProperty(id);
   const navigate = useNavigate();
   const { t, lang } = useI18n();
   const isEs = lang === "es";
   const [active, setActive] = useState(0);
+
+  if (loading) {
+    return (
+      <main className="bg-ivory-50 pt-32 pb-24">
+        <div className="mx-auto max-w-3xl px-6 text-center text-ink-500">
+          {isEs ? "Cargando…" : "Loading…"}
+        </div>
+      </main>
+    );
+  }
 
   if (!property) {
     return (
@@ -52,7 +63,9 @@ export function PropertyDetailPage() {
   }
 
   const badgeLabel = property.badge ? t.listings.badges[property.badge] : undefined;
-  const similar = listings.filter((p) => p.id !== property.id && p.city === property.city).slice(0, 3);
+  const similar = listings
+    .filter((p) => p.id !== property.id && p.city === property.city)
+    .slice(0, 3);
 
   return (
     <main className="bg-ivory-50 pt-28 pb-24">
@@ -169,6 +182,17 @@ export function PropertyDetailPage() {
             <p className="mt-6 text-lg leading-relaxed text-ink-700">
               {property.description}
             </p>
+            {property.zillowUrl && (
+              <a
+                href={property.zillowUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-clay-600 transition hover:text-clay-500"
+              >
+                {isEs ? "Ver en Zillow" : "View on Zillow"}
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
 
             <div className="mt-12 rounded-3xl bg-ivory-100 p-8 lg:p-10">
               <h3 className="font-display text-2xl font-light text-ink-900">
