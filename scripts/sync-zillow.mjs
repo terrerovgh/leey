@@ -2,22 +2,13 @@
 /**
  * sync-zillow.mjs — pull agent listings into public/data/listings.json
  *
- * Zillow has no public bulk API. Supported providers (first that has credentials wins):
+ * Providers (first with credentials wins):
+ *   1. MANUAL_LISTINGS_PATH
+ *   2. RAPIDAPI_KEY + RAPIDAPI_HOST  (default: zillow-com-live-data-scraper-api)
+ *   3. APIFY_TOKEN
+ *   4. demo seed
  *
- *   1. APIFY_TOKEN          → actor run (default: maxcopell/zillow-agent-scraper or search)
- *   2. RAPIDAPI_KEY         → RapidAPI Zillow working API (by agent name / profile)
- *   3. MANUAL_LISTINGS_PATH → path to a hand-exported JSON array of properties
- *   4. none                 → keep/write demo seed and exit 0 with warning
- *
- * Env (see .env.example):
- *   ZILLOW_PROFILE_URL   e.g. https://www.zillow.com/profile/Leyanis-Hernandez/
- *   ZILLOW_AGENT_NAME    default: Leyanis Hernandez
- *   ZILLOW_AGENT_LOCATION default: Valdosta GA
- *   APIFY_TOKEN
- *   APIFY_ACTOR_ID       default: maxcopell/zillow-agent-scraper
- *   RAPIDAPI_KEY
- *   RAPIDAPI_HOST        default: zillow-com1.p.rapidapi.com
- *   OUT_PATH             default: public/data/listings.json
+ * Env — see .env.example
  *
  * Usage:
  *   node scripts/sync-zillow.mjs
@@ -31,7 +22,6 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
-// load .env if present (simple, no dotenv dep)
 function loadEnv() {
   for (const p of [resolve(ROOT, ".env"), resolve(ROOT, ".env.local")]) {
     if (!existsSync(p)) continue;
@@ -50,13 +40,14 @@ const args = new Set(process.argv.slice(2));
 const DRY = args.has("--dry-run");
 const FORCE_DEMO = args.has("--force-demo");
 
-const OUT =
-  process.env.OUT_PATH ||
-  resolve(ROOT, "public/data/listings.json");
-
+const OUT = process.env.OUT_PATH || resolve(ROOT, "public/data/listings.json");
 const AGENT_NAME = process.env.ZILLOW_AGENT_NAME || "Leyanis Hernandez";
 const AGENT_LOCATION = process.env.ZILLOW_AGENT_LOCATION || "Valdosta, GA";
 const PROFILE_URL = process.env.ZILLOW_PROFILE_URL || null;
+const MLS_IDS = (process.env.ZILLOW_MLS_IDS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -104,6 +95,31 @@ function badgeFrom(p) {
   return undefined;
 }
 
+function collectImages(raw) {
+  const images = [];
+  const push = (u) => {
+    if (u && typeof u === "string" && !images.includes(u)) images.push(u);
+  };
+  if (Array.isArray(raw.photos)) {
+    for (const ph of raw.photos) {
+      if (typeof ph === "string") push(ph);
+      else {
+        push(ph?.url);
+        push(ph?.mixedSources?.jpeg?.[0]?.url);
+        push(ph?.href);
+      }
+    }
+  }
+  if (Array.isArray(raw.images)) raw.images.forEach(push);
+  if (Array.isArray(raw.imgSrcs)) raw.imgSrcs.forEach(push);
+  push(raw.imgSrc);
+  push(raw.image);
+  push(raw.hiResImageLink);
+  push(raw.primary_photo);
+  push(raw.photo);
+  return images;
+}
+
 function normalizeListing(raw, i = 0) {
   const zpid = raw.zpid || raw.zpId || raw.zillowId || raw.id;
   const address =
@@ -111,7 +127,8 @@ function normalizeListing(raw, i = 0) {
     raw.streetAddress ||
     raw.unparsedAddress ||
     [raw.streetAddress, raw.city, raw.state].filter(Boolean).join(", ");
-  const city = raw.city || raw.addressCity || AGENT_LOCATION.split(",")[0].trim();
+  const city =
+    raw.city || raw.addressCity || AGENT_LOCATION.split(",")[0].trim();
   const state = raw.state || raw.addressState || "GA";
   const zip = String(raw.zipcode || raw.zip || raw.addressZipcode || "");
   const price = num(
@@ -120,20 +137,12 @@ function normalizeListing(raw, i = 0) {
   );
   const beds = num(raw.bedrooms ?? raw.beds ?? raw.bed, 0);
   const baths = num(raw.bathrooms ?? raw.baths ?? raw.bath, 0);
-  const sqft = num(raw.livingArea ?? raw.sqft ?? raw.area ?? raw.finishedSqFt, 0);
+  const sqft = num(
+    raw.livingArea ?? raw.sqft ?? raw.area ?? raw.finishedSqFt,
+    0
+  );
   const yearBuilt = num(raw.yearBuilt ?? raw.year_built, 0);
-  const images = [];
-  if (Array.isArray(raw.photos)) {
-    for (const ph of raw.photos) {
-      const u = typeof ph === "string" ? ph : ph?.url || ph?.mixedSources?.jpeg?.[0]?.url;
-      if (u) images.push(u);
-    }
-  }
-  if (Array.isArray(raw.imgSrcs)) images.push(...raw.imgSrcs.filter(Boolean));
-  if (raw.imgSrc) images.unshift(raw.imgSrc);
-  if (raw.image) images.unshift(raw.image);
-  if (raw.hiResImageLink) images.unshift(raw.hiResImageLink);
-  const uniqImages = [...new Set(images.filter(Boolean))];
+  const uniqImages = collectImages(raw);
   const image = uniqImages[0] || "";
   const status = mapStatus(
     raw.homeStatus || raw.status || raw.listingStatus || raw.homeStatusForHDP
@@ -145,24 +154,29 @@ function normalizeListing(raw, i = 0) {
     (zpid ? `https://www.zillow.com/homedetails/${zpid}_zpid/` : undefined);
   const title =
     raw.title ||
-    (address ? address.split(",")[0] : null) ||
+    (address ? String(address).split(",")[0] : null) ||
     `${city} home`;
   const description =
     raw.description ||
     raw.listingDescription ||
     raw.remarks ||
-    `${beds || "—"} bed · ${baths || "—"} bath · ${sqft ? sqft.toLocaleString() + " sqft" : "—"} in ${city}, ${state}.`;
+    `${beds || "—"} bed · ${baths || "—"} bath · ${
+      sqft ? sqft.toLocaleString() + " sqft" : "—"
+    } in ${city}, ${state}.`;
   const tagline =
     raw.tagline ||
     [beds && `${beds} bd`, baths && `${baths} ba`, sqft && `${sqft.toLocaleString()} sqft`]
       .filter(Boolean)
       .join(" · ") ||
     city;
-  const daysOnMarket = num(raw.daysOnZillow ?? raw.daysOnMarket ?? raw.dom, NaN);
+  const daysOnMarket = num(
+    raw.daysOnZillow ?? raw.daysOnMarket ?? raw.dom,
+    NaN
+  );
   const p = {
     id: zpid ? `zpid-${zpid}` : `lst-${slug(city)}-${i + 1}`,
     zpid: zpid ? String(zpid) : undefined,
-    mlsId: raw.mlsid || raw.mlsId || raw.mlsNumber || undefined,
+    mlsId: raw.mlsid || raw.mlsId || raw.mlsNumber || raw.mls || undefined,
     status,
     title: String(title).slice(0, 120),
     address: address || undefined,
@@ -187,7 +201,8 @@ function normalizeListing(raw, i = 0) {
     lat: num(raw.latitude ?? raw.lat, NaN) || undefined,
     lng: num(raw.longitude ?? raw.lng ?? raw.lon, NaN) || undefined,
     listedAt: raw.datePosted || raw.listDate || undefined,
-    updatedAt: raw.datePriceChanged || raw.lastUpdated || new Date().toISOString(),
+    updatedAt:
+      raw.datePriceChanged || raw.lastUpdated || new Date().toISOString(),
   };
   const badge = badgeFrom({
     status: p.status,
@@ -195,7 +210,6 @@ function normalizeListing(raw, i = 0) {
     priceReduced: Boolean(raw.priceChange || raw.priceReduction),
   });
   if (badge) p.badge = badge;
-  // drop empties
   for (const k of Object.keys(p)) {
     if (p[k] === undefined) delete p[k];
   }
@@ -203,7 +217,6 @@ function normalizeListing(raw, i = 0) {
 }
 
 function demoFeed() {
-  // import demo from existing JSON if any, else minimal
   const demoPath = resolve(ROOT, "public/data/listings.demo.json");
   if (existsSync(demoPath)) {
     return JSON.parse(readFileSync(demoPath, "utf8"));
@@ -221,6 +234,37 @@ function demoFeed() {
   };
 }
 
+function extractArray(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  for (const k of [
+    "props",
+    "results",
+    "listings",
+    "searchResults",
+    "properties",
+    "homes",
+    "data",
+    "items",
+    "records",
+  ]) {
+    const v = data[k];
+    if (Array.isArray(v)) return v;
+    if (v && Array.isArray(v.results)) return v.results;
+    if (v && Array.isArray(v.listings)) return v.listings;
+    if (v && Array.isArray(v.props)) return v.props;
+  }
+  // single property object
+  if (data.zpid || data.address || data.price || data.mlsid || data.mlsId) {
+    return [data];
+  }
+  return [];
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 // ── providers ────────────────────────────────────────────────────────────
 
 async function fromApify() {
@@ -229,7 +273,6 @@ async function fromApify() {
   const actor = process.env.APIFY_ACTOR_ID || "maxcopell/zillow-agent-scraper";
   console.log(`[apify] running actor ${actor}…`);
 
-  // Start run
   const startRes = await fetch(
     `https://api.apify.com/v2/acts/${encodeURIComponent(actor)}/runs?token=${token}&waitForFinish=120`,
     {
@@ -239,7 +282,6 @@ async function fromApify() {
         startUrls: PROFILE_URL ? [{ url: PROFILE_URL }] : undefined,
         agentName: AGENT_NAME,
         location: AGENT_LOCATION,
-        // common alternate keys used by various actors
         searchQuery: AGENT_NAME,
         profileUrls: PROFILE_URL ? [PROFILE_URL] : undefined,
         maxItems: 100,
@@ -263,60 +305,152 @@ async function fromApify() {
   return items;
 }
 
+/**
+ * RapidAPI — zillow-com-live-data-scraper-api (and compatible hosts)
+ *
+ * Documented/user endpoint:
+ *   GET /bymlsid?mlsid=…&page=1
+ *
+ * Also tries location/search/byurl paths used by similar Zillow scrapers.
+ */
 async function fromRapidApi() {
   const key = process.env.RAPIDAPI_KEY;
   if (!key) return null;
-  const host = process.env.RAPIDAPI_HOST || "zillow-com1.p.rapidapi.com";
-  console.log(`[rapidapi] host=${host} agent=${AGENT_NAME}`);
+  const host =
+    process.env.RAPIDAPI_HOST ||
+    "zillow-com-live-data-scraper-api.p.rapidapi.com";
+  console.log(`[rapidapi] host=${host}`);
 
-  // Try agent/search then property extended search by location + agent filter
   const headers = {
-    "X-RapidAPI-Key": key,
+    "Content-Type": "application/json",
+    "x-rapidapi-host": host,
+    "x-rapidapi-key": key,
     "X-RapidAPI-Host": host,
+    "X-RapidAPI-Key": key,
   };
 
-  // Endpoint shapes vary by product — try a few common ones.
-  const tries = [
-    `https://${host}/propertyExtendedSearch?location=${encodeURIComponent(AGENT_LOCATION)}&status_type=ForSale&home_type=Houses`,
-    `https://${host}/searchByUrl?url=${encodeURIComponent(PROFILE_URL || `https://www.zillow.com/homes/for_sale/${encodeURIComponent(AGENT_LOCATION)}_rb/`)}`,
-  ];
-
-  let items = [];
-  for (const url of tries) {
+  async function get(pathAndQuery) {
+    const url = pathAndQuery.startsWith("http")
+      ? pathAndQuery
+      : `https://${host}${pathAndQuery.startsWith("/") ? "" : "/"}${pathAndQuery}`;
+    const res = await fetch(url, { headers });
+    const text = await res.text();
+    let body;
     try {
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        console.warn(`[rapidapi] ${res.status} ${url}`);
-        continue;
-      }
-      const data = await res.json();
-      const arr =
-        data?.props ||
-        data?.results ||
-        data?.listings ||
-        data?.searchResults ||
-        (Array.isArray(data) ? data : null);
-      if (arr?.length) {
-        items = arr;
-        console.log(`[rapidapi] got ${items.length} from ${url.split("?")[0]}`);
-        break;
-      }
-    } catch (e) {
-      console.warn(`[rapidapi] error`, e.message);
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      body = { raw: text };
     }
+    return { ok: res.ok, status: res.status, body, url };
   }
 
-  // Optional: filter by agent name if field present
-  const nameLc = AGENT_NAME.toLowerCase();
-  const filtered = items.filter((it) => {
-    const blob = JSON.stringify(it).toLowerCase();
-    // keep all if we can't detect agent; prefer matches when field exists
-    if (blob.includes("agent") || blob.includes("broker")) {
-      return blob.includes(nameLc.split(" ")[0]) || blob.includes("hernandez");
+  // 1) Explicit MLS IDs (best for known inventory)
+  const collected = [];
+  if (MLS_IDS.length) {
+    console.log(`[rapidapi] fetching ${MLS_IDS.length} MLS id(s) via /bymlsid`);
+    for (const mlsid of MLS_IDS) {
+      let page = 1;
+      for (;;) {
+        const { ok, status, body, url } = await get(
+          `/bymlsid?mlsid=${encodeURIComponent(mlsid)}&page=${page}`
+        );
+        if (!ok) {
+          console.warn(`[rapidapi] ${status} ${url} →`, JSON.stringify(body)?.slice(0, 200));
+          break;
+        }
+        const arr = extractArray(body);
+        console.log(`[rapidapi] mlsid=${mlsid} page=${page} → ${arr.length}`);
+        if (!arr.length) break;
+        collected.push(...arr);
+        // stop if single object or short page
+        if (arr.length < 5 || page >= 10) break;
+        page += 1;
+        await sleep(400);
+      }
+      await sleep(350);
     }
-    return true;
-  });
-  return filtered.length ? filtered : items;
+    if (collected.length) return collected;
+  }
+
+  // 2) Probe search-style endpoints for agent market (Valdosta area)
+  const locationQ = encodeURIComponent(AGENT_LOCATION);
+  const agentQ = encodeURIComponent(AGENT_NAME);
+  const profileQ = PROFILE_URL ? encodeURIComponent(PROFILE_URL) : null;
+
+  const tries = [
+    // live-data-scraper style
+    `/search?location=${locationQ}&status=forSale&page=1`,
+    `/search?location=${locationQ}&page=1`,
+    `/property/search?location=${locationQ}&page=1`,
+    `/properties?location=${locationQ}&page=1`,
+    `/bylocation?location=${locationQ}&page=1`,
+    `/bycity?city=${locationQ}&page=1`,
+    // agent oriented
+    `/agent?name=${agentQ}`,
+    `/agent/search?name=${agentQ}&location=${locationQ}`,
+    `/agents?name=${agentQ}`,
+    `/byagent?name=${agentQ}`,
+    `/agentListings?name=${agentQ}`,
+    // byurl profile
+    profileQ ? `/byurl?url=${profileQ}` : null,
+    profileQ ? `/searchByUrl?url=${profileQ}` : null,
+    profileQ ? `/property/byurl?url=${profileQ}` : null,
+    // zillow-com1 style (if same key is multi-sub — usually not)
+    `/propertyExtendedSearch?location=${locationQ}&status_type=ForSale&home_type=Houses`,
+  ].filter(Boolean);
+
+  let lastErr = null;
+  for (const path of tries) {
+    await sleep(450);
+    const { ok, status, body, url } = await get(path);
+    if (status === 429) {
+      console.warn("[rapidapi] rate limited — waiting 3s");
+      await sleep(3000);
+      continue;
+    }
+    if (status === 403) {
+      lastErr = body?.message || "not subscribed";
+      console.warn(`[rapidapi] 403 ${path} → ${lastErr}`);
+      // if not subscribed, no point hammering
+      if (String(lastErr).toLowerCase().includes("not subscribed")) {
+        throw new Error(
+          `RapidAPI 403: not subscribed to ${host}. Open RapidAPI → subscribe to “Zillow Com Live Data Scraper API”, then re-run.`
+        );
+      }
+      continue;
+    }
+    if (!ok) {
+      console.warn(`[rapidapi] ${status} ${path}`);
+      continue;
+    }
+    const arr = extractArray(body);
+    if (arr.length) {
+      console.log(`[rapidapi] got ${arr.length} from ${url.split("?")[0]}`);
+      // Prefer listings that mention the agent when the field exists
+      const nameLc = AGENT_NAME.toLowerCase();
+      const first = nameLc.split(/\s+/)[0];
+      const filtered = arr.filter((it) => {
+        const blob = JSON.stringify(it).toLowerCase();
+        if (
+          blob.includes("agent") ||
+          blob.includes("broker") ||
+          blob.includes("listing_provided")
+        ) {
+          return (
+            blob.includes(first) ||
+            blob.includes("hernandez") ||
+            blob.includes("leyanis")
+          );
+        }
+        return true;
+      });
+      return filtered.length ? filtered : arr;
+    }
+    console.log(`[rapidapi] empty ${path}`);
+  }
+
+  if (lastErr) throw new Error(`RapidAPI failed: ${lastErr}`);
+  return [];
 }
 
 async function fromManual() {
@@ -336,7 +470,11 @@ async function main() {
   console.log("═".repeat(56));
   console.log(` agent:   ${AGENT_NAME}`);
   console.log(` area:    ${AGENT_LOCATION}`);
-  console.log(` profile: ${PROFILE_URL || "(not set — set ZILLOW_PROFILE_URL)"}`);
+  console.log(` profile: ${PROFILE_URL || "(not set)"}`);
+  console.log(
+    ` rapid:   ${process.env.RAPIDAPI_HOST || "zillow-com-live-data-scraper-api.p.rapidapi.com"} · key=${process.env.RAPIDAPI_KEY ? "yes" : "no"}`
+  );
+  console.log(` mls ids: ${MLS_IDS.length ? MLS_IDS.join(", ") : "(none)"}`);
   console.log(` out:     ${OUT}`);
 
   let raw = null;
@@ -351,18 +489,22 @@ async function main() {
     }
     if (!raw) {
       try {
-        raw = await fromApify();
-        if (raw) source = "zillow";
+        raw = await fromRapidApi();
+        if (raw && raw.length) source = "zillow";
+        else if (raw && !raw.length) {
+          console.warn("[rapidapi] 0 listings returned");
+          raw = null;
+        }
       } catch (e) {
-        console.error("[apify]", e.message);
+        console.error("[rapidapi]", e.message);
       }
     }
     if (!raw) {
       try {
-        raw = await fromRapidApi();
+        raw = await fromApify();
         if (raw) source = "zillow";
       } catch (e) {
-        console.error("[rapidapi]", e.message);
+        console.error("[apify]", e.message);
       }
     }
   }
@@ -372,7 +514,6 @@ async function main() {
     listings = raw
       .map((r, i) => normalizeListing(r, i))
       .filter((p) => p.priceUsd > 0 || p.image || p.zpid);
-    // de-dupe by zpid/id
     const seen = new Set();
     listings = listings.filter((p) => {
       const k = p.zpid || p.id;
@@ -385,13 +526,15 @@ async function main() {
   if (!listings.length) {
     console.warn(
       "\n⚠  No live listings pulled. Writing demo feed.\n" +
-        "   To connect Zillow for real:\n" +
-        "   1) Set ZILLOW_PROFILE_URL to Leey’s public Zillow agent profile\n" +
-        "   2) Add APIFY_TOKEN  (recommended)  OR  RAPIDAPI_KEY\n" +
-        "   3) Re-run: npm run sync:zillow\n"
+        "   Checklist:\n" +
+        "   1) Subscribe to the RapidAPI product for host\n" +
+        "      zillow-com-live-data-scraper-api.p.rapidapi.com\n" +
+        "   2) RAPIDAPI_KEY + RAPIDAPI_HOST in .env\n" +
+        "   3) Optional: ZILLOW_MLS_IDS=111,222 for /bymlsid\n" +
+        "   4) Optional: ZILLOW_PROFILE_URL=https://www.zillow.com/profile/…\n" +
+        "   5) npm run sync:zillow\n"
     );
     const demo = demoFeed();
-    // If demo listings empty, leave as-is — frontend has TS fallback
     listings = demo.listings || [];
     source = "demo";
   }
@@ -410,7 +553,7 @@ async function main() {
 
   console.log(`\n→ ${listings.length} listings · source=${source}`);
   if (DRY) {
-    console.log(JSON.stringify(feed, null, 2).slice(0, 2000));
+    console.log(JSON.stringify(feed, null, 2).slice(0, 2500));
     console.log("\n(dry-run — not written)");
     return;
   }
