@@ -164,7 +164,7 @@ export const EMPTY_FEED: ListingsFeed = {
   agent: {
     name: "Leyanis Hernandez",
     zillowProfileUrl: "https://www.zillow.com/profile/leey63/",
-    phone: "(229) 890-8062",
+    phone: "(404) 403-8306",
     email: "leey@lockandkeyrealty.com",
     brokerage: "Lock & Key Realty",
   },

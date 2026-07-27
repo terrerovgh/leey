@@ -95,7 +95,7 @@ const providerBlock = {
 const DEFAULT_AGENT = {
   name: AGENT_NAME,
   zillowProfileUrl: PROFILE_URL,
-  phone: "(229) 890-8062",
+  phone: "(404) 403-8306",
   email: "leey@lockandkeyrealty.com",
   brokerage: "Lock & Key Realty",
 };

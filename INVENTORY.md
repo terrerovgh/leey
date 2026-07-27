@@ -86,5 +86,5 @@ npm run sync:zillow -- --force-demo   # solo demos (dev)
 Ver `data/manual-listings.example.json` y `data/types.ts` (`Property`).
 
 ## UI
-Cards y detalle siempre muestran Lock & Key (logo) + agente + `(229) 890-8062`.
+Cards y detalle siempre muestran Lock & Key (logo) + agente + `(404) 403-8306`.
 El enlace externo único a la brokerage sigue en nav/footer.

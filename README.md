@@ -14,7 +14,7 @@ npm run check:leyanis
 
 - Brokerage: [Lock & Key Realty](https://lockandkeyrealty.com/)
 - Perfil: [lockandkeyrealty.com/leyanis](https://lockandkeyrealty.com/leyanis/)
-- Tel: (229) 890-8062
+- Tel: (404) 403-8306
 - Zonas: Valdosta, Hahira, Adel, Sparks, Lenox, Ray City + Norte de Florida
 - Licencia: Georgia y Florida
 
