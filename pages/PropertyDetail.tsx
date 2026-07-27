@@ -196,22 +196,35 @@ export function PropertyDetailPage() {
 
             <div className="mt-12 rounded-3xl bg-ivory-100 p-8 lg:p-10">
               <h3 className="font-display text-2xl font-light text-ink-900">
-                {isEs ? "Lo que incluye" : "What this home includes"}
+                {isEs ? "Detalles" : "Details"}
               </h3>
               <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
-                  isEs ? "Cocina con isla y electrodomésticos premium" : "Island kitchen with premium appliances",
-                  isEs ? "Sistema smart-home listo" : "Smart-home ready",
-                  isEs ? "Termostato y luz inteligentes" : "Smart thermostat and lighting",
-                  isEs ? "Lavandería interior" : "Interior laundry",
-                  isEs ? "Comedor formal y sala familiar" : "Formal dining + family room",
-                  isEs ? "Cercanía a parques y escuelas top" : "Walk to parks and top schools",
-                ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-ink-700">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-pine-700" />
-                    {f}
-                  </li>
-                ))}
+                  property.beds > 0 &&
+                    `${property.beds} ${isEs ? "habitaciones" : "bedrooms"}`,
+                  property.baths > 0 &&
+                    `${property.baths} ${isEs ? "baños" : "baths"}`,
+                  property.sqft > 0 &&
+                    `${property.sqft.toLocaleString()} sqft`,
+                  property.yearBuilt > 0 &&
+                    `${isEs ? "Construida en" : "Built"} ${property.yearBuilt}`,
+                  property.lotSizeSqft
+                    ? `${(property.lotSizeSqft / 43560).toFixed(2)} ac`
+                    : null,
+                  property.mlsId ? `MLS ${property.mlsId}` : null,
+                  (property.brokerage || SITE.brokerage.name) &&
+                    `${isEs ? "Oficina" : "Office"}: ${property.brokerage || SITE.brokerage.name}`,
+                  property.listedBy
+                    ? `${isEs ? "Listado por" : "Listed by"}: ${property.listedBy}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .map((f) => (
+                    <li key={String(f)} className="flex items-start gap-2.5 text-sm text-ink-700">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-pine-700" />
+                      {f}
+                    </li>
+                  ))}
               </ul>
             </div>
 
@@ -222,7 +235,24 @@ export function PropertyDetailPage() {
           {/* Sidebar — contact card */}
           <aside>
             <div className="sticky top-28 border border-ink-900/10 bg-surface-elevated p-7">
-              <div className="font-display text-2xl font-medium text-ink-900">
+              <div className="flex items-center gap-3">
+                <img
+                  src={SITE.brokerage.logo}
+                  alt={SITE.brokerage.name}
+                  className="h-9 w-auto object-contain"
+                  decoding="async"
+                />
+                <div className="min-w-0">
+                  <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-clay-500">
+                    {SITE.brokerage.name}
+                  </div>
+                  <div className="font-display text-lg leading-tight text-ink-900">
+                    {SITE.agent.displayName}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 font-display text-2xl font-medium text-ink-900">
                 {isEs ? "¿Te interesa?" : "Interested?"}
               </div>
               <p className="mt-2 text-sm text-ink-500">
@@ -246,14 +276,31 @@ export function PropertyDetailPage() {
                 </a>
               </div>
 
-              <div className="mt-7 border-t hairline pt-5 text-sm">
-                <div className="font-display text-lg text-ink-900">{SITE.agent.shortName}</div>
+              <div className="mt-7 space-y-1 border-t hairline pt-5 text-sm">
+                <div className="font-medium text-ink-900">{SITE.agent.shortName}</div>
                 <a
                   href={`tel:${SITE.agent.phoneTel}`}
-                  className="mt-1 block text-ink-500 transition hover:text-clay-600"
+                  className="block text-ink-500 transition hover:text-clay-600"
                 >
                   {SITE.agent.phoneDisplay}
                 </a>
+                <a
+                  href={`mailto:${SITE.agent.email}`}
+                  className="block text-ink-500 transition hover:text-clay-600"
+                >
+                  {SITE.agent.email}
+                </a>
+                {(property.brokerage || property.listedBy) && (
+                  <p className="pt-3 text-xs leading-relaxed text-ink-400">
+                    {property.listedBy && (
+                      <span>
+                        {isEs ? "Listado por" : "Listed by"} {property.listedBy}
+                        {property.brokerage ? " · " : ""}
+                      </span>
+                    )}
+                    {property.brokerage}
+                  </p>
+                )}
               </div>
             </div>
           </aside>

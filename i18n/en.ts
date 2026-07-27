@@ -160,7 +160,7 @@ export const en: Strings = {
     eyebrow: "Homes",
     title: "Local selection",
     subtitle:
-      "Sample inventory for the region. For live listings, call or write.",
+      "Inventory with Lock & Key Realty. Every card shows the office, agent, and Leey’s contact.",
     viewAll: "View all",
     filters: "Filters",
     search: {

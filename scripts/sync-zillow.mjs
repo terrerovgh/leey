@@ -227,10 +227,18 @@ function normalizeListing(raw, i = 0) {
     tagline: tagline || city,
     description: String(description).slice(0, 4000),
     zillowUrl,
+    sourcePortal: "zillow",
     lat: num(raw.latitude ?? raw.lat, NaN) || undefined,
     lng: num(raw.longitude ?? raw.lng, NaN) || undefined,
     updatedAt: new Date().toISOString(),
     brokerage: brokerage || undefined,
+    listedBy:
+      raw.agentName ||
+      raw.listingAgent ||
+      raw.listedBy ||
+      raw.listed_by ||
+      (typeof raw.agent === "string" ? raw.agent : raw.agent?.name) ||
+      undefined,
   };
   const badge = badgeFrom({ status: p.status, daysOnMarket: raw.daysOnZillow });
   if (badge) p.badge = badge;
@@ -508,11 +516,14 @@ async function main() {
       name: AGENT_NAME,
       zillowProfileUrl: PROFILE_URL,
       phone: "(229) 890-8062",
+      email: "leey@lockandkeyrealty.com",
+      brokerage: "Lock & Key Realty",
     },
     meta: {
       mode: MODE,
       host: HOST,
       locations: LOCATIONS,
+      brokerageFilter: MODE === "brokerage" ? BROKERAGE_FILTER : undefined,
     },
     listings,
   };

@@ -35,9 +35,10 @@ export const SITE = {
   ] as const,
   states: ["Georgia", "Florida"] as const,
   zillow: {
-    /** Public agent profile URL — set when known; used by sync script */
-    profileUrl: null as string | null,
+    /** Public agent profile — Zillow username leey63 */
+    profileUrl: "https://www.zillow.com/profile/leey63/" as string,
     agentName: "Leyanis Hernandez",
+    username: "leey63",
     location: "Valdosta, GA",
   },
 } as const;

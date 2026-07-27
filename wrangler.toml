@@ -1,9 +1,10 @@
-# Cloudflare Pages / Workers static assets — leeyrealty.com
+# Cloudflare Workers Static Assets — leeyrealty.com
+# Live: worker service `leey` bound to leeyrealty.com + www
 name = "leey"
 compatibility_date = "2026-07-01"
-pages_build_output_dir = "dist"
+workers_dev = true
 
-# SPA: serve index.html for client routes (/properties, etc.) without _redirects loops
+# SPA: serve index.html for client routes (/properties, etc.)
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"

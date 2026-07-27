@@ -1,20 +1,29 @@
-# Cloudflare Pages / deploy notes for leeyrealty.com
-#
-# Dashboard (recommended)
-# 1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git
-# 2. Repo: terrerovgh/leey  · branch main
-# 3. Build settings:
-#      Framework preset: Vite
-#      Build command:    npm run build
-#      Build output:     dist
-#      Root directory:   /   (repo root)
-# 4. After first deploy: Custom domains → add leeyrealty.com + www
-# 5. DNS: Cloudflare will set CNAME for the Pages project (proxy ON is fine)
-#
-# CLI alternative (token needs Account · Cloudflare Pages · Edit):
-#   npx wrangler pages project create leey --production-branch=main
-#   npm run build
-#   npx wrangler pages deploy dist --project-name=leey
-#
-# SPA: wrangler.toml → [assets] not_found_handling = "single-page-application"
-# Do NOT use "/* /index.html 200" in _redirects (CF error 100324 infinite loop).
+# Cloudflare deploy — leeyrealty.com
+
+## Real production shape (verified)
+- **Not** Cloudflare Pages Git-connected.
+- **Workers Static Assets** service name: `leey`
+- Custom hostnames: `leeyrealty.com`, `www.leeyrealty.com` → worker `leey`
+- DNS: AAAA → `100::` proxied (Workers route)
+
+## Ship
+```bash
+export HOME=/home/terrerov
+export CLOUDFLARE_API_TOKEN=…   # profile leey .env
+export CLOUDFLARE_ACCOUNT_ID=1ddbfa86148b21137f5125cbdd637e8c
+cd ~/Projects/leey
+npm run check
+npm run deploy    # build + wrangler deploy
+# and/or push main for source of truth:
+git push origin main
+```
+
+## SPA
+`wrangler.toml` → `[assets] not_found_handling = "single-page-application"`
+Do **not** use `/* /index.html 200` in `_redirects` (CF error 100324).
+
+## Optional Pages project
+If you later create a Pages project connected to `terrerovgh/leey`:
+- Build: `npm run build`
+- Output: `dist`
+- Then push-to-main can auto-deploy; until then use `wrangler deploy`.

@@ -162,7 +162,7 @@ export const es = {
     eyebrow: "Propiedades",
     title: "Selección local",
     subtitle:
-      "Ejemplos del mercado de la región. Para inventario en vivo, llámame o escríbeme.",
+      "Inventario con Lock & Key Realty. Cada ficha muestra oficina, agente y contacto de Leey.",
     viewAll: "Ver todas",
     filters: "Filtros",
     search: {

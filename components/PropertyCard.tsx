@@ -2,6 +2,7 @@ import type { Property } from "../data/listings";
 import { Bed, Bath, Maximize } from "lucide-react";
 import { useI18n } from "../i18n";
 import { useNavigate } from "react-router-dom";
+import { SITE } from "../lib/site";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("en-US", {
@@ -16,10 +17,14 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, variant = "default" }: PropertyCardProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
+  const isEs = lang === "es";
 
   const badgeLabel = property.badge ? t.listings.badges[property.badge] : undefined;
+  const office =
+    property.brokerage?.trim() || SITE.brokerage.name;
+  const listedBy = property.listedBy?.trim() || SITE.agent.displayName;
 
   return (
     <article
@@ -90,6 +95,33 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
               <span className="text-xs text-ink-400">{t.listings.fields.sqft}</span>
             </span>
           )}
+        </div>
+
+        {/* Presenting brokerage + agent (logo is decorative here; sole outbound link stays in nav/footer) */}
+        <div className="mt-5 flex items-center gap-3 border-t hairline pt-4">
+          <img
+            src={SITE.brokerage.logo}
+            alt=""
+            aria-hidden
+            className="h-7 w-auto object-contain opacity-90"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="min-w-0 leading-tight">
+            <div className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-ink-700">
+              {office}
+            </div>
+            <div className="mt-0.5 truncate text-xs text-ink-500">
+              {listedBy}
+              <span className="text-ink-300"> · </span>
+              <span className="text-clay-600">{SITE.agent.phoneDisplay}</span>
+            </div>
+            <div className="sr-only">
+              {isEs
+                ? `Presentado por ${listedBy}, ${office}`
+                : `Presented by ${listedBy}, ${office}`}
+            </div>
+          </div>
         </div>
       </div>
     </article>

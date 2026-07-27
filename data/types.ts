@@ -46,11 +46,18 @@ export interface Property {
   description: string;
   /** Canonical Zillow listing URL */
   zillowUrl?: string;
+  /** Listing portal URL when not Zillow */
+  sourceUrl?: string;
+  sourcePortal?: "zillow" | "realtor" | "mls" | "loopnet" | "manual" | "other";
   daysOnMarket?: number;
   lat?: number;
   lng?: number;
   listedAt?: string;
   updatedAt?: string;
+  /** Listing office / brokerage name from feed when known */
+  brokerage?: string;
+  /** Listing agent name from feed when known */
+  listedBy?: string;
 }
 
 export interface ListingsFeed {
@@ -61,6 +68,8 @@ export interface ListingsFeed {
     name: string;
     zillowProfileUrl: string | null;
     phone?: string;
+    email?: string;
+    brokerage?: string;
   };
   listings: Property[];
 }
