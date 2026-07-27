@@ -51,15 +51,21 @@ La web lo carga en runtime vía `useListings()`.
 Perfil dedicado: `leey` (`hermes -p leey` o alias `leey`).
 Skill: `leey-site` (sync + ops del sitio).
 
-## Deploy (este servidor · Cloudflare DNS + Traefik)
+## Deploy (LAN · Cloudflare DNS + Traefik)
 
-Dominio: **https://leeyrealty.com** (DNS en Cloudflare → Tailscale `100.73.38.47`)
+Dominio: **https://leeyrealty.com**
+
+- DNS Cloudflare (sin proxy): `A leeyrealty.com` / `www` → **192.168.4.50** (LAN de este PC)
+- TLS: Let’s Encrypt vía Traefik (DNS challenge Cloudflare)
+- App: nginx `leey-web` sirve `dist/` detrás de Traefik
 
 ```bash
 npm run build
-cd deploy && docker compose up -d   # nginx sirve dist/
-# Traefik: /home/terrerov/infra/traefik/dynamic/leey.yml
+cd deploy && docker compose up -d
+# Traefik route: /home/terrerov/infra/traefik/dynamic/leey.yml
 ```
 
-Acceso actual: red Tailscale (mismo patrón que `and.terrerov.com`).
-Para público en internet: Cloudflare Tunnel o token API con **Cloudflare Pages Edit**.
+Acceso en la Wi‑Fi/LAN local (sin Tailscale): https://leeyrealty.com  
+(Si el DNS aún no resolvió: https://192.168.4.50 con Host `leeyrealty.com`)
+
+Internet público: abrir puertos 80/443 al router o Cloudflare Tunnel / Pages.
