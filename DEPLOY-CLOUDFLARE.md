@@ -16,4 +16,5 @@
 #   npm run build
 #   npx wrangler pages deploy dist --project-name=leey
 #
-# SPA: public/_redirects → /* /index.html 200  (copied into dist on build)
+# SPA: wrangler.toml → [assets] not_found_handling = "single-page-application"
+# Do NOT use "/* /index.html 200" in _redirects (CF error 100324 infinite loop).
