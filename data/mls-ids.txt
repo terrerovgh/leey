@@ -1,0 +1,5 @@
+# One MLS number per line (GAMLS / local board IDs as shown on the listing).
+# Lines starting with # are ignored.
+# Example:
+# 10312024
+# GA12345678

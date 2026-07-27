@@ -60,10 +60,24 @@ const LOCATIONS = (
   .split(";")
   .map((s) => s.trim())
   .filter(Boolean);
-const MLS_IDS = (process.env.ZILLOW_MLS_IDS || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
+const MLS_IDS = loadMlsIds();
+
+function loadMlsIds() {
+  const fromEnv = (process.env.ZILLOW_MLS_IDS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const file = process.env.ZILLOW_MLS_FILE || "data/mls-ids.txt";
+  const abs = resolve(ROOT, file);
+  let fromFile = [];
+  if (existsSync(abs)) {
+    fromFile = readFileSync(abs, "utf8")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s && !s.startsWith("#"));
+  }
+  return [...new Set([...fromEnv, ...fromFile])];
+}
 const MAX_PAGES = Math.max(1, num(process.env.ZILLOW_MAX_PAGES, 3));
 const MAX_LISTINGS = Math.max(1, num(process.env.ZILLOW_MAX_LISTINGS, 60));
 const ENRICH_LIMIT = Math.max(0, num(process.env.ZILLOW_ENRICH_LIMIT, 0));
@@ -434,6 +448,7 @@ async function main() {
   console.log("═".repeat(56));
   console.log(` agent:   ${AGENT_NAME}`);
   console.log(` mode:    ${MODE}`);
+  console.log(` mls:     ${MLS_IDS.length ? MLS_IDS.join(", ") : "(none — fill data/mls-ids.txt or ZILLOW_MLS_IDS)"}`);
   console.log(` locs:    ${LOCATIONS.join(" · ")}`);
   console.log(` rapid:   ${HOST} · key=${KEY ? "yes" : "no"}`);
   console.log(` gap:     ${REQUEST_GAP_MS}ms · maxPages=${MAX_PAGES} · max=${MAX_LISTINGS}`);
