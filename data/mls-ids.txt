@@ -1,5 +1,13 @@
 # One MLS number per line (GAMLS / local board IDs as shown on the listing).
 # Lines starting with # are ignored.
+#
+# Workflow:
+# 1. Paste MLS ids here for Lock & Key (or Leey) active listings
+# 2. Optionally also add full property rows in data/manual-listings.json
+# 3. Run: npm run sync:zillow
+#    - With Zillow API quota: ids resolve via /bymlsid
+#    - Without API: put full rows in manual-listings.json (ids alone are not enough)
+#
 # Example:
+# 147230
 # 10312024
-# GA12345678

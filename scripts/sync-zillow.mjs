@@ -1,23 +1,26 @@
 #!/usr/bin/env node
 /**
- * sync-zillow.mjs — pull listings → public/data/listings.json
+ * sync-zillow.mjs — multi-source inventory → public/data/listings.json
  *
- * RapidAPI product (wired):
- *   host: zillow-com-live-data-scraper-api.p.rapidapi.com
- *   endpoints:
- *     GET /bylocation?location=&page=
- *     GET /byurl?url=
- *     GET /bymlsid?mlsid=&page=
- *     GET /autocomplete?q=
+ * Sources (merged, first wins on id collision after normalize):
+ *   1. Manual JSON     — data/manual-listings.json (or MANUAL_LISTINGS_PATH)
+ *   2. Zillow RapidAPI — host RAPIDAPI_HOST (bylocation / bymlsid / byurl)
+ *   3. Realtor RapidAPI— host REALTOR_RAPIDAPI_HOST (when subscribed)
+ *   4. Apify           — optional agent scraper
  *
- * This API has NO agent-profile endpoint. Modes:
- *   market     — all for-sale homes in ZILLOW_LOCATIONS (default)
- *   brokerage  — same, keep only listings whose brokerage matches filter
- *   mls        — only ZILLOW_MLS_IDS via /bymlsid
+ * Modes (ZILLOW_SYNC_MODE / SYNC_MODE):
+ *   market     — area search (Zillow locations)
+ *   brokerage  — area search filtered to Lock & Key (needs brokerage field)
+ *   mls        — only MLS ids (file/env), via Zillow /bymlsid when API works
+ *   hybrid     — manual + mls + market/brokerage APIs (default recommended)
+ *
+ * Safety:
+ *   - Never invent listings
+ *   - KEEP_LAST_GOOD=1 (default): if all sources empty, keep previous feed
  *
  * Env: see .env.example
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -41,52 +44,61 @@ loadEnv();
 const args = new Set(process.argv.slice(2));
 const DRY = args.has("--dry-run");
 const FORCE_DEMO = args.has("--force-demo");
+const MANUAL_ONLY = args.has("--manual-only");
 
 const OUT = process.env.OUT_PATH || resolve(ROOT, "public/data/listings.json");
 const AGENT_NAME = process.env.ZILLOW_AGENT_NAME || "Leyanis Hernandez";
 const AGENT_LOCATION = process.env.ZILLOW_AGENT_LOCATION || "Valdosta, GA";
-const PROFILE_URL = process.env.ZILLOW_PROFILE_URL || null;
-const MODE = (process.env.ZILLOW_SYNC_MODE || "market").toLowerCase();
+const PROFILE_URL =
+  process.env.ZILLOW_PROFILE_URL || "https://www.zillow.com/profile/leey63/";
+const MODE = (
+  process.env.SYNC_MODE ||
+  process.env.ZILLOW_SYNC_MODE ||
+  "hybrid"
+).toLowerCase();
 const BROKERAGE_FILTER = (
-  process.env.ZILLOW_BROKERAGE_FILTER || "lock & key,lock and key"
+  process.env.ZILLOW_BROKERAGE_FILTER || "lock & key,lock and key,lockandkey"
 )
   .split(",")
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 const LOCATIONS = (
   process.env.ZILLOW_LOCATIONS ||
-  "Valdosta, GA;Hahira, GA;Adel, GA;Moultrie, GA;Thomasville, GA;Tifton, GA;Nashville, GA;Ray City, GA"
+  "Valdosta, GA;Hahira, GA;Adel, GA;Moultrie, GA;Thomasville, GA;Tifton, GA;Nashville, GA;Ray City, GA;Lake Park, GA;Sparks, GA;Lenox, GA"
 )
   .split(";")
   .map((s) => s.trim())
   .filter(Boolean);
 const MLS_IDS = loadMlsIds();
+const MANUAL_PATH =
+  process.env.MANUAL_LISTINGS_PATH || "data/manual-listings.json";
+const KEEP_LAST_GOOD = String(process.env.KEEP_LAST_GOOD ?? "1") !== "0";
 
-function loadMlsIds() {
-  const fromEnv = (process.env.ZILLOW_MLS_IDS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const file = process.env.ZILLOW_MLS_FILE || "data/mls-ids.txt";
-  const abs = resolve(ROOT, file);
-  let fromFile = [];
-  if (existsSync(abs)) {
-    fromFile = readFileSync(abs, "utf8")
-      .split("\n")
-      .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith("#"));
-  }
-  return [...new Set([...fromEnv, ...fromFile])];
-}
-const MAX_PAGES = Math.max(1, num(process.env.ZILLOW_MAX_PAGES, 3));
-const MAX_LISTINGS = Math.max(1, num(process.env.ZILLOW_MAX_LISTINGS, 60));
+const MAX_PAGES = Math.max(1, num(process.env.ZILLOW_MAX_PAGES, 2));
+const MAX_LISTINGS = Math.max(1, num(process.env.ZILLOW_MAX_LISTINGS, 80));
 const ENRICH_LIMIT = Math.max(0, num(process.env.ZILLOW_ENRICH_LIMIT, 0));
 const REQUEST_GAP_MS = Math.max(800, num(process.env.RAPIDAPI_GAP_MS, 1200));
 
-const HOST =
+const ZILLOW_HOST =
   process.env.RAPIDAPI_HOST ||
   "zillow-com-live-data-scraper-api.p.rapidapi.com";
+const REALTOR_HOST =
+  process.env.REALTOR_RAPIDAPI_HOST || "realty-in-us.p.rapidapi.com";
 const KEY = process.env.RAPIDAPI_KEY || "";
+
+/** Set when a provider reports hard quota / not subscribed — skip further calls */
+const providerBlock = {
+  zillow: null, // string reason
+  realtor: null,
+};
+
+const DEFAULT_AGENT = {
+  name: AGENT_NAME,
+  zillowProfileUrl: PROFILE_URL,
+  phone: "(229) 890-8062",
+  email: "leey@lockandkeyrealty.com",
+  brokerage: "Lock & Key Realty",
+};
 
 function num(v, d = 0) {
   const n = Number(v);
@@ -102,6 +114,24 @@ function slug(s) {
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
+
+function loadMlsIds() {
+  const fromEnv = (process.env.ZILLOW_MLS_IDS || process.env.MLS_IDS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const file = process.env.ZILLOW_MLS_FILE || "data/mls-ids.txt";
+  const abs = resolve(ROOT, file);
+  let fromFile = [];
+  if (existsSync(abs)) {
+    fromFile = readFileSync(abs, "utf8")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter((s) => s && !s.startsWith("#"));
+  }
+  return [...new Set([...fromEnv, ...fromFile])];
+}
+
 function mapHomeType(t) {
   const s = String(t || "").toLowerCase();
   if (s.includes("condo") || s.includes("apartment")) return "condo";
@@ -112,7 +142,9 @@ function mapHomeType(t) {
   return "house";
 }
 function mapStatus(s) {
-  const x = String(s || "").toLowerCase().replace(/\s+/g, "_");
+  const x = String(s || "")
+    .toLowerCase()
+    .replace(/\s+/g, "_");
   if (x.includes("pending") || x.includes("contingent")) return "pending";
   if (x.includes("sold")) return "sold";
   if (x.includes("coming")) return "coming_soon";
@@ -129,7 +161,6 @@ function badgeFrom(p) {
 }
 
 function parseAddress(address) {
-  // "4067 Gramercy Dr, Valdosta, GA 31605" or with extra comma before zip
   const parts = String(address || "")
     .split(",")
     .map((s) => s.trim())
@@ -148,7 +179,6 @@ function parseAddress(address) {
       state = parts[2];
     }
   }
-  // "GA 31605" sometimes split as last part only
   if (!zip && parts.length >= 3) {
     const m = String(parts[parts.length - 1]).match(/(\d{5})(?:-\d{4})?/);
     if (m) zip = m[1];
@@ -157,37 +187,195 @@ function parseAddress(address) {
   return { street, city, state, zip };
 }
 
-function normalizeListing(raw, i = 0) {
-  const zpid = raw.zpid || raw.zpId || raw.id;
-  const address = raw.address || raw.streetAddress || "";
-  const parsed = parseAddress(address);
-  const city = raw.city || parsed.city;
-  const state = raw.state || parsed.state || "GA";
-  const zip = String(raw.zipcode || raw.zip || parsed.zip || "");
-  const price = num(raw.price ?? raw.unformattedPrice ?? raw.listPrice, 0);
-  const beds = num(raw.beds ?? raw.bedrooms, 0);
-  const baths = num(raw.baths ?? raw.bathrooms, 0);
-  const sqft = num(raw.sqft ?? raw.livingArea, 0);
-  const image =
-    raw.photo_url || raw.imgSrc || raw.image || raw.hiResImageLink || "";
+function firstImage(raw) {
+  const candidates = [
+    raw.photo_url,
+    raw.imgSrc,
+    raw.image,
+    raw.hiResImageLink,
+    raw.primary_photo?.href,
+    raw.primary_photo,
+    raw.thumbnail,
+  ];
+  for (const c of candidates) {
+    if (typeof c === "string" && c) return c;
+    if (c?.href) return c.href;
+  }
+  if (Array.isArray(raw.photos) && raw.photos[0]) {
+    const ph = raw.photos[0];
+    if (typeof ph === "string") return ph;
+    return ph?.url || ph?.href || "";
+  }
+  if (Array.isArray(raw.images) && raw.images[0]) {
+    const im = raw.images[0];
+    return typeof im === "string" ? im : im?.url || "";
+  }
+  return "";
+}
+
+function collectImages(raw, primary) {
   const images = [];
-  if (image) images.push(image);
+  if (primary) images.push(primary);
+  const push = (u) => {
+    if (u && !images.includes(u)) images.push(u);
+  };
   if (Array.isArray(raw.photos)) {
     for (const ph of raw.photos) {
-      const u = typeof ph === "string" ? ph : ph?.url;
-      if (u && !images.includes(u)) images.push(u);
+      push(typeof ph === "string" ? ph : ph?.url || ph?.href);
     }
   }
-  const status = mapStatus(raw.status || raw.homeStatus || raw.listingStatus);
+  if (Array.isArray(raw.images)) {
+    for (const im of raw.images) {
+      push(typeof im === "string" ? im : im?.url);
+    }
+  }
+  return images;
+}
+
+/** Normalize any source row → Property-shaped object */
+function normalizeListing(raw, i = 0, sourcePortal = "other") {
+  // Already-shaped manual property (pass-through with defaults)
+  if (raw && raw.id && raw.priceUsd != null && raw.city && (raw.image || raw.images)) {
+    const images = Array.isArray(raw.images) && raw.images.length
+      ? raw.images
+      : raw.image
+        ? [raw.image]
+        : [];
+    return {
+      id: String(raw.id),
+      zpid: raw.zpid ? String(raw.zpid) : undefined,
+      mlsId: raw.mlsId || raw.mlsid || undefined,
+      status: mapStatus(raw.status || "for_sale"),
+      title: String(raw.title || raw.address || raw.city).slice(0, 120),
+      address: raw.address || undefined,
+      city: raw.city,
+      neighborhood: raw.neighborhood || raw.city,
+      state: raw.state || "GA",
+      zip: String(raw.zip || ""),
+      type: mapHomeType(raw.type || raw.homeType || raw.property_type),
+      beds: num(raw.beds, 0),
+      baths: num(raw.baths, 0),
+      sqft: num(raw.sqft, 0),
+      yearBuilt: num(raw.yearBuilt, 0) || 0,
+      priceUsd: num(raw.priceUsd ?? raw.price, 0),
+      image: images[0] || raw.image || "",
+      images,
+      tagline: raw.tagline || "",
+      description: String(raw.description || "").slice(0, 4000),
+      zillowUrl: raw.zillowUrl,
+      sourceUrl: raw.sourceUrl || raw.url,
+      sourcePortal: raw.sourcePortal || sourcePortal,
+      lat: raw.lat,
+      lng: raw.lng,
+      listedAt: raw.listedAt,
+      updatedAt: raw.updatedAt || new Date().toISOString(),
+      brokerage: raw.brokerage || DEFAULT_AGENT.brokerage,
+      listedBy: raw.listedBy || DEFAULT_AGENT.name,
+      badge: raw.badge,
+    };
+  }
+
+  const zpid = raw.zpid || raw.zpId || raw.id;
+  const address =
+    raw.address ||
+    raw.streetAddress ||
+    raw.location?.address?.line ||
+    [
+      raw.location?.address?.line,
+      raw.location?.address?.city,
+      raw.location?.address?.state_code,
+      raw.location?.address?.postal_code,
+    ]
+      .filter(Boolean)
+      .join(", ") ||
+    "";
+  const parsed = parseAddress(address);
+  const city =
+    raw.city ||
+    raw.location?.address?.city ||
+    parsed.city;
+  const state =
+    raw.state ||
+    raw.state_code ||
+    raw.location?.address?.state_code ||
+    parsed.state ||
+    "GA";
+  const zip = String(
+    raw.zipcode ||
+      raw.zip ||
+      raw.postal_code ||
+      raw.location?.address?.postal_code ||
+      parsed.zip ||
+      ""
+  );
+  const price = num(
+    raw.price ??
+      raw.unformattedPrice ??
+      raw.listPrice ??
+      raw.list_price ??
+      raw.price_raw,
+    0
+  );
+  const beds = num(
+    raw.beds ?? raw.bedrooms ?? raw.description?.beds ?? raw.bed_count,
+    0
+  );
+  const baths = num(
+    raw.baths ??
+      raw.bathrooms ??
+      raw.description?.baths ??
+      raw.bath_count ??
+      raw.baths_consolidated,
+    0
+  );
+  const sqft = num(
+    raw.sqft ??
+      raw.livingArea ??
+      raw.description?.sqft ??
+      raw.building_size?.size ??
+      raw.lot_size?.size,
+    0
+  );
+  const image = firstImage(raw);
+  const images = collectImages(raw, image);
+  const status = mapStatus(
+    raw.status || raw.homeStatus || raw.listingStatus || raw.status_text
+  );
   const zillowUrl =
+    raw.zillowUrl ||
     raw.url ||
     raw.detailUrl ||
-    (zpid ? `https://www.zillow.com/homedetails/${zpid}_zpid/` : undefined);
+    (zpid && String(zpid).match(/^\d+$/)
+      ? `https://www.zillow.com/homedetails/${zpid}_zpid/`
+      : undefined);
+  const sourceUrl =
+    raw.sourceUrl ||
+    raw.permalink ||
+    raw.rdc_web_url ||
+    raw.href ||
+    (raw.property_id
+      ? `https://www.realtor.com/realestateandhomes-detail/M${raw.property_id}`
+      : undefined);
   const title = parsed.street || address || `${city} home`;
-  const brokerage = raw.brokerage || raw.brokerName || "";
+  const brokerage =
+    raw.brokerage ||
+    raw.brokerName ||
+    raw.branding?.[0]?.name ||
+    raw.list_office?.name ||
+    raw.office?.name ||
+    "";
+  const listedBy =
+    raw.listedBy ||
+    raw.agentName ||
+    raw.listingAgent ||
+    raw.list_agent?.name ||
+    raw.agents?.[0]?.name ||
+    (typeof raw.agent === "string" ? raw.agent : raw.agent?.name) ||
+    "";
   const description =
     raw.description ||
     raw.listingDescription ||
+    (typeof raw.description === "object" ? raw.description?.text : "") ||
     [
       beds && `${beds} bed`,
       baths && `${baths} bath`,
@@ -205,10 +393,24 @@ function normalizeListing(raw, i = 0) {
     .filter(Boolean)
     .join(" · ");
 
+  const mlsId =
+    raw.mlsId ||
+    raw.mlsid ||
+    raw.mlsNumber ||
+    raw.mls?.id ||
+    raw.mls_number ||
+    undefined;
+
+  const id = mlsId
+    ? `mls-${slug(mlsId)}`
+    : zpid
+      ? `zpid-${zpid}`
+      : `lst-${slug(city)}-${i + 1}`;
+
   const p = {
-    id: zpid ? `zpid-${zpid}` : `lst-${slug(city)}-${i + 1}`,
-    zpid: zpid ? String(zpid) : undefined,
-    mlsId: raw.mlsid || raw.mlsId || raw.mlsNumber || undefined,
+    id,
+    zpid: zpid && String(zpid).match(/^\d+$/) ? String(zpid) : undefined,
+    mlsId: mlsId ? String(mlsId) : undefined,
     status,
     title: String(title).slice(0, 120),
     address: address || undefined,
@@ -216,31 +418,35 @@ function normalizeListing(raw, i = 0) {
     neighborhood: raw.neighborhood || city,
     state,
     zip,
-    type: mapHomeType(raw.property_type || raw.homeType || raw.propertyType),
+    type: mapHomeType(
+      raw.property_type ||
+        raw.homeType ||
+        raw.propertyType ||
+        raw.description?.type ||
+        raw.prop_type
+    ),
     beds,
     baths,
     sqft,
-    yearBuilt: num(raw.yearBuilt, 0) || 0,
+    yearBuilt: num(raw.yearBuilt ?? raw.year_built ?? raw.description?.year_built, 0) || 0,
     priceUsd: price,
     image: images[0] || "",
-    images: images.length ? images : images[0] ? [images[0]] : [],
+    images: images.length ? images : [],
     tagline: tagline || city,
     description: String(description).slice(0, 4000),
     zillowUrl,
-    sourcePortal: "zillow",
-    lat: num(raw.latitude ?? raw.lat, NaN) || undefined,
-    lng: num(raw.longitude ?? raw.lng, NaN) || undefined,
+    sourceUrl,
+    sourcePortal,
+    lat: num(raw.latitude ?? raw.lat ?? raw.location?.address?.coordinate?.lat, NaN) || undefined,
+    lng: num(raw.longitude ?? raw.lng ?? raw.location?.address?.coordinate?.lon, NaN) || undefined,
     updatedAt: new Date().toISOString(),
     brokerage: brokerage || undefined,
-    listedBy:
-      raw.agentName ||
-      raw.listingAgent ||
-      raw.listedBy ||
-      raw.listed_by ||
-      (typeof raw.agent === "string" ? raw.agent : raw.agent?.name) ||
-      undefined,
+    listedBy: listedBy || undefined,
   };
-  const badge = badgeFrom({ status: p.status, daysOnMarket: raw.daysOnZillow });
+  const badge = badgeFrom({
+    status: p.status,
+    daysOnMarket: raw.daysOnZillow ?? raw.days_on_market ?? raw.list_date,
+  });
   if (badge) p.badge = badge;
   for (const k of Object.keys(p)) if (p[k] === undefined) delete p[k];
   return p;
@@ -249,10 +455,54 @@ function normalizeListing(raw, i = 0) {
 function matchesBrokerage(rawOrListing) {
   if (!BROKERAGE_FILTER.length) return true;
   const bro = String(
-    rawOrListing.brokerage || rawOrListing.brokerName || ""
+    rawOrListing.brokerage ||
+      rawOrListing.brokerName ||
+      rawOrListing.list_office?.name ||
+      rawOrListing.branding?.[0]?.name ||
+      rawOrListing.office?.name ||
+      ""
   ).toLowerCase();
   if (!bro) return false;
   return BROKERAGE_FILTER.some((f) => bro.includes(f.replace(/\s+/g, " ")));
+}
+
+function listingKey(p) {
+  if (p.mlsId) return `mls:${String(p.mlsId).toLowerCase()}`;
+  if (p.zpid) return `zpid:${p.zpid}`;
+  const addr = `${p.address || p.title}|${p.zip || p.city}`.toLowerCase();
+  return `addr:${addr}`;
+}
+
+function mergeListings(groups) {
+  const map = new Map();
+  const order = [];
+  for (const { items, portal } of groups) {
+    items.forEach((raw, i) => {
+      const p = normalizeListing(raw, i, portal);
+      if (!(p.priceUsd > 0 || p.image || p.zpid || p.mlsId)) return;
+      // Stamp default presenting office when missing
+      if (!p.brokerage) p.brokerage = DEFAULT_AGENT.brokerage;
+      if (!p.listedBy) p.listedBy = DEFAULT_AGENT.name;
+      const k = listingKey(p);
+      if (map.has(k)) {
+        // fill gaps from newer source without clobbering
+        const prev = map.get(k);
+        for (const key of Object.keys(p)) {
+          if (prev[key] == null || prev[key] === "" || prev[key] === 0) {
+            if (p[key] != null && p[key] !== "") prev[key] = p[key];
+          }
+        }
+        if ((!prev.images || !prev.images.length) && p.images?.length) {
+          prev.images = p.images;
+          prev.image = p.image;
+        }
+      } else {
+        map.set(k, p);
+        order.push(k);
+      }
+    });
+  }
+  return order.map((k) => map.get(k)).slice(0, MAX_LISTINGS);
 }
 
 function demoFeed() {
@@ -262,22 +512,33 @@ function demoFeed() {
     version: 1,
     source: "demo",
     syncedAt: null,
-    agent: { name: AGENT_NAME, zillowProfileUrl: PROFILE_URL, phone: "(229) 890-8062" },
+    agent: DEFAULT_AGENT,
     listings: [],
   };
 }
 
+function readLastGood() {
+  if (!existsSync(OUT)) return null;
+  try {
+    const data = JSON.parse(readFileSync(OUT, "utf8"));
+    if (data?.listings?.length) return data;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 // ── RapidAPI client ──────────────────────────────────────────────────────
 
-async function rapidGet(pathAndQuery, attempt = 0) {
+async function rapidGet(host, pathAndQuery, attempt = 0) {
   if (!KEY) throw new Error("RAPIDAPI_KEY missing");
   const url = pathAndQuery.startsWith("http")
     ? pathAndQuery
-    : `https://${HOST}${pathAndQuery.startsWith("/") ? "" : "/"}${pathAndQuery}`;
+    : `https://${host}${pathAndQuery.startsWith("/") ? "" : "/"}${pathAndQuery}`;
   const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
-      "x-rapidapi-host": HOST,
+      "x-rapidapi-host": host,
       "x-rapidapi-key": KEY,
     },
   });
@@ -288,33 +549,55 @@ async function rapidGet(pathAndQuery, attempt = 0) {
   } catch {
     body = { raw: text };
   }
-  if (res.status === 429 && attempt < 5) {
-    const wait = 2000 * (attempt + 1);
-    console.warn(`[rapidapi] 429 — wait ${wait}ms (attempt ${attempt + 1})`);
+
+  const msg = String(body?.message || body?.raw || "");
+  const monthly =
+    /monthly quota|exceeded the MONTHLY|upgrade your plan/i.test(msg);
+  const notSub = /not subscribed/i.test(msg);
+
+  // Hard stop — do not burn retries across locations
+  if (monthly || (res.status === 403 && notSub) || res.status === 401) {
+    return {
+      ok: false,
+      status: res.status,
+      body,
+      url,
+      fatal: monthly ? "monthly_quota" : notSub ? "not_subscribed" : "auth",
+    };
+  }
+
+  // Transient 429 — few retries only
+  if (res.status === 429 && attempt < 2 && !monthly) {
+    const wait = 1500 * (attempt + 1);
+    console.warn(`[rapidapi] 429 ${host} — wait ${wait}ms`);
     await sleep(wait);
-    return rapidGet(pathAndQuery, attempt + 1);
+    return rapidGet(host, pathAndQuery, attempt + 1);
   }
-  if (res.status === 403) {
-    const msg = body?.message || "Forbidden";
-    throw new Error(`RapidAPI 403: ${msg}`);
-  }
-  return { ok: res.ok, status: res.status, body, url };
+  return { ok: res.ok, status: res.status, body, url, fatal: null };
 }
 
-async function fetchByLocation(location, maxPages = MAX_PAGES) {
+// ── Zillow ───────────────────────────────────────────────────────────────
+
+async function zillowByLocation(location, maxPages = MAX_PAGES) {
+  if (providerBlock.zillow) return [];
   const all = [];
   for (let page = 1; page <= maxPages; page++) {
     await sleep(REQUEST_GAP_MS);
     const q = `/bylocation?location=${encodeURIComponent(location)}&page=${page}`;
-    const { ok, status, body } = await rapidGet(q);
+    const { ok, status, body, fatal } = await rapidGet(ZILLOW_HOST, q);
+    if (fatal) {
+      providerBlock.zillow = fatal;
+      console.warn(`[zillow] blocked (${fatal}):`, body?.message || status);
+      break;
+    }
     if (!ok) {
-      console.warn(`[bylocation] ${status} ${location} p${page}`, body?.message);
+      console.warn(`[zillow/bylocation] ${status} ${location} p${page}`, body?.message);
       break;
     }
     const results = body?.results || [];
     const pag = body?.pagination || {};
     console.log(
-      `[bylocation] ${location} p${page}/${pag.total_pages || "?"} → ${results.length} (total≈${pag.total_results ?? "?"})`
+      `[zillow/bylocation] ${location} p${page} → ${results.length} (total≈${pag.total_results ?? "?"})`
     );
     all.push(...results);
     if (!pag.has_next || !results.length) break;
@@ -323,19 +606,26 @@ async function fetchByLocation(location, maxPages = MAX_PAGES) {
   return all;
 }
 
-async function fetchByMls(mlsid) {
+async function zillowByMls(mlsid) {
+  if (providerBlock.zillow) return [];
   const all = [];
-  for (let page = 1; page <= 5; page++) {
+  for (let page = 1; page <= 3; page++) {
     await sleep(REQUEST_GAP_MS);
-    const { ok, status, body } = await rapidGet(
+    const { ok, status, body, fatal } = await rapidGet(
+      ZILLOW_HOST,
       `/bymlsid?mlsid=${encodeURIComponent(mlsid)}&page=${page}`
     );
+    if (fatal) {
+      providerBlock.zillow = fatal;
+      console.warn(`[zillow] blocked (${fatal}):`, body?.message || status);
+      break;
+    }
     if (!ok) {
-      console.warn(`[bymlsid] ${status} ${mlsid}`, body?.message);
+      console.warn(`[zillow/bymlsid] ${status} ${mlsid}`, body?.message);
       break;
     }
     const results = body?.results || (body?.zpid ? [body] : []);
-    console.log(`[bymlsid] ${mlsid} p${page} → ${results.length}`);
+    console.log(`[zillow/bymlsid] ${mlsid} p${page} → ${results.length}`);
     if (!results.length) break;
     all.push(...results);
     if (!body?.pagination?.has_next) break;
@@ -343,77 +633,189 @@ async function fetchByMls(mlsid) {
   return all;
 }
 
-async function enrichByUrl(item) {
-  const url = item.url || item.detailUrl || item.zillowUrl;
-  if (!url) return item;
-  await sleep(REQUEST_GAP_MS);
-  try {
-    const { ok, body } = await rapidGet(
-      `/byurl?url=${encodeURIComponent(url)}`
-    );
-    if (!ok || !body || body.message) return item;
-    // merge detail over list item
-    return { ...item, ...body, url: body.url || url };
-  } catch (e) {
-    console.warn(`[byurl] ${e.message}`);
-    return item;
-  }
-}
-
-async function fromRapidApi() {
-  if (!KEY) return null;
-  console.log(`[rapidapi] host=${HOST} mode=${MODE}`);
-
+async function fromZillow() {
+  if (!KEY || MANUAL_ONLY) return [];
+  console.log(`[zillow] host=${ZILLOW_HOST} mode=${MODE}`);
   let raw = [];
 
-  if (MODE === "mls" || MLS_IDS.length) {
+  const wantMls = MODE === "mls" || MODE === "hybrid" || MLS_IDS.length > 0;
+  const wantMarket =
+    MODE === "market" || MODE === "brokerage" || MODE === "hybrid";
+
+  if (wantMls && MLS_IDS.length) {
     for (const id of MLS_IDS) {
-      const items = await fetchByMls(id);
-      raw.push(...items);
+      try {
+        raw.push(...(await zillowByMls(id)));
+      } catch (e) {
+        console.warn(`[zillow/mls] ${id}`, e.message);
+      }
     }
   }
 
-  if (MODE !== "mls") {
+  if (wantMarket && MODE !== "mls") {
     for (const loc of LOCATIONS) {
+      if (providerBlock.zillow) {
+        console.warn(`[zillow] skip remaining locations (${providerBlock.zillow})`);
+        break;
+      }
       if (raw.length >= MAX_LISTINGS) break;
-      const items = await fetchByLocation(loc, MAX_PAGES);
-      raw.push(...items);
+      try {
+        raw.push(...(await zillowByLocation(loc, MAX_PAGES)));
+      } catch (e) {
+        console.warn(`[zillow/loc] ${loc}`, e.message);
+      }
     }
   }
 
-  // de-dupe by zpid
+  // de-dupe raw by zpid
   const seen = new Set();
   raw = raw.filter((r) => {
-    const k = String(r.zpid || r.url || JSON.stringify(r));
+    const k = String(r.zpid || r.url || JSON.stringify(r).slice(0, 80));
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
   });
 
-  // optional enrich
-  if (ENRICH_LIMIT > 0 && raw.length) {
-    console.log(`[enrich] byurl for up to ${ENRICH_LIMIT} listings…`);
-    const head = raw.slice(0, ENRICH_LIMIT);
-    const tail = raw.slice(ENRICH_LIMIT);
-    const enriched = [];
-    for (const item of head) enriched.push(await enrichByUrl(item));
-    raw = [...enriched, ...tail];
-  }
-
   if (MODE === "brokerage") {
     const before = raw.length;
     raw = raw.filter(matchesBrokerage);
     console.log(
-      `[filter] brokerage ${BROKERAGE_FILTER.join(" | ")}: ${before} → ${raw.length}`
+      `[zillow/filter] brokerage ${BROKERAGE_FILTER.join(" | ")}: ${before} → ${raw.length}`
     );
   }
 
   return raw.slice(0, MAX_LISTINGS);
 }
 
+// ── Realtor.com (RapidAPI) ───────────────────────────────────────────────
+/**
+ * Supported when you subscribe one of:
+ *   - realty-in-us.p.rapidapi.com
+ *   - realtor16.p.rapidapi.com
+ *   - us-real-estate.p.rapidapi.com
+ * Set REALTOR_RAPIDAPI_HOST accordingly. Same RAPIDAPI_KEY.
+ */
+async function fromRealtor() {
+  if (!KEY || MANUAL_ONLY) return [];
+  if (String(process.env.REALTOR_ENABLED || "1") === "0") return [];
+  if (providerBlock.realtor) return [];
+
+  const host = REALTOR_HOST;
+  console.log(`[realtor] host=${host}`);
+
+  const paths = buildRealtorPaths(host);
+  let raw = [];
+
+  for (const path of paths) {
+    if (providerBlock.realtor) break;
+    await sleep(REQUEST_GAP_MS);
+    try {
+      const { ok, status, body, fatal } = await rapidGet(host, path);
+      if (fatal) {
+        providerBlock.realtor = fatal;
+        console.warn(`[realtor] blocked (${fatal}):`, body?.message || status);
+        break;
+      }
+      if (!ok) {
+        console.warn(`[realtor] ${status} ${path.slice(0, 80)}`, body?.message || "");
+        if (status === 403 || status === 404) {
+          providerBlock.realtor = status === 403 ? "not_subscribed" : "not_found";
+          break;
+        }
+        continue;
+      }
+      const items = extractRealtorResults(body);
+      console.log(`[realtor] ${path.slice(0, 60)} → ${items.length}`);
+      raw.push(...items);
+      if (raw.length >= MAX_LISTINGS) break;
+    } catch (e) {
+      console.warn(`[realtor]`, e.message);
+      break;
+    }
+  }
+
+  if (MODE === "brokerage" && raw.length) {
+    const before = raw.length;
+    const filtered = raw.filter(matchesBrokerage);
+    if (filtered.length) {
+      console.log(`[realtor/filter] brokerage: ${before} → ${filtered.length}`);
+      raw = filtered;
+    } else {
+      console.warn(
+        `[realtor/filter] 0 matched brokerage filter — keeping unfiltered realtor results (${before}); stamp Lock & Key only on manual rows`
+      );
+    }
+  }
+
+  return raw.slice(0, MAX_LISTINGS);
+}
+
+function buildRealtorPaths(host) {
+  const city = "Valdosta";
+  const state = "GA";
+  const loc = encodeURIComponent("Valdosta, GA");
+  const office = encodeURIComponent("Lock and Key Realty");
+  const paths = [];
+
+  if (host.includes("realty-in-us")) {
+    paths.push(
+      `/properties/v2/list-for-sale?city=${city}&state_code=${state}&offset=0&limit=42&sort=relevance`
+    );
+    paths.push(
+      `/properties/v2/list-for-sale?city=Moultrie&state_code=${state}&offset=0&limit=20&sort=relevance`
+    );
+  } else if (host.includes("realtor16")) {
+    paths.push(`/forsale?location=${loc}`);
+    paths.push(`/properties/list-for-sale?city=${city}&state_code=${state}`);
+    paths.push(`/search/agents?location=${loc}&name=${encodeURIComponent("Leyanis")}`);
+  } else if (host.includes("us-real-estate")) {
+    paths.push(`/for-sale?offset=0&limit=42&city=${city}&state_code=${state}`);
+    paths.push(`/v2/for-sale?offset=0&limit=42&city=${city}&state_code=${state}`);
+  } else if (host.includes("realtor-search")) {
+    paths.push(`/properties/search-sale?location=${loc}&limit=42`);
+  } else if (host.includes("real-time-real-estate-data")) {
+    paths.push(`/property-search?location=${loc}&status=for_sale`);
+  } else {
+    // generic guesses
+    paths.push(`/properties/v2/list-for-sale?city=${city}&state_code=${state}&offset=0&limit=42`);
+    paths.push(`/forsale?location=${loc}`);
+  }
+
+  // optional custom path override
+  if (process.env.REALTOR_SEARCH_PATH) {
+    paths.unshift(process.env.REALTOR_SEARCH_PATH);
+  }
+  // office-oriented path if provided
+  if (process.env.REALTOR_OFFICE_PATH) {
+    paths.unshift(
+      process.env.REALTOR_OFFICE_PATH.replace("{office}", office).replace(
+        "{location}",
+        loc
+      )
+    );
+  }
+  return paths;
+}
+
+function extractRealtorResults(body) {
+  if (!body) return [];
+  if (Array.isArray(body)) return body;
+  if (Array.isArray(body.properties)) return body.properties;
+  if (Array.isArray(body.data)) return body.data;
+  if (Array.isArray(body.results)) return body.results;
+  if (Array.isArray(body?.data?.results)) return body.data.results;
+  if (Array.isArray(body?.data?.home_search?.results))
+    return body.data.home_search.results;
+  if (Array.isArray(body?.props)) return body.props;
+  if (body.property_id || body.listing_id || body.permalink) return [body];
+  return [];
+}
+
+// ── Apify ────────────────────────────────────────────────────────────────
+
 async function fromApify() {
   const token = process.env.APIFY_TOKEN;
-  if (!token) return null;
+  if (!token || MANUAL_ONLY) return [];
   const actor = process.env.APIFY_ACTOR_ID || "maxcopell/zillow-agent-scraper";
   console.log(`[apify] ${actor}`);
   const startRes = await fetch(
@@ -439,70 +841,158 @@ async function fromApify() {
   return itemsRes.json();
 }
 
-async function fromManual() {
-  const p = process.env.MANUAL_LISTINGS_PATH;
-  if (!p) return null;
-  const abs = resolve(ROOT, p);
-  if (!existsSync(abs)) throw new Error(`missing ${abs}`);
+// ── Manual MLS / JSON ────────────────────────────────────────────────────
+
+function fromManual() {
+  const abs = resolve(ROOT, MANUAL_PATH);
+  if (!existsSync(abs)) {
+    console.log(`[manual] no file at ${MANUAL_PATH} (ok)`);
+    return [];
+  }
   const data = JSON.parse(readFileSync(abs, "utf8"));
-  return Array.isArray(data) ? data : data.listings || [];
+  const list = Array.isArray(data) ? data : data.listings || [];
+  console.log(`[manual] ${list.length} row(s) from ${MANUAL_PATH}`);
+  return list.map((row) => {
+    // bare MLS id string
+    if (typeof row === "string") {
+      return {
+        mlsId: row,
+        status: "for_sale",
+        city: AGENT_LOCATION.split(",")[0].trim(),
+        state: "GA",
+        title: `MLS ${row}`,
+        priceUsd: 0,
+        beds: 0,
+        baths: 0,
+        sqft: 0,
+        yearBuilt: 0,
+        image: "",
+        images: [],
+        tagline: "MLS",
+        description: `Manual MLS placeholder for ${row}. Enrich via API or full JSON fields.`,
+        brokerage: DEFAULT_AGENT.brokerage,
+        listedBy: DEFAULT_AGENT.name,
+        sourcePortal: "mls",
+      };
+    }
+    return {
+      ...row,
+      brokerage: row.brokerage || DEFAULT_AGENT.brokerage,
+      listedBy: row.listedBy || DEFAULT_AGENT.name,
+      sourcePortal: row.sourcePortal || "manual",
+    };
+  });
 }
 
 // ── main ─────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log("═".repeat(56));
-  console.log(" Leey · Zillow listings sync");
+  console.log(" Leey · inventory sync (manual + zillow + realtor)");
   console.log("═".repeat(56));
   console.log(` agent:   ${AGENT_NAME}`);
   console.log(` mode:    ${MODE}`);
-  console.log(` mls:     ${MLS_IDS.length ? MLS_IDS.join(", ") : "(none — fill data/mls-ids.txt or ZILLOW_MLS_IDS)"}`);
+  console.log(
+    ` mls ids: ${MLS_IDS.length ? MLS_IDS.join(", ") : "(none — data/mls-ids.txt)"}`
+  );
+  console.log(` manual:  ${MANUAL_PATH}`);
   console.log(` locs:    ${LOCATIONS.join(" · ")}`);
-  console.log(` rapid:   ${HOST} · key=${KEY ? "yes" : "no"}`);
-  console.log(` gap:     ${REQUEST_GAP_MS}ms · maxPages=${MAX_PAGES} · max=${MAX_LISTINGS}`);
+  console.log(` zillow:  ${ZILLOW_HOST} · key=${KEY ? "yes" : "no"}`);
+  console.log(` realtor: ${REALTOR_HOST} · enabled=${process.env.REALTOR_ENABLED ?? "1"}`);
+  console.log(` keep:    last-good=${KEEP_LAST_GOOD}`);
   console.log(` out:     ${OUT}`);
 
-  let raw = null;
-  let source = "demo";
+  const groups = [];
+  let sourcesUsed = [];
 
   if (!FORCE_DEMO) {
+    // 1) Manual always first (authoritative Lock & Key rows)
     try {
-      raw = await fromManual();
-      if (raw) source = "manual";
+      const manual = fromManual();
+      if (manual.length) {
+        groups.push({ items: manual, portal: "manual" });
+        sourcesUsed.push("manual");
+      }
     } catch (e) {
       console.error("[manual]", e.message);
     }
-    if (!raw) {
+
+    // 2) Zillow (unless manual-only)
+    if (!MANUAL_ONLY && MODE !== "manual") {
       try {
-        raw = await fromRapidApi();
-        if (raw?.length) source = "zillow";
-        else if (raw) {
-          console.warn("[rapidapi] 0 listings");
-          raw = null;
+        const z = await fromZillow();
+        if (z.length) {
+          groups.push({ items: z, portal: "zillow" });
+          sourcesUsed.push("zillow");
         }
       } catch (e) {
-        console.error("[rapidapi]", e.message);
+        console.error("[zillow]", e.message);
       }
     }
-    if (!raw) {
+
+    // 3) Realtor fallback
+    if (!MANUAL_ONLY && MODE !== "manual") {
       try {
-        raw = await fromApify();
-        if (raw?.length) source = "zillow";
+        const r = await fromRealtor();
+        if (r.length) {
+          groups.push({ items: r, portal: "realtor" });
+          sourcesUsed.push("realtor");
+        }
+      } catch (e) {
+        console.error("[realtor]", e.message);
+      }
+    }
+
+    // 4) Apify last
+    if (!MANUAL_ONLY && !groups.some((g) => g.portal === "zillow")) {
+      try {
+        const a = await fromApify();
+        if (a?.length) {
+          groups.push({ items: a, portal: "zillow" });
+          sourcesUsed.push("apify");
+        }
       } catch (e) {
         console.error("[apify]", e.message);
       }
     }
   }
 
-  let listings = [];
-  if (raw?.length) {
-    listings = raw
-      .map((r, i) => normalizeListing(r, i))
-      .filter((p) => p.priceUsd > 0 || p.image || p.zpid);
-  }
+  let listings = mergeListings(groups);
+  let source =
+    sourcesUsed.length > 1
+      ? "mixed"
+      : sourcesUsed[0] === "apify"
+        ? "zillow"
+        : sourcesUsed[0] || "demo";
 
   if (!listings.length) {
-    console.warn("\n⚠  No live listings — writing demo feed.");
+    const last = KEEP_LAST_GOOD ? readLastGood() : null;
+    if (last?.listings?.length) {
+      console.warn(
+        `\n⚠  No fresh listings — keeping last-good feed (${last.listings.length}, source=${last.source}, syncedAt=${last.syncedAt})`
+      );
+      if (DRY) {
+        console.log("(dry-run) would preserve last-good");
+        return;
+      }
+      // touch meta only
+      const preserved = {
+        ...last,
+        meta: {
+          ...(last.meta || {}),
+          preserved: true,
+          preserveReason: "all_sources_empty",
+          attemptedAt: new Date().toISOString(),
+          mode: MODE,
+          sourcesTried: sourcesUsed,
+        },
+      };
+      writeFileSync(OUT, JSON.stringify(preserved, null, 2) + "\n");
+      console.log(`✓ preserved ${OUT}`);
+      return;
+    }
+
+    console.warn("\n⚠  No live listings and no last-good — writing demo feed.");
     const demo = demoFeed();
     listings = demo.listings || [];
     source = "demo";
@@ -512,36 +1002,43 @@ async function main() {
     version: 1,
     source,
     syncedAt: new Date().toISOString(),
-    agent: {
-      name: AGENT_NAME,
-      zillowProfileUrl: PROFILE_URL,
-      phone: "(229) 890-8062",
-      email: "leey@lockandkeyrealty.com",
-      brokerage: "Lock & Key Realty",
-    },
+    agent: DEFAULT_AGENT,
     meta: {
       mode: MODE,
-      host: HOST,
+      zillowHost: ZILLOW_HOST,
+      realtorHost: REALTOR_HOST,
       locations: LOCATIONS,
-      brokerageFilter: MODE === "brokerage" ? BROKERAGE_FILTER : undefined,
+      mlsIds: MLS_IDS,
+      manualPath: MANUAL_PATH,
+      sourcesUsed,
+      brokerageFilter:
+        MODE === "brokerage" || MODE === "hybrid" ? BROKERAGE_FILTER : undefined,
     },
     listings,
   };
 
-  console.log(`\n→ ${listings.length} listings · source=${source}`);
+  console.log(`\n→ ${listings.length} listings · source=${source} · via [${sourcesUsed.join(", ") || "—"}]`);
   if (listings[0]) {
     console.log(
-      `  e.g. ${listings[0].title} · ${listings[0].city} · $${listings[0].priceUsd}`
+      `  e.g. ${listings[0].title} · ${listings[0].city} · $${listings[0].priceUsd} · ${listings[0].brokerage || "?"}`
     );
   }
 
   if (DRY) {
-    console.log(JSON.stringify(feed, null, 2).slice(0, 2500));
+    console.log(JSON.stringify(feed, null, 2).slice(0, 3000));
     console.log("\n(dry-run)");
     return;
   }
 
   mkdirSync(dirname(OUT), { recursive: true });
+  // backup previous
+  if (existsSync(OUT)) {
+    try {
+      copyFileSync(OUT, `${OUT}.bak`);
+    } catch {
+      /* ignore */
+    }
+  }
   writeFileSync(OUT, JSON.stringify(feed, null, 2) + "\n");
   console.log(`✓ wrote ${OUT}`);
 }

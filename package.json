@@ -11,6 +11,7 @@
     "check": "tsc --noEmit",
     "sync:zillow": "node scripts/sync-zillow.mjs",
     "sync:zillow:demo": "node scripts/sync-zillow.mjs --force-demo",
+    "sync:manual": "node scripts/sync-zillow.mjs --manual-only",
     "deploy": "npm run build && npx wrangler deploy",
     "ship": "npm run check && npm run build && npx wrangler deploy"
   },

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "note": "EXAMPLE ONLY — copy rows you verify into data/manual-listings.json. Never commit fake live inventory.",
+  "listings": [
+    {
+      "id": "mls-147230",
+      "mlsId": "147230",
+      "status": "for_sale",
+      "title": "519 N Lee St",
+      "address": "519 N Lee St, Valdosta, GA 31601",
+      "city": "Valdosta",
+      "neighborhood": "Valdosta",
+      "state": "GA",
+      "zip": "31601",
+      "type": "house",
+      "beds": 3,
+      "baths": 1,
+      "sqft": 1176,
+      "yearBuilt": 0,
+      "priceUsd": 69900,
+      "image": "https://example.com/photo.jpg",
+      "images": ["https://example.com/photo.jpg"],
+      "tagline": "3 bd · 1 ba · 1,176 sqft",
+      "description": "Verified listing description from MLS / office flyer.",
+      "zillowUrl": "https://www.zillow.com/homedetails/519-N-Lee-St-Valdosta-GA-31601/217675547_zpid/",
+      "sourcePortal": "mls",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez"
+    }
+  ]
+}
