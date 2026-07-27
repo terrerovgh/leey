@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LEEY — South Georgia / North Florida realtor
+   Macrostructure: split-field editorial (photo + copy), not icon-feature SaaS.
+   Type: Newsreader (display) + Source Sans 3 (UI). Not Inter.
+   Color: paper cream + tobacco ink + brick clay. No tech indigo.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: "Source Sans 3", "Source Sans Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Paper / cream */
+  --color-ivory-50: #f7f1e8;
+  --color-ivory-100: #efe6d6;
+  --color-ivory-200: #e2d4bc;
+  --color-ivory-300: #cbb896;
+
+  /* Tobacco / ink (primary dark — warm, not cold slate) */
+  --color-ink-900: #1c1612;
+  --color-ink-700: #3a2f27;
+  --color-ink-500: #6b5a4c;
+  --color-ink-400: #8a7664;
+  --color-ink-300: #b5a38f;
+
+  /* Deep field (formerly pine) — swamp / pecan / south GA dark */
+  --color-pine-50: #f0ebe4;
+  --color-pine-100: #ddd2c4;
+  --color-pine-200: #b9a890;
+  --color-pine-300: #8a7460;
+  --color-pine-500: #4a3a2e;
+  --color-pine-600: #3a2d23;
+  --color-pine-700: #2c2118;
+  --color-pine-800: #211811;
+  --color-pine-900: #16100c;
+
+  /* Brick clay accent */
+  --color-clay-50: #faf0e8;
+  --color-clay-100: #f0d8c4;
+  --color-clay-200: #e0b48f;
+  --color-clay-300: #cc8a55;
+  --color-clay-400: #b86d38;
+  --color-clay-500: #c45c26;
+  --color-clay-600: #a34a1d;
+  --color-clay-700: #7f3917;
+  --color-clay-800: #5c2a12;
+
+  --color-gold-300: #c9a66b;
+  --color-gold-400: #a88648;
+  --color-gold-500: #8a6c34;
+
+  --color-surface: #f7f1e8;
+  --color-surface-elevated: #fffdf9;
+  --color-surface-muted: #efe6d6;
+  --color-surface-dark: #2c2118;
+  --color-page: #f7f1e8;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-page);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  letter-spacing: 0.005em;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-clay-200) transparent;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-feature-settings: "liga", "kern";
+}
+
+::selection {
+  background: var(--color-clay-300);
+  color: var(--color-ink-900);
+}
+
+.hairline {
+  border-color: rgba(28, 22, 18, 0.12);
+}
+.hairline-light {
+  border-color: rgba(247, 241, 232, 0.18);
+}
+
+/* Brokerage strip */
+.broker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.85rem 0.4rem 0.4rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid rgba(28, 22, 18, 0.1);
+  border-radius: 999px;
+}
+
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform-origin: right center;
+  transform: scaleX(0);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.link-underline:hover::after {
+  transform-origin: left center;
+  transform: scaleX(1);
+}
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+/* Photo frame — offset ink rule, not chrome glass */
+.photo-frame {
+  position: relative;
+}
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: 12px -10px -10px 12px;
+  border: 1px solid var(--color-clay-500);
+  z-index: -1;
+  transition: inset 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.photo-frame:hover::after {
+  inset: 18px -14px -14px 18px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-clay-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Safety for crawlers / no-scroll — don't kill hero ken-burns or canvas */
+.fx-safe *:not(.hero-kenburns) {
+  opacity: 1 !important;
+}
+.fx-safe *:not(.hero-kenburns):not(canvas) {
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Foot links */
+.foot-link {
+  color: rgba(247, 241, 232, 0.82);
+  font-size: 0.95rem;
+  transition: color 0.25s ease;
+}
+.foot-link:hover {
+  color: var(--color-clay-300);
+}
+
+/* Cinematic hero background — slow ken burns */
+.hero-kenburns {
+  transform: scale(1.06);
+  animation: hero-kenburns 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes hero-kenburns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1.5%, -1%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-kenburns {
+    animation: none;
+    transform: scale(1.05);
+  }
+}
+
+/* Soft handoff from dark hero photo → page ivory (no hard band) */
+.hero-to-page {
+  background: linear-gradient(
+    to top,
+    var(--color-ivory-50) 0%,
+    color-mix(in srgb, var(--color-ivory-50) 92%, transparent) 22%,
+    color-mix(in srgb, var(--color-ivory-50) 48%, transparent) 52%,
+    color-mix(in srgb, var(--color-ivory-50) 12%, transparent) 78%,
+    transparent 100%
+  );
+}
+
+/* Hero portrait plate — clean cut, soft depth, no gold frame */
+.hero-portrait__frame {
+  box-shadow:
+    0 24px 60px -18px rgba(22, 16, 12, 0.65),
+    0 0 0 1px rgba(247, 241, 232, 0.08);
+  background: var(--color-pine-800);
+}
+.hero-portrait__frame img {
+  display: block;
+}
+
+/* Lock & Key mark in nav — muted until hover */
+.brokerage-mark {
+  opacity: 0.78;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+.brokerage-mark[data-tone="light"] {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+.brokerage-mark[data-tone="dark"] {
+  filter: none;
+}
+.brokerage-mark:hover,
+.brokerage-mark:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.brokerage-mark[data-tone="light"]:hover,
+.brokerage-mark[data-tone="light"]:focus-visible {
+  filter: drop-shadow(0 2px 10px rgba(201, 166, 107, 0.55))
+    drop-shadow(0 0 1px rgba(247, 241, 232, 0.4))
+    brightness(1.12);
+}
+.brokerage-mark[data-tone="dark"]:hover,
+.brokerage-mark[data-tone="dark"]:focus-visible {
+  filter: drop-shadow(0 2px 8px rgba(138, 108, 52, 0.35)) brightness(1.06);
+}
+.brokerage-mark__img {
+  display: block;
+  transition: transform 0.25s ease;
+}
+.brokerage-mark:hover .brokerage-mark__img,
+.brokerage-mark:focus-visible .brokerage-mark__img {
+  transform: scale(1.04);
+}

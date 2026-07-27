@@ -1,0 +1,5 @@
+# leeyhernandez.com
+User-agent: *
+Allow: /
+
+Sitemap: https://leeyhernandez.com/sitemap.xml
