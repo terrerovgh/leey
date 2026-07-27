@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://leeyhernandez.com/</loc>
+    <loc>https://leeyrealty.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://leeyhernandez.com/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://leeyhernandez.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://leeyrealty.com/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://leeyrealty.com/" />
   </url>
   <url>
-    <loc>https://leeyhernandez.com/properties</loc>
+    <loc>https://leeyrealty.com/properties</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>

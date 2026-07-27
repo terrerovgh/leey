@@ -1,7 +1,7 @@
 /** Canonical site constants — used by UI, SEO and contact CTAs. */
 export const SITE = {
-  domain: "leeyhernandez.com",
-  url: "https://leeyhernandez.com",
+  domain: "leeyrealty.com",
+  url: "https://leeyrealty.com",
   agent: {
     fullName: "Leyanis Hernandez",
     shortName: "Leey",

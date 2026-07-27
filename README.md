@@ -1,6 +1,6 @@
 # Leyanis “Leey” Hernandez — sitio público
 
-Dominio de producción: **https://leeyhernandez.com** (Cloudflare)
+Dominio de producción: **https://leeyrealty.com** (Cloudflare)
 
 ## Desarrollo
 
@@ -30,7 +30,7 @@ npm run check:leyanis
 ## Deploy Cloudflare
 
 1. `npm run build:leyanis`
-2. Publicar `web/leyanis/dist` como Workers Static Assets o Pages project en `leeyhernandez.com`
+2. Publicar `web/leyanis/dist` como Workers Static Assets o Pages project en `leeyrealty.com`
 3. Verificar DNS A/CNAME del dominio en Cloudflare
 
 ## Inventario Zillow (live)
@@ -50,3 +50,16 @@ La web lo carga en runtime vía `useListings()`.
 
 Perfil dedicado: `leey` (`hermes -p leey` o alias `leey`).
 Skill: `leey-site` (sync + ops del sitio).
+
+## Deploy (este servidor · Cloudflare DNS + Traefik)
+
+Dominio: **https://leeyrealty.com** (DNS en Cloudflare → Tailscale `100.73.38.47`)
+
+```bash
+npm run build
+cd deploy && docker compose up -d   # nginx sirve dist/
+# Traefik: /home/terrerov/infra/traefik/dynamic/leey.yml
+```
+
+Acceso actual: red Tailscale (mismo patrón que `and.terrerov.com`).
+Para público en internet: Cloudflare Tunnel o token API con **Cloudflare Pages Edit**.

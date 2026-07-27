@@ -1,5 +1,5 @@
-# leeyhernandez.com
+# leeyrealty.com
 User-agent: *
 Allow: /
 
-Sitemap: https://leeyhernandez.com/sitemap.xml
+Sitemap: https://leeyrealty.com/sitemap.xml

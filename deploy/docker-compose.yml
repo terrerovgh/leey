@@ -1,0 +1,14 @@
+services:
+  leey-web:
+    image: nginx:alpine
+    container_name: leey-web
+    restart: unless-stopped
+    volumes:
+      - /home/terrerov/Projects/leey/dist:/usr/share/nginx/html:ro
+      - /home/terrerov/Projects/leey/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - tailnet
+
+networks:
+  tailnet:
+    external: true
