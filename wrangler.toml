@@ -4,8 +4,10 @@ name = "leey"
 compatibility_date = "2026-07-01"
 workers_dev = true
 
-# SPA: serve index.html for client routes (/properties, etc.)
+# Static pre-rendered pages: every route has a real .html file in dist/
+# (home, /properties, /properties/:id, /areas/:slug). Serve those
+# directly; force trailing slash so /areas/valdosta -> /areas/valdosta/index.html
 [assets]
 directory = "./dist"
-not_found_handling = "single-page-application"
-html_handling = "auto-trailing-slash"
+html_handling = "force-trailing-slash"
+not_found_handling = "404-page"

@@ -337,6 +337,19 @@ for (const pg of pages) {
   writeFileSync(full, out);
 }
 
+/* 404 page (used by not_found_handling = "404-page") */
+const notFound = renderPage({
+  routeHead: buildHead({
+    title: "Página no encontrada | Leey Hernandez",
+    description: "La página que buscas no existe. Volvé al inicio para ver casas en venta.",
+    path: "/404",
+    noindex: true,
+    jsonLd: [agentLd()],
+  }),
+  staticBody: `<main class="seo-static"><section><h1>404</h1><p>La página que buscás no existe. <a href="/">Volver al inicio</a>.</p></section></main>`,
+});
+writeFileSync(resolve(DIST, "404.html"), notFound);
+
 /* ── Sitemap (kept in sync with the static pages above) ───────────── */
 const urlset = [
   { loc: "/", freq: "weekly", pri: 1.0 },

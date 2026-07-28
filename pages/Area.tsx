@@ -11,10 +11,11 @@ import { PropertyCard } from "../components/PropertyCard";
 
 export function AreaPage() {
   const { slug } = useParams<{ slug: string }>();
+  const cleanSlug = (slug ?? "").replace(/\/+$/, "");
   const { t, lang } = useI18n();
   const isEs = lang === "es";
   const { listings } = useListings();
-  const area = slug ? getArea(slug) : undefined;
+  const area = cleanSlug ? getArea(cleanSlug) : undefined;
 
   if (!area) {
     return (
