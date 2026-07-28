@@ -11,8 +11,11 @@ import { ListingsTeaser } from "../components/ListingsTeaser";
 import { Testimonials } from "../components/Testimonials";
 import { Contact } from "../components/Contact";
 import { FinalCTA } from "../components/FinalCTA";
+import { useSeo } from "../lib/useSeo";
+import { homeSeo } from "../lib/seo";
 
 export function HomePage() {
+  useSeo(homeSeo());
   return (
     <main>
       <Hero />

@@ -5,6 +5,8 @@ import { type PropertyType } from "../data/listings";
 import { PropertyCard } from "../components/PropertyCard";
 import { useI18n } from "../i18n";
 import { useListings } from "../lib/useListings";
+import { useSeo } from "../lib/useSeo";
+import { propertiesSeo } from "../lib/seo";
 
 type SortKey = "newest" | "price_asc" | "price_desc" | "sqft_desc";
 
@@ -21,6 +23,7 @@ export function ListingsPage() {
   const { t, lang } = useI18n();
   const isEs = lang === "es";
   const { listings: ALL, loading, isLive, syncedAt } = useListings();
+  useSeo(propertiesSeo());
 
   // ── filters state ────────────────────────────────────────────────────────
   const [query, setQuery] = useState("");

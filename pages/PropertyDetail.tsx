@@ -17,6 +17,8 @@ import {
 import { useI18n } from "../i18n";
 import { SITE } from "../lib/site";
 import { useProperty } from "../lib/useListings";
+import { useSeo } from "../lib/useSeo";
+import { propertySeo } from "../lib/seo";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("en-US", {
@@ -66,6 +68,7 @@ export function PropertyDetailPage() {
   const similar = listings
     .filter((p) => p.id !== property.id && p.city === property.city)
     .slice(0, 3);
+  useSeo(propertySeo(property));
 
   return (
     <main className="bg-ivory-50 pt-28 pb-24">
