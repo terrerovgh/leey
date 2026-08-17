@@ -757,12 +757,15 @@ async function fromZillow() {
     return true;
   });
 
-  if (MODE === "brokerage") {
+  // Always filter to Lock & Key when mode is brokerage/hybrid (agent inventory only).
+  // market mode intentionally shows full area inventory.
+  if (MODE === "brokerage" || MODE === "hybrid") {
     const before = raw.length;
-    raw = raw.filter(matchesBrokerage);
+    const filtered = raw.filter(matchesBrokerage);
     console.log(
-      `[zillow/filter] brokerage ${BROKERAGE_FILTER.join(" | ")}: ${before} → ${raw.length}`
+      `[zillow/filter] brokerage ${BROKERAGE_FILTER.join(" | ")}: ${before} → ${filtered.length}`
     );
+    raw = filtered;
   }
 
   raw = raw.slice(0, MAX_LISTINGS);
@@ -975,11 +978,13 @@ function resolveInventoryKind(source, mode, sourcesUsed, listings) {
     return "manual";
   if (mode === "mls" || (MLS_IDS.length && sourcesUsed.includes("zillow") && mode === "mls"))
     return "agent";
+  // hybrid/brokerage with Lock & Key filter = agent/brokerage inventory
+  if (mode === "brokerage" || mode === "hybrid") return "agent";
   // If every listing is manual/mls portal, treat as agent-ish
   const portals = new Set(listings.map((p) => p.sourcePortal).filter(Boolean));
   if (portals.size && [...portals].every((p) => p === "manual" || p === "mls"))
     return "agent";
-  if (mode === "market" || mode === "hybrid" || mode === "brokerage") return "market";
+  if (mode === "market") return "market";
   if (source === "mixed") return "mixed";
   return "market";
 }
@@ -1058,6 +1063,15 @@ async function main() {
   }
 
   let listings = mergeListings(groups);
+
+  // Final honesty gate: hybrid/brokerage = only Lock & Key inventory on site.
+  if ((MODE === "brokerage" || MODE === "hybrid") && listings.length) {
+    const before = listings.length;
+    listings = listings.filter((p) => matchesBrokerage(p));
+    console.log(
+      `[merge/filter] brokerage ${BROKERAGE_FILTER.join(" | ")}: ${before} → ${listings.length}`
+    );
+  }
   let source =
     sourcesUsed.length > 1
       ? "mixed"
@@ -1121,9 +1135,9 @@ async function main() {
         MODE === "brokerage" || MODE === "hybrid" ? BROKERAGE_FILTER : undefined,
       note:
         inventoryKind === "market"
-          ? "Market FOR_SALE inventory for service areas — not exclusively Leey/Lock & Key listings. Prefer MLS mode + data/mls-ids.txt for agent-accurate inventory."
+          ? "Market FOR_SALE inventory for service areas — not exclusively Leey/Lock & Key listings."
           : inventoryKind === "agent"
-            ? "Agent/MLS inventory."
+            ? "Lock & Key Realty inventory only (brokerage/MLS/manual filter)."
             : undefined,
     },
     listings: listings.map((p) => {

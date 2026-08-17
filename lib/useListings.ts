@@ -60,9 +60,16 @@ export function useListings() {
     };
   }, []);
 
-  const listings = feed.listings.length ? feed.listings : DEMO_LISTINGS;
-  const isLive = feed.source === "zillow" || feed.source === "mixed";
   const inventoryMode = resolveInventoryMode(feed);
+  // Agent/brokerage inventory: never pad with market demos — empty means empty.
+  // Demo fallback only when the feed itself is demo / missing.
+  const listings =
+    feed.listings.length
+      ? feed.listings
+      : inventoryMode === "agent" || inventoryMode === "manual"
+        ? []
+        : DEMO_LISTINGS;
+  const isLive = feed.source === "zillow" || feed.source === "mixed";
 
   return {
     listings,
@@ -91,14 +98,19 @@ function uniqueCities(listings: Property[]) {
 }
 
 function resolveInventoryMode(feed: ListingsFeed & { meta?: any }): InventoryMode {
-  if (!feed.listings?.length || feed.source === "demo") return "demo";
-  if (feed.source === "manual") return "manual";
   const kind = String(feed.meta?.inventoryKind || "").toLowerCase();
   if (kind === "agent" || kind === "mls") return "agent";
   if (kind === "market") return "market";
+  if (kind === "demo") return "demo";
+  if (kind === "manual") return "manual";
+  if (feed.source === "manual") return "manual";
+  if (feed.source === "demo") return "demo";
   const mode = String(feed.meta?.mode || "").toLowerCase();
-  if (mode === "mls") return "agent";
-  if (mode === "market" || mode === "hybrid" || mode === "brokerage") return "market";
+  if (mode === "mls" || mode === "brokerage") return "agent";
+  // hybrid with agent inventoryKind already handled above; bare hybrid may be market
+  if (mode === "hybrid") return kind === "agent" ? "agent" : "market";
+  if (mode === "market") return "market";
+  if (!feed.listings?.length) return "demo";
   if (feed.source === "mixed") return "mixed";
   return "unknown";
 }

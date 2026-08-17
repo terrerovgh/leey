@@ -5,7 +5,8 @@
   "agent": {
     "name": "Leyanis Hernandez",
     "zillowProfileUrl": null,
-    "phone": "(404) 403-8306"
+    "phone": "(404) 403-8306",
+    "brokerage": "Lock & Key Realty"
   },
   "listings": [
     {
@@ -29,7 +30,10 @@
       ],
       "badge": "new",
       "tagline": "Quiet cul-de-sac, updated kitchen, fenced yard.",
-      "description": "Brick ranch with open living, new HVAC (2023), and a workshop out back."
+      "description": "Brick ranch with open living, new HVAC (2023), and a workshop out back.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     },
     {
       "id": "HAH-W-008",
@@ -52,7 +56,10 @@
       ],
       "badge": "hot",
       "tagline": "Half-acre lot, side-entry garage, strong schools.",
-      "description": "Spacious 4-bed in Hahira with covered porch."
+      "description": "Spacious 4-bed in Hahira with covered porch.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     },
     {
       "id": "ADL-M-021",
@@ -73,7 +80,10 @@
         "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1800&q=80"
       ],
       "tagline": "Front porch, metal accents, walkable to town.",
-      "description": "Charming craftsman-inspired home near downtown Adel."
+      "description": "Charming craftsman-inspired home near downtown Adel.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     },
     {
       "id": "MOU-E-011",
@@ -96,7 +106,10 @@
       ],
       "badge": "exclusive",
       "tagline": "Two acres, metal roof, workshop.",
-      "description": "Country setting with room for animals or a garden."
+      "description": "Country setting with room for animals or a garden.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     },
     {
       "id": "TVL-S-004",
@@ -118,7 +131,10 @@
       ],
       "badge": "reduced",
       "tagline": "Hardwood floors, oak shade, walkable streets.",
-      "description": "Classic Thomasville bungalow with character details."
+      "description": "Classic Thomasville bungalow with character details.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     },
     {
       "id": "TFT-N-019",
@@ -139,7 +155,14 @@
         "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1800&q=80"
       ],
       "tagline": "Open plan, screened porch, quiet street.",
-      "description": "Modern ranch near schools and shopping."
+      "description": "Modern ranch near schools and shopping.",
+      "brokerage": "Lock & Key Realty",
+      "listedBy": "Leyanis Hernandez",
+      "sourcePortal": "manual"
     }
-  ]
+  ],
+  "meta": {
+    "inventoryKind": "demo",
+    "note": "Demo seed \u2014 not live MLS."
+  }
 }

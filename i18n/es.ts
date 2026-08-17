@@ -160,14 +160,16 @@ export const es = {
 
   listings: {
     eyebrow: "Propiedades",
-    title: "Casas en venta en el sur de Georgia",
+    title: "Listados Lock & Key Realty",
     subtitle:
-      "Inventario del mercado local para que veas qué se mueve en cada zona. Cada ficha te conecta conmigo (Lock & Key Realty) para visitas y ofertas.",
+      "Casas de Lock & Key Realty en el sur de Georgia y el norte de Florida. Cada ficha te conecta conmigo para visitas y ofertas.",
     viewAll: "Ver todas",
     filters: "Filtros",
     liveLabel: "Inventario actualizado",
-    marketLabel: "Mercado local · no es solo listados de Leey",
-    previewLabel: "Vista previa · conecta Zillow o MLS para inventario en vivo",
+    marketLabel: "Solo Lock & Key Realty",
+    previewLabel: "Vista previa · aún no hay listados Lock & Key cargados",
+    emptyAgent:
+      "Ahora mismo no hay listados activos de Lock & Key en el sitio. Escríbeme y te muestro lo que hay en MLS hoy.",
     loadingLabel: "Cargando inventario…",
     search: {
       placeholder: "Ciudad, dirección o ZIP",

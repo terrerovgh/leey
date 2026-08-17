@@ -158,14 +158,16 @@ export const en: Strings = {
 
   listings: {
     eyebrow: "Homes",
-    title: "Homes for sale in South Georgia",
+    title: "Lock & Key Realty listings",
     subtitle:
-      "Local market inventory so you can see what’s moving in each town. Every card connects you with me at Lock & Key Realty for tours and offers.",
+      "Lock & Key Realty homes across South Georgia and North Florida. Every card connects you with me for tours and offers.",
     viewAll: "View all",
     filters: "Filters",
     liveLabel: "Inventory updated",
-    marketLabel: "Local market · not only Leey’s listings",
-    previewLabel: "Preview · connect Zillow or MLS for live inventory",
+    marketLabel: "Lock & Key Realty only",
+    previewLabel: "Preview · no Lock & Key listings loaded yet",
+    emptyAgent:
+      "There are no active Lock & Key listings on the site right now. Message me and I’ll pull what’s on MLS today.",
     loadingLabel: "Loading inventory…",
     search: {
       placeholder: "City, address, or ZIP",

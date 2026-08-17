@@ -120,19 +120,25 @@ export function ListingsPage() {
 
   const statusLine = loading
     ? t.listings.loadingLabel
-    : isLive
-      ? `${t.listings.liveLabel}${
-          syncedAt
-            ? ` · ${new Date(syncedAt).toLocaleString(
-                lang === "es" ? "es-US" : "en-US",
-              )}`
-            : ""
-        }${
-          inventoryMode === "market" || inventoryMode === "mixed"
-            ? ` · ${t.listings.marketLabel}`
-            : ""
-        }`
-      : t.listings.previewLabel;
+    : inventoryMode === "agent" || inventoryMode === "manual"
+      ? isLive || ALL.length > 0
+        ? `${t.listings.liveLabel}${
+            syncedAt
+              ? ` · ${new Date(syncedAt).toLocaleString(
+                  lang === "es" ? "es-US" : "en-US",
+                )}`
+              : ""
+          } · ${t.listings.marketLabel}`
+        : t.listings.previewLabel
+      : isLive
+        ? `${t.listings.liveLabel}${
+            syncedAt
+              ? ` · ${new Date(syncedAt).toLocaleString(
+                  lang === "es" ? "es-US" : "en-US",
+                )}`
+              : ""
+          }`
+        : t.listings.previewLabel;
 
   return (
     <main className="bg-ivory-50 pt-32 pb-24">
@@ -269,9 +275,14 @@ export function ListingsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <EmptyState
-              message={t.listings.search.noResults}
+              message={
+                !loading && ALL.length === 0 && (inventoryMode === "agent" || inventoryMode === "manual")
+                  ? t.listings.emptyAgent
+                  : t.listings.search.noResults
+              }
               onClear={clearFilters}
               clearLabel={t.listings.search.clear}
+              showClear={ALL.length > 0}
             />
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
@@ -371,21 +382,25 @@ function EmptyState({
   message,
   onClear,
   clearLabel,
+  showClear = true,
 }: {
   message: string;
   onClear: () => void;
   clearLabel: string;
+  showClear?: boolean;
 }) {
   return (
     <div className="rounded-3xl border hairline bg-ivory-50 p-16 text-center">
       <div className="font-display text-4xl font-light text-ink-900">—</div>
       <p className="mx-auto mt-3 max-w-md text-ink-500">{message}</p>
-      <button
-        onClick={onClear}
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-clay-500 px-5 py-2.5 text-sm font-medium uppercase tracking-[0.12em] text-ivory-50 hover:bg-clay-600"
-      >
-        {clearLabel}
-      </button>
+      {showClear && (
+        <button
+          onClick={onClear}
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-clay-500 px-5 py-2.5 text-sm font-medium uppercase tracking-[0.12em] text-ivory-50 hover:bg-clay-600"
+        >
+          {clearLabel}
+        </button>
+      )}
     </div>
   );
 }
