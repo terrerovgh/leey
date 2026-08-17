@@ -26,10 +26,20 @@
   {
     "id": "hahira-drive",
     "category": "neighborhoods",
-    "areas": ["hahira", "valdosta"],
-    "angleEs": "Vivir en Hahira y trabajar en Valdosta: el trayecto real, no el del mapa.",
-    "angleEn": "Living in Hahira and working in Valdosta: the real drive, not the map pin.",
-    "mustInclude": ["Hahira", "Valdosta", "trayecto"]
+    "areas": ["hahira", "valdosta", "adel", "sparks"],
+    "angleEs": "Valdosta, Hahira o Adel: por dónde empezar si no conoces la zona — trayecto, patio y ritmo real.",
+    "angleEn": "Valdosta, Hahira, or Adel: where to start if you do not know the area — real drive, yard, and pace.",
+    "mustInclude": ["Valdosta", "Hahira", "Adel", "trayecto"],
+    "image_queries": [
+      "Valdosta Georgia downtown",
+      "Valdosta Georgia street",
+      "Hahira Georgia",
+      "Adel Georgia courthouse",
+      "Adel Cook County Georgia",
+      "South Georgia pine residential street",
+      "Lowndes County Georgia",
+      "small town Georgia main street houses"
+    ]
   },
   {
     "id": "kitchen-light",

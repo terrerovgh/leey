@@ -452,7 +452,8 @@ def stage_topic(
         "why_now": synth.get("why_now") or research.get("season"),
         "keywords_es": base.get("mustInclude") or synth.get("keywords_es") or [],
         "keywords_en": synth.get("keywords_en") or [],
-        "image_queries": synth.get("image_queries")
+        "image_queries": list(base.get("image_queries") or [])
+        or list(synth.get("image_queries") or [])
         or [
             f"{(base.get('areas') or ['Valdosta'])[0]} Georgia house exterior",
             "South Georgia porch home",
@@ -465,18 +466,43 @@ def stage_topic(
     topic["areas"] = [
         re.sub(r"[^a-z0-9]+", "-", str(a).lower()).strip("-") for a in topic["areas"]
     ][:4]
-    # enrich image queries from topic must-include / angle
+    # enrich image queries from topic must-include / angle / named towns
     extra_q = []
-    blob = (topic["angleEn"] + " " + topic["angleEs"]).lower()
+    blob = (topic["angleEn"] + " " + topic["angleEs"] + " " + " ".join(topic["areas"])).lower()
     if any(w in blob for w in ("porch", "porche")):
         extra_q += ["southern front porch house", "georgia porch rocking chair home"]
     if any(w in blob for w in ("kitchen", "cocina")):
         extra_q += ["bright kitchen interior residential", "kitchen remodel before after home"]
     if any(w in blob for w in ("offer", "oferta")):
         extra_q += ["house for sale yard sign", "couple touring home interior"]
-    if any(w in blob for w in ("valdosta", "hahira", "adel", "town", "pueblo")):
-        extra_q += ["small town georgia main street", "south georgia residential neighborhood"]
-    topic["image_queries"] = list(dict.fromkeys((topic.get("image_queries") or []) + extra_q))[:8]
+    # Prefer place-name photo searches for neighborhood posts
+    for place in ("Valdosta", "Hahira", "Adel", "Sparks", "Tifton", "Moultrie", "Thomasville", "Nashville"):
+        if place.lower() in blob:
+            extra_q.append(f"{place} Georgia")
+            extra_q.append(f"{place} Georgia downtown")
+    if any(w in blob for w in ("town", "pueblo", "neighborhood", "zona", "trayecto", "drive")):
+        extra_q += [
+            "small town Georgia main street",
+            "south Georgia residential neighborhood",
+            "pine trees residential street Georgia USA",
+        ]
+    # bank queries first (real place searches), then extras; drop placeholder garbage
+    raw_q = list(topic.get("image_queries") or []) + extra_q
+    cleaned = []
+    junk = ("english search", "...", "search terms", "free photos", "image query")
+    for q in raw_q:
+        qs = str(q).strip()
+        if not qs or len(qs) < 4:
+            continue
+        if any(j in qs.lower() for j in junk):
+            continue
+        cleaned.append(qs)
+    topic["image_queries"] = list(dict.fromkeys(cleaned))[:12]
+    if not topic["image_queries"]:
+        topic["image_queries"] = [
+            f"{(topic['areas'] or ['valdosta'])[0].replace('-', ' ').title()} Georgia",
+            "South Georgia residential neighborhood",
+        ]
     save_json(out_path, topic)
     log(f"[topic] {topic['id']} / {topic['category']}")
     return topic
@@ -1329,34 +1355,69 @@ def main() -> int:
     os.chdir(ROOT)
     log(f"=== leey blog pipeline {day} stage={args.stage} force={args.force} topic={args.topic_id} ===")
 
-    if args.stage in ("all", "prep", "research"):
-        research = stage_research(day, force=args.force)
-    else:
-        research = load_json(workdir(day) / "research.json") or stage_research(day)
+    stage = args.stage
+    # Single-stage mode: run ONLY that stage (no cascade via load-or-run fallbacks).
+    single = stage in ("research", "topic", "assets", "write", "polish", "publish")
 
-    if args.stage in ("all", "prep", "topic"):
-        topic = stage_topic(day, research, force=args.force, topic_id=args.topic_id)
-    else:
-        topic = load_json(workdir(day) / "topic.json") or stage_topic(
-            day, research, topic_id=args.topic_id
-        )
+    research = load_json(workdir(day) / "research.json")
+    topic = load_json(workdir(day) / "topic.json")
+    assets = load_json(workdir(day) / "assets.json")
+    draft = load_json(workdir(day) / "draft.json")
+    final = load_json(workdir(day) / "final.json")
 
-    if args.stage in ("all", "prep", "assets"):
-        assets = stage_assets(day, topic, force=args.force)
-    else:
-        assets = load_json(workdir(day) / "assets.json") or stage_assets(day, topic)
+    if stage in ("all", "prep", "research"):
+        research = stage_research(day, force=args.force or stage == "research")
+        if stage == "research":
+            log("[stage] research only — stop")
+            return 0
 
-    if args.stage in ("all", "prep", "write"):
-        draft = stage_write(day, research, topic, assets, force=args.force)
-    else:
-        draft = load_json(workdir(day) / "draft.json") or stage_write(day, research, topic, assets)
+    if stage in ("all", "prep", "topic"):
+        if not research:
+            research = stage_research(day, force=False)
+        topic = stage_topic(day, research, force=args.force or stage == "topic", topic_id=args.topic_id)
+        if stage == "topic":
+            log("[stage] topic only — stop")
+            return 0
 
-    if args.stage in ("all", "prep", "polish"):
-        final = stage_polish(day, draft, force=args.force)
-    else:
-        final = load_json(workdir(day) / "final.json") or stage_polish(day, draft)
+    if stage in ("all", "prep", "assets"):
+        if not research:
+            research = stage_research(day, force=False)
+        if not topic:
+            topic = stage_topic(day, research, force=False, topic_id=args.topic_id)
+        assets = stage_assets(day, topic, force=args.force or stage == "assets")
+        if stage == "assets":
+            log("[stage] assets only — stop")
+            return 0
 
-    if args.stage in ("all", "publish"):
+    if stage in ("all", "prep", "write"):
+        if not research:
+            research = stage_research(day, force=False)
+        if not topic:
+            topic = stage_topic(day, research, force=False, topic_id=args.topic_id)
+        if not assets:
+            assets = stage_assets(day, topic, force=False)
+        draft = stage_write(day, research, topic, assets, force=args.force or stage == "write")
+        if stage == "write":
+            log("[stage] write only — stop")
+            return 0
+
+    if stage in ("all", "prep", "polish"):
+        if not draft:
+            if not research:
+                research = stage_research(day, force=False)
+            if not topic:
+                topic = stage_topic(day, research, force=False, topic_id=args.topic_id)
+            if not assets:
+                assets = stage_assets(day, topic, force=False)
+            draft = stage_write(day, research, topic, assets, force=False)
+        final = stage_polish(day, draft, force=args.force or stage == "polish")
+        if stage == "polish":
+            log("[stage] polish only — stop")
+            return 0
+
+    if stage in ("all", "publish"):
+        if not final:
+            final = load_json(workdir(day) / "final.json")
         return stage_publish(
             day,
             final,
@@ -1366,6 +1427,7 @@ def main() -> int:
             no_ship=args.no_ship,
         )
 
+    # prep ends after polish
     log(f"[prep] ready for publish: {(workdir(day) / 'READY.json').exists()}")
     return 0
 
