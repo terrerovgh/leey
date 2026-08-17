@@ -768,9 +768,16 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
             area_boost = 1.0
 
         ordered = list(imgs)
-        if want_interior and len(ordered) > 3:
-            ordered = ordered[1:8] + ordered[:1]
-        elif want_porch or want_exterior:
+        if want_interior and len(ordered) > 2:
+            # MLS galleries usually: 0 exterior hero, then interiors (kitchen/bath/living)
+            # Prefer interior slots first for kitchen/remodel/decor posts.
+            interior = ordered[2:12]
+            hero = ordered[:2]
+            ordered = interior + hero
+        elif want_porch and len(ordered) > 1:
+            # porch/curb: keep exterior-first but allow a couple more angles
+            ordered = ordered[:8]
+        elif want_exterior:
             ordered = ordered[:6]
 
         for idx, url in enumerate(ordered[:8]):

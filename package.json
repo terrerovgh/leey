@@ -28,7 +28,8 @@
     "blog:write": "bash scripts/blog_agents/04-write.sh",
     "blog:editor": "bash scripts/blog_agents/05-editor.sh",
     "blog:image-search": "bash scripts/blog_agents/03a-image-search.sh",
-    "blog:image-download": "bash scripts/blog_agents/03b-image-download.sh"
+    "blog:image-download": "bash scripts/blog_agents/03b-image-download.sh",
+    "blog:refresh-images": "bash scripts/blog-refresh-images.sh"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",
