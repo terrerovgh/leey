@@ -1,46 +1,42 @@
-# Blog — Notas de Leey (multi-agent)
+# Blog — Notas de Leey (multi-agent + retries)
 
 ## Live
 - Index: https://leeyrealty.com/blog/
 - Feed: https://leeyrealty.com/data/blog/posts.json
 
-## Multi-agent pipeline (Hermes + free/local)
+## Multi-agent pipeline
 
 Code: `scripts/blog_pipeline/run.py`
 
-| Stage | Agent job | Output |
-|-------|-----------|--------|
-| 1 research | Season, inventory cities, free web snippets, optional LLM synth | `data/blog/pipeline/DATE/research.json` |
-| 2 topic | Pick angle from bank + research | `topic.json` |
-| 3 assets | Wikimedia Commons + Openverse free images (CC) | `assets.json` + `public/assets/blog/YYYYMMDD/*` |
-| 4 write | Bilingual draft (free LLM or human template) | `draft.json` |
-| 5 polish | SEO + anti-AI humanizer | `final.json` + `READY.json` |
-| 6 publish | Merge posts.json → git commit → `npm run ship` | live `/blog` |
+| Stage | On failure |
+|-------|------------|
+| **research** | Web fetch 3 tries; LLM synth 3 JSON correction rounds (free→local); deterministic season fallback |
+| **topic** | Bank scoring always works offline |
+| **assets** | Wiki/Openverse retries; broad query pass; SVG cover last resort |
+| **write** | 3 JSON correction rounds; human-voice template fallback |
+| **polish** | 3 polish rounds + up to 2 validation repair rounds (prefers `local` then free) + SEO guards |
+| **publish** | Late prep if missing; preflight repair; hard-gate on cover/titles/bodies; push/ship retry once |
+
+Logs per day: `data/blog/pipeline/DATE/pipeline.log.jsonl`  
+Artifacts: `research.round*.txt`, `write.round*.txt`, `repair*.round*.txt`, `READY.json`
 
 ### Commands
 ```bash
-npm run blog:prep                 # stages 1–5 (overnight)
-npm run blog:publish              # stage 6 (07:00) or full if no prep
-python3 scripts/blog_pipeline/run.py --stage all
-python3 scripts/blog_pipeline/run.py --date 2026-08-18 --stage prep
+npm run blog:prep       # 22:00 — prep TOMORROW
+npm run blog:publish    # 07:00 — publish
+python3 scripts/blog_pipeline/run.py --date YYYY-MM-DD --stage polish --force
 ```
 
-### Hermes crons
-| Name | Schedule (ET) | Script |
-|------|---------------|--------|
-| `leey-blog-prep` | `0 22 * * *` (10pm) | prep for **tomorrow** |
-| `leey-blog-morning` | `0 7 * * *` (7:00am) | publish ready post |
+### Hermes crons (ET)
+| Name | When | Script |
+|------|------|--------|
+| `leey-blog-prep` | 22:00 | prep for tomorrow |
+| `leey-blog-morning` | **07:00** | publish |
 
-Models: `free-then-local` → `free` → `local` → `background`. If all fail, human-voice template still publishes.
+Models: `free-then-local` → `free` → `local` → `background` (order flips on correction rounds).
 
 ### Content rules
-- Realtor voice (Leey), ES+EN, South Georgia towns only
+- Leey voice, ES+EN, South Georgia only
 - No invented metrics
-- Real web images with attribution captions when from Commons/Openverse
-- SEO titles/meta + humanizer scrub (no delve/seamless/etc.)
-
-### Manual post
-Edit `public/data/blog/posts.json` + assets, then:
-```bash
-env -u CLOUDFLARE_API_TOKEN npm run ship
-```
+- Real Commons/Openverse photos + attribution captions when available
+- SEO titles/meta + anti-AI scrub

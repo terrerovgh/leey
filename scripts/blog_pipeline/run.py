@@ -100,14 +100,22 @@ def load_json(path: Path, default: Any = None) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def http_get(url: str, timeout: int = 40) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+def http_get(url: str, timeout: int = 40, retries: int = 3) -> bytes:
+    last_err: Exception | None = None
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:
+            last_err = e
+            log(f"[http] try {attempt}/{retries} fail {url[:90]}: {e}")
+            time.sleep(min(1.5 * attempt, 5))
+    raise RuntimeError(f"http_get failed after {retries}: {last_err}")
 
 
-def http_get_json(url: str, timeout: int = 40) -> Any:
-    return json.loads(http_get(url, timeout=timeout).decode("utf-8", "replace"))
+def http_get_json(url: str, timeout: int = 40, retries: int = 3) -> Any:
+    return json.loads(http_get(url, timeout=timeout, retries=retries).decode("utf-8", "replace"))
 
 
 def slugify(s: str, n: int = 72) -> str:
@@ -126,24 +134,43 @@ def scrub_ai(text: str) -> str:
     return out.strip()
 
 
-def try_llm(prompt: str, models: list[str] | None = None) -> str | None:
+def append_log(wd: Path, event: str, detail: Any = None) -> None:
+    path = wd / "pipeline.log.jsonl"
+    row = {"at": utc_now(), "event": event, "detail": detail}
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def try_llm(
+    prompt: str,
+    models: list[str] | None = None,
+    *,
+    min_chars: int = 120,
+    attempts_per_model: int = 2,
+) -> str | None:
+    """Try free/local models with per-model retries."""
     models = models or ["free-then-local", "free", "local", "background"]
     for model in models:
-        try:
-            r = subprocess.run(
-                ["hermes", "chat", "-q", prompt, "--model", model],
-                capture_output=True,
-                text=True,
-                timeout=240,
-                cwd=str(ROOT),
-            )
-            out = (r.stdout or "").strip()
-            if r.returncode == 0 and len(out) > 200:
-                log(f"[llm] ok model={model} chars={len(out)}")
-                return out
-            log(f"[llm] weak model={model} code={r.returncode} chars={len(out)}")
-        except Exception as e:
-            log(f"[llm] fail model={model}: {e}")
+        for attempt in range(1, attempts_per_model + 1):
+            try:
+                r = subprocess.run(
+                    ["hermes", "chat", "-q", prompt, "--model", model],
+                    capture_output=True,
+                    text=True,
+                    timeout=240,
+                    cwd=str(ROOT),
+                )
+                out = (r.stdout or "").strip()
+                if r.returncode == 0 and len(out) >= min_chars:
+                    log(f"[llm] ok model={model} attempt={attempt} chars={len(out)}")
+                    return out
+                log(
+                    f"[llm] weak model={model} attempt={attempt} "
+                    f"code={r.returncode} chars={len(out)}"
+                )
+            except Exception as e:
+                log(f"[llm] fail model={model} attempt={attempt}: {e}")
+            time.sleep(0.6 * attempt)
     return None
 
 
@@ -163,7 +190,12 @@ def extract_json_obj(text: str) -> dict | None:
         if len(m.group(0)) > 200:
             candidates.append(m.group(0))
     for raw in candidates:
-        for attempt in (raw, re.sub(r",\s*}", "}", re.sub(r",\s*]", "]", raw))):
+        cleaned = raw
+        # common LLM damage
+        cleaned = cleaned.replace("\u201c", '"').replace("\u201d", '"').replace("\u2019", "'")
+        cleaned = re.sub(r",\s*}", "}", cleaned)
+        cleaned = re.sub(r",\s*]", "]", cleaned)
+        for attempt in (raw, cleaned):
             try:
                 obj = json.loads(attempt)
                 if isinstance(obj, dict) and (
@@ -173,6 +205,70 @@ def extract_json_obj(text: str) -> dict | None:
             except Exception:
                 continue
     return None
+
+
+def llm_json(
+    prompt: str,
+    *,
+    required_any: list[str],
+    models: list[str] | None = None,
+    max_rounds: int = 3,
+    wd: Path | None = None,
+    tag: str = "json",
+) -> dict | None:
+    """Ask LLM for JSON; on parse failure run correction rounds with free/local models."""
+    models = models or ["free-then-local", "free", "local", "background"]
+    last_raw = None
+    for round_i in range(1, max_rounds + 1):
+        if round_i == 1:
+            p = prompt
+        else:
+            p = (
+                "Tu respuesta anterior NO fue JSON válido o le faltaban campos. "
+                "Devuelve SOLO un objeto JSON válido (sin markdown, sin ```), "
+                f"incluyendo al menos uno de: {required_any}. "
+                "Corrige y compacta.\n\n"
+                f"Pedido original:\n{prompt[:3500]}\n\n"
+                f"Respuesta rota (recorta si hace falta):\n{(last_raw or '')[:2500]}"
+            )
+        raw = try_llm(p, models=models if round_i == 1 else list(reversed(models)))
+        last_raw = raw
+        if wd is not None and raw:
+            (wd / f"{tag}.round{round_i}.txt").write_text(raw, encoding="utf-8")
+        obj = extract_json_obj(raw or "")
+        if obj and any(k in obj for k in required_any):
+            if wd is not None:
+                append_log(wd, f"{tag}.json_ok", {"round": round_i, "keys": list(obj.keys())[:20]})
+            return obj
+        log(f"[llm_json] {tag} round {round_i}/{max_rounds} parse/fields failed")
+        if wd is not None:
+            append_log(wd, f"{tag}.json_fail", {"round": round_i})
+    return None
+
+
+def validate_post(final: dict) -> dict[str, bool]:
+    body_es = final.get("bodyEs") or ""
+    body_en = final.get("bodyEn") or ""
+    meta_es = final.get("seoDescriptionEs") or ""
+    meta_en = final.get("seoDescriptionEn") or ""
+    title_es = final.get("titleEs") or ""
+    title_en = final.get("titleEn") or ""
+    cover = (final.get("cover") or {}).get("src") or ""
+    banned_hit = any(re.search(p, body_es + "\n" + body_en, re.I) for p in AI_BANS)
+    return {
+        "has_cover": bool(cover),
+        "has_body_es": len(body_es) > 400,
+        "has_body_en": len(body_en) > 400,
+        "has_title_es": len(title_es) >= 12,
+        "has_title_en": len(title_en) >= 12,
+        "has_meta_es": 80 <= len(meta_es) <= 180,
+        "has_meta_en": 80 <= len(meta_en) <= 180,
+        "has_figure_marker": "{{figure:0}}" in body_es and "{{figure:0}}" in body_en,
+        "has_signoff": "Leey" in body_es[-40:] and "Leey" in body_en[-40:],
+        "no_em_dash_spam": body_es.count("—") < 3 and body_en.count("—") < 3,
+        "no_ai_bans": not banned_hit,
+        "has_tags": isinstance(final.get("tags"), list) and len(final.get("tags") or []) >= 3,
+    }
 
 
 # ── Stage 1: Research ─────────────────────────────────────────────────────
@@ -209,29 +305,40 @@ def stage_research(day: str, force: bool = False) -> dict:
         f"Valdosta GA housing market {day[:4]}",
         f"South Georgia home buying tips {season.split()[0]}",
         "Lowndes County GA real estate trends",
+        "South Georgia home selling curb appeal tips",
     ]
     web_notes = []
     for q in queries:
-        try:
-            url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": q})
-            html = http_get(url, timeout=25).decode("utf-8", "replace")
-            # result snippets
-            texts = re.findall(r'class="result__snippet"[^>]*>(.*?)</a>|<a class="result__a"[^>]*>(.*?)</a>', html, re.I | re.S)
-            flat = []
-            for a, b in texts:
-                t = re.sub(r"<[^>]+>", " ", a or b or "")
-                t = re.sub(r"\s+", " ", t).strip()
-                if len(t) > 40:
-                    flat.append(t[:240])
-            web_notes.append({"query": q, "snippets": flat[:5]})
-            time.sleep(0.8)
-        except Exception as e:
-            web_notes.append({"query": q, "error": str(e)})
+        ok = False
+        for attempt in range(1, 4):
+            try:
+                url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": q})
+                html = http_get(url, timeout=25, retries=2).decode("utf-8", "replace")
+                texts = re.findall(
+                    r'class="result__snippet"[^>]*>(.*?)</a>|<a class="result__a"[^>]*>(.*?)</a>',
+                    html,
+                    re.I | re.S,
+                )
+                flat = []
+                for a, b in texts:
+                    t = re.sub(r"<[^>]+>", " ", a or b or "")
+                    t = re.sub(r"\s+", " ", t).strip()
+                    if len(t) > 40:
+                        flat.append(t[:240])
+                web_notes.append({"query": q, "snippets": flat[:5], "attempts": attempt})
+                ok = True
+                break
+            except Exception as e:
+                log(f"[research] web try {attempt} fail {q}: {e}")
+                time.sleep(attempt)
+        if not ok:
+            web_notes.append({"query": q, "error": "all attempts failed", "snippets": []})
+        time.sleep(0.5)
 
-    # Optional free LLM synthesis
+    # Optional free LLM synthesis with JSON correction rounds
     synth_prompt = f"""You are a local South Georgia real-estate researcher for realtor Leey Hernandez (Valdosta area).
 Given season="{season}", inventory city counts={top_cities}, and web snippets={json.dumps(web_notes)[:3500]},
-return STRICT JSON only:
+return STRICT JSON only (no markdown):
 {{
   "headline_angle": "one concrete angle for tomorrow's blog",
   "why_now": "2 sentences why this matters this week/season",
@@ -245,19 +352,43 @@ return STRICT JSON only:
 }}
 No hype. No invented statistics. Towns only from South Georgia list: {SOUTH_GA}.
 """
-    llm = try_llm(synth_prompt)
-    synth = extract_json_obj(llm or "") or {}
+    synth = llm_json(
+        synth_prompt,
+        required_any=["headline_angle", "category", "image_queries"],
+        max_rounds=3,
+        wd=wd,
+        tag="research",
+    ) or {}
+    if not synth:
+        append_log(wd, "research.synth_fallback", True)
+        synth = {
+            "headline_angle": f"Home tips for {season.split()[0]} in South Georgia",
+            "why_now": f"Season context: {season}. Families are still moving around Valdosta and nearby towns.",
+            "primary_towns": [c for c, _ in top_cities[:3]] or ["Valdosta", "Hahira", "Tifton"],
+            "category": "buying",
+            "keywords_es": ["comprar casa Valdosta", "sur de Georgia"],
+            "keywords_en": ["buy home Valdosta", "South Georgia realtor"],
+            "image_queries": [
+                "Valdosta Georgia house exterior",
+                "South Georgia porch home",
+                "brick ranch house Georgia",
+            ],
+            "claims_to_avoid": ["no fake appreciation rates", "no invented days on market"],
+            "sources_notes": "local inventory + season heuristic",
+        }
 
     research = {
         "date": day,
         "season": season,
         "inventoryCities": top_cities,
         "web": web_notes,
+        "web_ok": sum(1 for w in web_notes if w.get("snippets")),
         "synth": synth,
         "createdAt": utc_now(),
     }
     save_json(out_path, research)
-    log(f"[research] wrote {out_path}")
+    append_log(wd, "research.done", {"web_ok": research["web_ok"], "has_synth": bool(synth)})
+    log(f"[research] wrote {out_path} web_ok={research['web_ok']}")
     return research
 
 
@@ -425,22 +556,38 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         return load_json(out_path)
 
     queries = topic.get("image_queries") or ["South Georgia house exterior"]
-    # expand with towns
+    # expand with towns + generic fallbacks
     for a in topic.get("areas") or []:
         queries.append(f"{a.replace('-', ' ')} Georgia residential house")
-    queries = list(dict.fromkeys(queries))[:5]
+    queries.extend(
+        [
+            "Georgia ranch house exterior",
+            "Southern porch house",
+            "American suburban home front yard",
+            "kitchen remodel residential interior",
+        ]
+    )
+    queries = list(dict.fromkeys(queries))[:8]
 
     candidates: list[dict] = []
     for q in queries:
-        try:
-            candidates.extend(wikimedia_search(q, limit=5))
-        except Exception as e:
-            log(f"[assets] wiki fail {q}: {e}")
-        try:
-            candidates.extend(openverse_search(q, limit=4))
-        except Exception as e:
-            log(f"[assets] openverse fail {q}: {e}")
-        time.sleep(0.4)
+        for attempt in range(1, 3):
+            try:
+                candidates.extend(wikimedia_search(q, limit=5))
+                break
+            except Exception as e:
+                log(f"[assets] wiki fail {q} try {attempt}: {e}")
+                time.sleep(attempt)
+        for attempt in range(1, 3):
+            try:
+                candidates.extend(openverse_search(q, limit=4))
+                break
+            except Exception as e:
+                log(f"[assets] openverse fail {q} try {attempt}: {e}")
+                time.sleep(attempt)
+        time.sleep(0.35)
+        if len(candidates) >= 20:
+            break
 
     # dedupe by url
     seen = set()
@@ -457,33 +604,57 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
     pub_dir = ASSETS_PUB / day.replace("-", "")
     pub_dir.mkdir(parents=True, exist_ok=True)
 
-    for i, c in enumerate(uniq[:8]):
+    for i, c in enumerate(uniq[:12]):
         ext = ".jpg"
         u = c.get("url") or ""
-        if ".png" in u.lower():
+        full = c.get("full") or u
+        if ".png" in u.lower() or ".png" in full.lower():
             ext = ".png"
         elif ".webp" in u.lower():
             ext = ".webp"
         name = f"{topic['id']}-{i+1}{ext}"
         dest_work = img_dir / name
         dest_pub = pub_dir / name
-        if download_image(u, dest_work):
+        ok = download_image(u, dest_work)
+        if not ok and full != u:
+            ok = download_image(full, dest_work)
+        if ok:
             shutil.copy2(dest_work, dest_pub)
             rel = f"/assets/blog/{day.replace('-', '')}/{name}"
-            saved.append(
-                {
-                    **c,
-                    "local": rel,
-                    "file": name,
-                }
-            )
+            saved.append({**c, "local": rel, "file": name})
             log(f"[assets] saved {rel} ({c.get('license')})")
         if len(saved) >= 4:
             break
 
+    # If still thin, one more broad pass
+    if len(saved) < 2:
+        append_log(wd, "assets.retry_broad", {"have": len(saved)})
+        for q in ["house exterior United States", "front porch American home", "suburban house yard"]:
+            try:
+                for c in wikimedia_search(q, limit=6) + openverse_search(q, limit=4):
+                    u = c.get("url") or ""
+                    if not u or u in seen:
+                        continue
+                    seen.add(u)
+                    name = f"{topic['id']}-x{len(saved)+1}.jpg"
+                    dest_work = img_dir / name
+                    dest_pub = pub_dir / name
+                    if download_image(u, dest_work):
+                        shutil.copy2(dest_work, dest_pub)
+                        rel = f"/assets/blog/{day.replace('-', '')}/{name}"
+                        saved.append({**c, "local": rel, "file": name})
+                        log(f"[assets] broad saved {rel}")
+                    if len(saved) >= 4:
+                        break
+            except Exception as e:
+                log(f"[assets] broad fail {q}: {e}")
+            if len(saved) >= 4:
+                break
+
     # Always ensure at least one SVG fallback cover if no photos
     svg_rel = None
     if not saved:
+        append_log(wd, "assets.svg_fallback", True)
         svg_name = f"{topic['id']}-cover.svg"
         svg_path = pub_dir / svg_name
         title = topic.get("headline_angle") or topic.get("angleEs") or "Nota"
@@ -515,10 +686,10 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         "queries": queries,
         "images": saved,
         "cover": saved[0]["local"] if saved else svg_rel,
+        "photo_count": sum(1 for s in saved if s.get("source") != "generated"),
         "createdAt": utc_now(),
     }
     save_json(out_path, assets)
-    # attribution sidecar
     (wd / "ATTRIBUTION.md").write_text(
         "# Image attribution\n\n"
         + "\n".join(
@@ -528,7 +699,8 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         + "\n",
         encoding="utf-8",
     )
-    log(f"[assets] {len(saved)} image(s)")
+    append_log(wd, "assets.done", {"images": len(saved), "photos": assets["photo_count"]})
+    log(f"[assets] {len(saved)} image(s) photos={assets['photo_count']}")
     return assets
 
 
@@ -572,13 +744,21 @@ JSON shape exacto:
 Reglas: primera persona Leey; cero stats inventadas; prohibido delve/landscape/seamless/unlock/moreover; SEO local natural; ES de EE.UU.
 """.strip()
 
-    llm = try_llm(prompt)
-    if llm:
-        (wd / "write.llm.txt").write_text(llm, encoding="utf-8")
-    core = extract_json_obj(llm or "")
+    core = llm_json(
+        prompt,
+        required_any=["bodyEs", "titleEs", "bodyEn"],
+        max_rounds=3,
+        wd=wd,
+        tag="write",
+    )
+    used_fallback = False
     if not core:
-        log("[write] LLM draft missing — human template fallback")
+        log("[write] LLM draft missing after corrections — human template fallback")
+        append_log(wd, "write.fallback_template", True)
         core = _fallback_draft(day, topic, research)
+        used_fallback = True
+    else:
+        append_log(wd, "write.llm_ok", {"keys": list(core.keys())[:15]})
 
     # attach media
     figures = []
@@ -642,7 +822,8 @@ Reglas: primera persona Leey; cero stats inventadas; prohibido delve/landscape/s
         "pipeline": {
             "research": True,
             "assets": len(imgs),
-            "model": "free-then-local-or-template",
+            "model": "template" if used_fallback else "free-then-local",
+            "writeFallback": used_fallback,
             "createdAt": utc_now(),
         },
     }
@@ -732,22 +913,57 @@ def stage_polish(day: str, draft: dict, force: bool = False) -> dict:
         log("[polish] reuse existing final")
         return load_json(out_path)
 
+    def apply_guards(final: dict) -> dict:
+        for _lang, title_k, desc_k, body_k in (
+            ("es", "seoTitleEs", "seoDescriptionEs", "bodyEs"),
+            ("en", "seoTitleEn", "seoDescriptionEn", "bodyEn"),
+        ):
+            if len(final.get(desc_k) or "") > 165:
+                final[desc_k] = (final[desc_k][:157]).rsplit(" ", 1)[0] + "…"
+            if len(final.get(desc_k) or "") < 80:
+                # pad meta from excerpt
+                ex = final.get("excerptEs" if desc_k.endswith("Es") else "excerptEn") or final.get(
+                    "titleEs" if desc_k.endswith("Es") else "titleEn"
+                )
+                final[desc_k] = scrub_ai(f"{ex} · Leey Hernandez · Lock & Key Realty · sur de Georgia.")[:160]
+            if len(final.get(title_k) or "") > 65:
+                final[title_k] = (final[title_k][:62]).rsplit(" ", 1)[0] + "…"
+            body = final.get(body_k) or ""
+            if "{{figure:0}}" not in body:
+                body = body + "\n\n{{figure:0}}"
+            if "Leey" not in body[-60:]:
+                body = body.rstrip() + "\n\n— Leey"
+            final[body_k] = scrub_ai(body)
+        if not isinstance(final.get("tags"), list) or len(final.get("tags") or []) < 3:
+            final["tags"] = list(
+                dict.fromkeys(
+                    (final.get("tags") or [])
+                    + [final.get("category") or "market", "Valdosta", "South Georgia", "Leey"]
+                )
+            )[:8]
+        return final
+
+    final = dict(draft)
     prompt = f"""
 Eres editor senior (SEO + humanizer anti-detección IA). Reescribe SOLO para mejorar naturalidad y SEO local sin inventar datos.
 Entrada JSON del draft:
-{json.dumps({k: draft.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','primaryKeywordEs','primaryKeywordEn','category']}, ensure_ascii=False)[:9000]}
+{json.dumps({k: draft.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','primaryKeywordEs','primaryKeywordEn','category']}, ensure_ascii=False)[:7000]}
 
-Devuelve el MISMO shape JSON (mismos campos de texto), con:
+Devuelve el MISMO shape JSON (mismos campos de texto), compacto, sin markdown:
 - Títulos naturales con keyword local si cabe
 - Meta descriptions 140-160 chars
-- Cuerpo con ritmo humano (frases cortas y largas), sin clichés IA
+- Cuerpo con ritmo humano, sin clichés IA
 - Conserva {{{{figure:N}}}} y el cierre — Leey
 - No agregues estadísticas nuevas
 Solo JSON.
 """
-    llm = try_llm(prompt)
-    polished = extract_json_obj(llm or "")
-    final = dict(draft)
+    polished = llm_json(
+        prompt,
+        required_any=["bodyEs", "titleEs", "seoDescriptionEs"],
+        max_rounds=3,
+        wd=wd,
+        tag="polish",
+    )
     if polished:
         for k in (
             "titleEs",
@@ -766,43 +982,112 @@ Solo JSON.
             "primaryKeywordEn",
         ):
             if polished.get(k):
-                final[k] = scrub_ai(str(polished[k]).replace("\\n", "\n")) if isinstance(polished[k], str) else polished[k]
+                final[k] = (
+                    scrub_ai(str(polished[k]).replace("\\n", "\n"))
+                    if isinstance(polished[k], str)
+                    else polished[k]
+                )
+        append_log(wd, "polish.llm_ok", True)
+    else:
+        append_log(wd, "polish.llm_fail_keep_draft", True)
+        log("[polish] LLM polish failed after corrections — keeping draft + guards")
 
-    # deterministic SEO guards
-    for lang, title_k, desc_k, body_k, kw_k in (
-        ("es", "seoTitleEs", "seoDescriptionEs", "bodyEs", "primaryKeywordEs"),
-        ("en", "seoTitleEn", "seoDescriptionEn", "bodyEn", "primaryKeywordEn"),
-    ):
-        if len(final.get(desc_k) or "") > 165:
-            final[desc_k] = (final[desc_k][:157]).rsplit(" ", 1)[0] + "…"
-        if len(final.get(title_k) or "") > 65:
-            final[title_k] = (final[title_k][:62]).rsplit(" ", 1)[0] + "…"
-        # ensure figure markers
-        if "{{figure:0}}" not in (final.get(body_k) or ""):
-            final[body_k] = (final.get(body_k) or "") + "\n\n{{figure:0}}"
+    final = apply_guards(final)
 
+    # Validation + correction loop (up to 2 repair rounds with free/local)
+    for repair in range(0, 3):
+        checks = validate_post(final)
+        final["validation"] = checks
+        failed = [k for k, ok in checks.items() if not ok]
+        if not failed:
+            log("[polish] validation OK")
+            append_log(wd, "polish.validation_ok", {"repair": repair})
+            break
+        log(f"[polish] validation FAIL repair={repair}: {failed}")
+        append_log(wd, "polish.validation_fail", {"repair": repair, "failed": failed})
+        if repair >= 2:
+            break
+        repair_prompt = f"""
+Corrige este post JSON. Falló validación en: {failed}.
+Devuelve SOLO JSON con los mismos campos de texto del post, arreglando SOLO lo fallido:
+- bodyEs/bodyEn > 400 chars, con {{{{figure:0}}}} y cierre — Leey
+- seoDescriptionEs/En entre 140 y 160 chars
+- sin clichés IA (delve, seamless, moreover, etc.)
+- tags >= 3
+Post actual:
+{json.dumps({k: final.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','category']}, ensure_ascii=False)[:7500]}
+"""
+        fixed = llm_json(
+            repair_prompt,
+            required_any=["bodyEs", "titleEs"],
+            max_rounds=2,
+            wd=wd,
+            tag=f"repair{repair}",
+            models=["local", "free-then-local", "free", "background"],
+        )
+        if fixed:
+            for k in (
+                "titleEs",
+                "titleEn",
+                "seoTitleEs",
+                "seoTitleEn",
+                "seoDescriptionEs",
+                "seoDescriptionEn",
+                "excerptEs",
+                "excerptEn",
+                "bodyEs",
+                "bodyEn",
+                "tags",
+            ):
+                if fixed.get(k):
+                    final[k] = (
+                        scrub_ai(str(fixed[k]).replace("\\n", "\n"))
+                        if isinstance(fixed[k], str)
+                        else fixed[k]
+                    )
+        final = apply_guards(final)
+
+    # last-resort deterministic body pad if still short
+    checks = validate_post(final)
+    if not checks.get("has_body_es"):
+        final["bodyEs"] = (final.get("bodyEs") or "") + (
+            "\n\nEn el sur de Georgia cada casa cuenta una historia distinta. "
+            "Yo miro estructura, trayecto y lo que se siente al llegar. "
+            "Si quieres, lo vemos juntos con calma.\n\n{{figure:0}}\n\n— Leey"
+        )
+    if not checks.get("has_body_en"):
+        final["bodyEn"] = (final.get("bodyEn") or "") + (
+            "\n\nIn South Georgia every house tells a different story. "
+            "I look at structure, the drive, and how it feels to arrive. "
+            "If you want, we can walk it together without the rush.\n\n{{figure:0}}\n\n— Leey"
+        )
+    final = apply_guards(final)
+    checks = validate_post(final)
+    final["validation"] = checks
     final["updatedAt"] = utc_now()
     final["pipeline"] = {
         **(draft.get("pipeline") or {}),
         "polishedAt": utc_now(),
+        "validationOk": all(checks.values()),
+        "validationFailed": [k for k, ok in checks.items() if not ok],
     }
-    # validation checklist
-    checks = {
-        "has_cover": bool(final.get("cover", {}).get("src")),
-        "has_body_es": len(final.get("bodyEs") or "") > 400,
-        "has_body_en": len(final.get("bodyEn") or "") > 400,
-        "has_meta_es": 80 <= len(final.get("seoDescriptionEs") or "") <= 180,
-        "has_meta_en": 80 <= len(final.get("seoDescriptionEn") or "") <= 180,
-        "no_em_dash_spam": (final.get("bodyEs") or "").count("—") < 3,
-    }
-    final["validation"] = checks
-    if not all(checks.values()):
-        log(f"[polish] WARN validation {checks}")
+    if all(checks.values()):
+        log("[polish] validation OK (final)")
     else:
-        log("[polish] validation OK")
+        log(f"[polish] WARN validation still partial: {final['pipeline']['validationFailed']}")
 
     save_json(out_path, final)
-    save_json(wd / "READY.json", {"date": day, "slug": final.get("slug"), "ready": True, "at": utc_now()})
+    save_json(
+        wd / "READY.json",
+        {
+            "date": day,
+            "slug": final.get("slug"),
+            "ready": True,
+            "validationOk": all(checks.values()),
+            "at": utc_now(),
+        },
+    )
+    append_log(wd, "polish.done", final["pipeline"])
     return final
 
 
@@ -812,8 +1097,33 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
     wd = workdir(day)
     final = final or load_json(wd / "final.json")
     if not final:
-        log("[publish] no final.json — nothing to publish")
-        return 2
+        log("[publish] no final.json — attempting late prep")
+        # last chance: run missing stages
+        research = load_json(wd / "research.json") or stage_research(day, force=True)
+        topic = load_json(wd / "topic.json") or stage_topic(day, research, force=True)
+        assets = load_json(wd / "assets.json") or stage_assets(day, topic, force=True)
+        draft = load_json(wd / "draft.json") or stage_write(day, research, topic, assets, force=True)
+        final = stage_polish(day, draft, force=True)
+        if not final:
+            log("[publish] still no final — abort")
+            return 2
+
+    # If validation failed, one more repair pass before shipping
+    checks = final.get("validation") or validate_post(final)
+    if not all(checks.values()):
+        log(f"[publish] preflight validation fail {checks} — repair polish")
+        append_log(wd, "publish.preflight_repair", checks)
+        draft = load_json(wd / "draft.json") or final
+        final = stage_polish(day, draft, force=True)
+        checks = final.get("validation") or validate_post(final)
+        if not all(checks.values()):
+            # hard requirements only
+            hard = ["has_cover", "has_body_es", "has_body_en", "has_title_es", "has_title_en"]
+            if not all(checks.get(k) for k in hard):
+                log(f"[publish] hard validation still failing: {checks} — abort ship")
+                append_log(wd, "publish.abort_hard_validation", checks)
+                return 4
+            log("[publish] soft validation warnings only — publishing anyway")
 
     posts_data = load_json(POSTS_PATH, {"version": 1, "posts": []})
     posts = posts_data.get("posts") or []
@@ -875,7 +1185,11 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
             cwd=str(ROOT),
             check=False,
         )
-        subprocess.run(["git", "push", "origin", "HEAD"], cwd=str(ROOT), check=False)
+        push = subprocess.run(["git", "push", "origin", "HEAD"], cwd=str(ROOT), check=False)
+        if push.returncode != 0:
+            log("[publish] push failed — retry once")
+            time.sleep(2)
+            push = subprocess.run(["git", "push", "origin", "HEAD"], cwd=str(ROOT), check=False)
         log("[publish] shipping…")
         r = subprocess.run(
             ["npm", "run", "ship"],
@@ -884,9 +1198,14 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
             check=False,
         )
         if r.returncode != 0:
-            log("[publish] ship failed")
-            return 3
-    save_json(wd / "PUBLISHED.json", {"slug": slug, "at": utc_now()})
+            log("[publish] ship failed — retry once")
+            time.sleep(3)
+            r = subprocess.run(["npm", "run", "ship"], cwd=str(ROOT), env=env, check=False)
+            if r.returncode != 0:
+                append_log(wd, "publish.ship_fail", {"code": r.returncode})
+                return 3
+    save_json(wd / "PUBLISHED.json", {"slug": slug, "at": utc_now(), "validation": checks})
+    append_log(wd, "publish.done", {"slug": slug})
     log(f"[publish] DONE {slug}")
     return 0
 
