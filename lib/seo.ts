@@ -37,9 +37,13 @@ const BASE_KEYWORDS = [
   "Adel GA real estate",
   "South Georgia realtor",
   "Lock and Key Realty",
+  "Leyanis Hernandez realtor",
+  "Leey Hernandez realtor",
   "comprar casa sur Georgia",
+  "vender casa Valdosta",
   "agente inmobiliario bilingüe Valdosta",
   "bilingual realtor South Georgia",
+  "Georgia Florida real estate agent",
 ];
 
 function clip(s: string, n = 158) {
@@ -54,9 +58,9 @@ export function homeSeo(lang: "es" | "en" = "es"): SeoConfig {
   if (lang === "en") {
     return {
       path: "/",
-      title: "Leyanis “Leey” Hernandez | Bilingual Realtor · South Georgia & Florida",
+      title: "Leey Hernandez | Bilingual Realtor in Valdosta & South Georgia",
       description: clip(
-        `Leyanis “Leey” Hernandez — Lock & Key Realty. Licensed in Georgia and Florida. Homes in Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida. ${PHONE}.`,
+        `Buy or sell with Leyanis “Leey” Hernandez of Lock & Key Realty. Licensed in Georgia and Florida. Spanish and English help for homes in Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton, and North Florida. Call ${PHONE}.`,
       ),
       lang: "en",
       keywords: BASE_KEYWORDS,
@@ -66,9 +70,9 @@ export function homeSeo(lang: "es" | "en" = "es"): SeoConfig {
   }
   return {
     path: "/",
-    title: "Leyanis “Leey” Hernandez | Realtor bilingüe · Sur de Georgia y Florida",
+    title: "Leey Hernandez | Realtor bilingüe en Valdosta y el sur de Georgia",
     description: clip(
-      `Leyanis “Leey” Hernandez — Lock & Key Realty. Licenciada en Georgia y Florida. Casas en Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida. ${PHONE}.`,
+      `Compra o vende con Leyanis “Leey” Hernandez de Lock & Key Realty. Licenciada en Georgia y Florida. Atención en español e inglés en Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton y el norte de Florida. Llama al ${PHONE}.`,
     ),
     lang: "es",
     keywords: BASE_KEYWORDS,
@@ -91,9 +95,9 @@ export function propertiesSeo(
   if (lang === "en") {
     return {
       path: "/properties",
-      title: "Homes for sale · South Georgia & Florida | Leey Hernandez",
+      title: "Homes for sale in South Georgia & Florida | Leey Hernandez",
       description: clip(
-        `Browse homes for sale in ${cityHint}. Filter by price, beds, and type. Leey — bilingual agent with Lock & Key Realty — helps you tour, offer, and close. ${PHONE}.`,
+        `Browse Lock & Key Realty homes for sale in ${cityHint}. Filter by price, beds, and type. Work with Leey — bilingual agent licensed in Georgia and Florida. ${PHONE}.`,
       ),
       lang: "en",
       keywords: [
@@ -117,9 +121,9 @@ export function propertiesSeo(
 
   return {
     path: "/properties",
-    title: "Casas en venta · Sur de Georgia y Florida | Leey Hernandez",
+    title: "Casas en venta en el sur de Georgia y Florida | Leey Hernandez",
     description: clip(
-      `Casas en venta en ${cityHint}. Filtra por precio, habitaciones y tipo. Leey — agente bilingüe de Lock & Key Realty — te ayuda a visitar, ofertar y cerrar. ${PHONE}.`,
+      `Casas de Lock & Key Realty en venta en ${cityHint}. Filtra por precio, habitaciones y tipo. Trabaja con Leey, agente bilingüe licenciada en Georgia y Florida. ${PHONE}.`,
     ),
     lang: "es",
     keywords: [
@@ -242,7 +246,7 @@ export function realEstateAgentLd() {
     telephone: SITE.agent.phoneTel,
     email: SITE.agent.email,
     description:
-      "Bilingual real estate agent licensed in Georgia and Florida with Lock & Key Realty. Serving Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton and North Florida.",
+      "Leyanis “Leey” Hernandez is a bilingual real estate agent with Lock & Key Realty, licensed in Georgia and Florida. She helps families buy and sell homes in Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida — in Spanish or English.",
     knowsLanguage: ["es", "en"],
     areaServed: [
       "Valdosta",
@@ -301,9 +305,9 @@ export function websiteLd() {
     "@type": "WebSite",
     "@id": `${U}/#website`,
     url: `${U}/`,
-    name: "Leyanis Hernandez Realtor",
+    name: "Leey Hernandez Realtor — South Georgia & Florida",
     description:
-      "Bilingual realtor for South Georgia and North Florida — Lock & Key Realty.",
+      "Bilingual realtor Leyanis “Leey” Hernandez of Lock & Key Realty. Homes for sale and local guidance across South Georgia and North Florida.",
     publisher: { "@id": `${U}/#agent` },
     inLanguage: ["es-US", "en-US"],
     potentialAction: {

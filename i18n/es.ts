@@ -1,6 +1,7 @@
 /**
- * Español — copy compacto, sin relleno de IA.
+ * Español — copy profesional, local y anti-slop.
  * Bilingüe solo en bio (+ frase corta opcional en hero).
+ * No inventar métricas ni años de experiencia.
  */
 export const es = {
   nav: {
@@ -16,12 +17,12 @@ export const es = {
   },
 
   hero: {
-    title: "Tu próxima casa en el sur de Georgia.",
+    title: "Compra o vende en el sur de Georgia con una agente que habla tu idioma.",
     subtitle:
-      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida. En español o en inglés.",
+      "Leyanis “Leey” Hernandez, Lock & Key Realty. Licenciada en Georgia y Florida. Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida.",
     cta1: "Ver casas en venta",
     cta2: "Hablar con Leey",
-    speakEs: "Hablamos español",
+    speakEs: "Atención en español e inglés",
   },
 
   marquee: {
@@ -44,63 +45,63 @@ export const es = {
     eyebrow: "Sobre mí",
     title: "Soy Leey.",
     paragraph1:
-      "Me llamo Leyanis Hernandez. Nací en La Habana, Cuba, e inmigré a Estados Unidos en 1998. Soy madre de dos hijas y un hijo, y abuela de dos nietas. Junto a mi esposo dirigimos un negocio de restauración y remodelación de casas.",
+      "Me llamo Leyanis Hernandez. Nací en La Habana, Cuba, e inmigré a Estados Unidos en 1998. Soy madre de dos hijas y un hijo, y abuela de dos nietas. Junto a mi esposo dirijo un negocio de restauración y remodelación de casas en el sur de Georgia.",
     paragraph2:
-      "Esa experiencia me llevó a la inmobiliaria: guiar a las familias no solo a mejorar un espacio, sino a ser dueñas de su hogar. Estoy licenciada en Georgia y Florida. Atiendo en español e inglés.",
+      "Esa mirada de obra es lo que llevo a cada transacción: no solo encontrar una dirección bonita, sino un hogar sólido. Estoy licenciada en Georgia y Florida. Atiendo en español e inglés, con calma, números claros y sin prisa artificial.",
     signature: "Leey.",
   },
 
   services: {
     eyebrow: "Servicios",
-    title: "Cómo te ayudo",
+    title: "Cómo te acompaño",
     items: [
       {
         title: "Comprar",
-        desc: "Búsqueda local, visitas, ofertas y cierre. Números claros, sin prisa.",
+        desc: "Búsqueda local, visitas, ofertas y cierre. Filtro lo que no conviene y te explico el porqué.",
       },
       {
         title: "Vender",
-        desc: "Precio realista, preparación de la casa y negociación hasta las llaves.",
+        desc: "Precio realista, preparación de la casa y negociación hasta las llaves. Menos sorpresas en el camino.",
       },
       {
         title: "Primera vivienda",
-        desc: "Financiación, inspecciones y papeles sin jerga, paso a paso.",
+        desc: "Financiación, inspecciones y papeles en lenguaje claro. Paso a paso, sin jerga innecesaria.",
       },
       {
         title: "Georgia y Florida",
-        desc: "Licencia en ambos estados si tu compra o venta cruza la frontera.",
+        desc: "Una sola agente licenciada en ambos estados cuando tu compra o venta cruza la frontera.",
       },
     ],
   },
 
   process: {
     eyebrow: "Proceso",
-    title: "Cinco pasos",
+    title: "Así trabajamos",
     steps: [
       {
         n: "01",
         title: "Conversamos",
-        desc: "Presupuesto, plazos y lo que de verdad buscas.",
+        desc: "Presupuesto, plazos y lo que de verdad necesitas — no un catálogo genérico.",
       },
       {
         n: "02",
         title: "Plan local",
-        desc: "Zonas, estructura e inversión con mirada de remodelación.",
+        desc: "Zonas, estructura e inversión con mirada de remodelación y mercado real.",
       },
       {
         n: "03",
         title: "Búsqueda o listado",
-        desc: "Visitas curadas, o preparamos tu casa para el mercado.",
+        desc: "Visitas curadas, o preparamos tu casa para salir al mercado con ventaja.",
       },
       {
         n: "04",
         title: "Negociación",
-        desc: "Oferta y términos que protejan tu interés.",
+        desc: "Oferta y términos pensados para proteger tu dinero y tu tiempo.",
       },
       {
         n: "05",
         title: "Cierre",
-        desc: "Inspección, tasación, financiamiento y llaves.",
+        desc: "Inspección, tasación, financiamiento y entrega de llaves, sin dejar cabos sueltos.",
       },
     ],
   },
@@ -108,24 +109,25 @@ export const es = {
   areas: {
     eyebrow: "Zonas",
     title: "Dónde trabajo",
-    subtitle: "Sur de Georgia y oportunidades al otro lado de la línea en Florida.",
+    subtitle:
+      "Sur de Georgia y oportunidades al otro lado de la línea en Florida — mercados que conozco de cerca.",
     items: [
       {
         city: "Valdosta",
-        desc: "El hub del sur de Georgia. Barrios establecidos y buen acceso.",
+        desc: "Centro del sur de Georgia. Barrios establecidos, campus y acceso a la I-75.",
         highlight: true,
       },
       {
         city: "Hahira",
-        desc: "Comunidad cercana, lotes amplios, minutos de Valdosta.",
+        desc: "Comunidad cercana, lotes amplios y minutos de Valdosta.",
       },
       {
         city: "Adel",
-        desc: "Cook County. Valor sólido y ambiente familiar.",
+        desc: "Condado de Cook. Buen valor por metro y ritmo familiar.",
       },
       {
         city: "Sparks",
-        desc: "Opciones accesibles junto a Adel.",
+        desc: "Opciones más accesibles junto a Adel.",
       },
       {
         city: "Lenox",
@@ -133,27 +135,27 @@ export const es = {
       },
       {
         city: "Ray City",
-        desc: "Berrien County. Casas con terreno y comunidad unida.",
+        desc: "Condado de Berrien. Casas con terreno y comunidad unida.",
       },
       {
         city: "Moultrie",
-        desc: "Colquitt County. Ciudad activa con buen stock residencial.",
+        desc: "Condado de Colquitt. Ciudad activa con buen stock residencial.",
       },
       {
         city: "Thomasville",
-        desc: "Thomas County. Encanto histórico y barrios consolidados.",
+        desc: "Condado de Thomas. Encanto histórico y barrios consolidados.",
       },
       {
         city: "Nashville",
-        desc: "Berrien County. Ritmo de pueblo y opciones accesibles.",
+        desc: "Condado de Berrien. Ritmo de pueblo y opciones alcanzables.",
       },
       {
         city: "Tifton",
-        desc: "Tift County. Campus, corredores comerciales y vivienda familiar.",
+        desc: "Condado de Tift. Campus, comercio y vivienda familiar.",
       },
       {
         city: "Norte de Florida",
-        desc: "Compras y ventas al sur de la frontera estatal.",
+        desc: "Compras y ventas al sur de la frontera estatal, con licencia en Florida.",
       },
     ],
   },
@@ -220,7 +222,7 @@ export const es = {
 
   testimonials: {
     eyebrow: "Clientes",
-    title: "Lo que dicen",
+    title: "Lo que cuentan",
     items: [
       {
         quote:
@@ -230,7 +232,7 @@ export const es = {
       },
       {
         quote:
-          "Knew the Valdosta market and walked us through repairs before listing. Clean sale.",
+          "Conocía el mercado de Valdosta y nos orientó en las reparaciones antes de listar. Venta limpia.",
         name: "J. & A. Thompson",
         role: "Valdosta, GA",
       },
@@ -245,14 +247,14 @@ export const es = {
 
   contact: {
     eyebrow: "Contacto",
-    title: "Hablemos.",
-    subtitle: "Respondo el mismo día, en la medida de lo posible.",
+    title: "Cuéntame qué buscas.",
+    subtitle: "Respondo el mismo día cuando puedo. Español o inglés.",
     formTitle: "Mensaje",
     formName: "Nombre",
     formEmail: "Email",
     formPhone: "Teléfono",
-    formMessage: "¿En qué te ayudo?",
-    formSend: "Enviar",
+    formMessage: "¿Compras, vendes o quieres una visita?",
+    formSend: "Enviar mensaje",
     formSending: "Enviando…",
     formSent: "Gracias. Te escribo pronto.",
     formPrivacy: "Tu información no se comparte.",
@@ -265,7 +267,7 @@ export const es = {
   },
 
   footer: {
-    tagline: "Realtor · Sur de Georgia y Florida",
+    tagline: "Realtor bilingüe · Sur de Georgia y Florida",
     columns: {
       navigate: "Navegación",
       services: "Servicios",

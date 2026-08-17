@@ -15,11 +15,19 @@ export function FinalCTA() {
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }}
         >
-          <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-[-0.02em] sm:text-4xl lg:text-5xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gold-300">
+            {isEs ? "Siguiente paso" : "Next step"}
+          </p>
+          <h2 className="font-display mt-4 text-3xl font-medium leading-[1.12] tracking-[-0.02em] sm:text-4xl lg:text-5xl">
             {isEs
-              ? "¿Listos para el siguiente paso?"
-              : "Ready for the next step?"}
+              ? "¿Compras, vendes o quieres visitar una casa?"
+              : "Buying, selling, or ready to tour a home?"}
           </h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ivory-100/75">
+            {isEs
+              ? "Escríbeme o llámame. Te respondo en español o en inglés y te digo el siguiente paso concreto."
+              : "Call or message me. I’ll answer in Spanish or English and give you a clear next step."}
+          </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <a
               href={`tel:${SITE.agent.phoneTel}`}
@@ -31,7 +39,7 @@ export function FinalCTA() {
               href="#contact"
               className="border border-ivory-50/25 px-7 py-3.5 text-sm font-medium tracking-wide transition hover:border-ivory-50/60"
             >
-              {isEs ? "Escribir" : "Write"}
+              {isEs ? "Escribir a Leey" : "Message Leey"}
             </a>
           </div>
         </motion.div>

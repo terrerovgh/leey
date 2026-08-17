@@ -14,12 +14,12 @@ export const en: Strings = {
   },
 
   hero: {
-    title: "Your next home in South Georgia.",
+    title: "Buy or sell in South Georgia with an agent who speaks your language.",
     subtitle:
-      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida. Spanish or English.",
+      "Leyanis “Leey” Hernandez, Lock & Key Realty. Licensed in Georgia and Florida. Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida.",
     cta1: "View homes for sale",
     cta2: "Talk to Leey",
-    speakEs: "Hablamos español",
+    speakEs: "Spanish and English service",
   },
 
   marquee: {
@@ -42,63 +42,63 @@ export const en: Strings = {
     eyebrow: "About",
     title: "I’m Leey.",
     paragraph1:
-      "My name is Leyanis Hernandez. I was born in Havana, Cuba, and immigrated to the United States in 1998. I’m a mother of two daughters and a son, and a grandmother to two granddaughters. With my husband, we run a home restoration and remodeling business.",
+      "My name is Leyanis Hernandez. I was born in Havana, Cuba, and immigrated to the United States in 1998. I’m a mother of two daughters and a son, and a grandmother to two granddaughters. With my husband, I run a home restoration and remodeling business in South Georgia.",
     paragraph2:
-      "That work led me into real estate: guiding families not only to improve a space, but to own their home. I’m licensed in Georgia and Florida. I work in Spanish and English.",
+      "That builder’s eye is what I bring to every deal: not just a pretty address, but a solid home. I’m licensed in Georgia and Florida. I work in Spanish and English — calm process, clear numbers, no artificial rush.",
     signature: "Leey.",
   },
 
   services: {
     eyebrow: "Services",
-    title: "How I help",
+    title: "How I work with you",
     items: [
       {
         title: "Buying",
-        desc: "Local search, tours, offers, and closing. Clear numbers, no rush.",
+        desc: "Local search, tours, offers, and closing. I filter what doesn’t fit and explain why.",
       },
       {
         title: "Selling",
-        desc: "Honest pricing, home prep, and negotiation through the finish line.",
+        desc: "Honest pricing, home prep, and negotiation through the finish line — fewer surprises.",
       },
       {
         title: "First-time buyers",
-        desc: "Financing, inspections, and paperwork without the jargon.",
+        desc: "Financing, inspections, and paperwork in plain language. One step at a time.",
       },
       {
         title: "Georgia & Florida",
-        desc: "Licensed in both states when your move crosses the line.",
+        desc: "One agent licensed in both states when your move crosses the line.",
       },
     ],
   },
 
   process: {
     eyebrow: "Process",
-    title: "Five steps",
+    title: "How we work",
     steps: [
       {
         n: "01",
         title: "We talk",
-        desc: "Budget, timeline, and what you actually want.",
+        desc: "Budget, timeline, and what you actually need — not a generic catalog.",
       },
       {
         n: "02",
         title: "Local plan",
-        desc: "Areas, structure, and investment with a remodeler’s eye.",
+        desc: "Areas, structure, and investment with a remodeler’s eye and real market data.",
       },
       {
         n: "03",
         title: "Search or list",
-        desc: "Curated showings, or we prep your home for market.",
+        desc: "Curated showings, or we prep your home so it enters the market strong.",
       },
       {
         n: "04",
         title: "Negotiate",
-        desc: "Offer and terms that protect your interest.",
+        desc: "Offer and terms designed to protect your money and your time.",
       },
       {
         n: "05",
         title: "Close",
-        desc: "Inspection, appraisal, financing, and keys.",
+        desc: "Inspection, appraisal, financing, and keys — no loose ends.",
       },
     ],
   },
@@ -106,11 +106,12 @@ export const en: Strings = {
   areas: {
     eyebrow: "Areas",
     title: "Where I work",
-    subtitle: "South Georgia, plus opportunities across the Florida line.",
+    subtitle:
+      "South Georgia, plus opportunities across the Florida line — markets I know up close.",
     items: [
       {
         city: "Valdosta",
-        desc: "South Georgia’s hub. Established neighborhoods and easy access.",
+        desc: "South Georgia’s hub. Established neighborhoods, campus life, and I-75 access.",
         highlight: true,
       },
       {
@@ -119,11 +120,11 @@ export const en: Strings = {
       },
       {
         city: "Adel",
-        desc: "Cook County. Solid value and a family feel.",
+        desc: "Cook County. Strong value and a family pace.",
       },
       {
         city: "Sparks",
-        desc: "Attainable options next to Adel.",
+        desc: "More attainable options next to Adel.",
       },
       {
         city: "Lenox",
@@ -151,7 +152,7 @@ export const en: Strings = {
       },
       {
         city: "North Florida",
-        desc: "Buy and sell south of the state line.",
+        desc: "Buy and sell south of the state line — Florida license included.",
       },
     ],
   },
@@ -229,7 +230,7 @@ export const en: Strings = {
       },
       {
         quote:
-          "Knew the Valdosta market and walked us through repairs before listing. Clean sale.",
+          "She knew the Valdosta market and walked us through repairs before listing. Clean sale.",
         name: "J. & A. Thompson",
         role: "Valdosta, GA",
       },
@@ -244,14 +245,14 @@ export const en: Strings = {
 
   contact: {
     eyebrow: "Contact",
-    title: "Let’s talk.",
-    subtitle: "I usually reply the same day.",
+    title: "Tell me what you’re looking for.",
+    subtitle: "I usually reply the same day. Spanish or English.",
     formTitle: "Message",
     formName: "Name",
     formEmail: "Email",
     formPhone: "Phone",
-    formMessage: "How can I help?",
-    formSend: "Send",
+    formMessage: "Buying, selling, or want a tour?",
+    formSend: "Send message",
     formSending: "Sending…",
     formSent: "Thank you. I’ll write soon.",
     formPrivacy: "Your information is never shared.",
@@ -264,7 +265,7 @@ export const en: Strings = {
   },
 
   footer: {
-    tagline: "Realtor · South Georgia & Florida",
+    tagline: "Bilingual realtor · South Georgia & Florida",
     columns: {
       navigate: "Navigate",
       services: "Services",
