@@ -5,7 +5,7 @@ Leey blog multi-agent pipeline (free/local-first).
 Stages (agents):
   1 research  — season, local towns, market angle, sources
   2 topic     — pick/refine angle from research + topics bank
-  3 assets    — download free web images (Wikimedia/Openverse) + optional SVG
+  3 assets    — download free web photos (Wikimedia/Openverse); EN chart only if zero photos
   4 write     — bilingual draft (free LLM or human template)
   5 polish    — SEO + anti-AI humanizer pass
   6 publish   — merge into posts.json, commit, ship
@@ -561,16 +561,27 @@ def openverse_search(query: str, limit: int = 5) -> list[dict]:
     return out
 
 
-def download_image(url: str, dest: Path) -> bool:
+def download_image(url: str, dest: Path, min_bytes: int = 8000, seen_hashes: set | None = None) -> bool:
     try:
         data = http_get(url, timeout=45)
-        if len(data) < 4000:
+        if len(data) < min_bytes:
             return False
-        # basic magic
-        if not (data[:3] == b"\xff\xd8\xff" or data[:8] == b"\x89PNG\r\n\x1a\n" or data[:4] == b"RIFF"):
-            # allow jpeg/png/webp anyway if large enough
-            if len(data) < 20000:
+        # basic magic — require real image bytes
+        ok_magic = (
+            data[:3] == b"\xff\xd8\xff"
+            or data[:8] == b"\x89PNG\r\n\x1a\n"
+            or data[:4] == b"RIFF"
+            or data[:4] == b"RIFF"
+        )
+        if not ok_magic and len(data) < 20000:
+            return False
+        # reject near-duplicates across posts
+        h = hashlib.sha1(data).hexdigest()
+        if seen_hashes is not None:
+            if h in seen_hashes:
+                log(f"[assets] skip duplicate hash {h[:10]}")
                 return False
+            seen_hashes.add(h)
         dest.write_bytes(data)
         return True
     except Exception as e:
@@ -633,8 +644,23 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
     img_dir = wd / "images"
     pub_dir = ASSETS_PUB / day.replace("-", "")
     pub_dir.mkdir(parents=True, exist_ok=True)
+    # Global hash set of existing blog photos so posts don't share identical files
+    seen_hashes: set[str] = set()
+    for existing in ASSETS_PUB.rglob("*"):
+        if existing.suffix.lower() not in (".jpg", ".jpeg", ".png", ".webp"):
+            continue
+        # skip files belonging to this day's folder (we're rewriting them)
+        try:
+            if pub_dir in existing.parents or existing.parent == pub_dir:
+                continue
+        except Exception:
+            pass
+        try:
+            seen_hashes.add(hashlib.sha1(existing.read_bytes()).hexdigest())
+        except Exception:
+            pass
 
-    for i, c in enumerate(uniq[:12]):
+    for i, c in enumerate(uniq[:18]):
         ext = ".jpg"
         u = c.get("url") or ""
         full = c.get("full") or u
@@ -645,9 +671,9 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         name = f"{topic['id']}-{i+1}{ext}"
         dest_work = img_dir / name
         dest_pub = pub_dir / name
-        ok = download_image(u, dest_work)
+        ok = download_image(u, dest_work, seen_hashes=seen_hashes)
         if not ok and full != u:
-            ok = download_image(full, dest_work)
+            ok = download_image(full, dest_work, seen_hashes=seen_hashes)
         if ok:
             shutil.copy2(dest_work, dest_pub)
             rel = f"/assets/blog/{day.replace('-', '')}/{name}"
@@ -659,17 +685,24 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
     # If still thin, one more broad pass
     if len(saved) < 2:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
-        for q in ["house exterior United States", "front porch American home", "suburban house yard"]:
+        for q in [
+            "house exterior United States",
+            "front porch American home",
+            "suburban house yard",
+            "kitchen window natural light home",
+            "for sale home yard sign residential",
+            "small town main street Georgia USA",
+        ]:
             try:
                 for c in wikimedia_search(q, limit=6) + openverse_search(q, limit=4):
                     u = c.get("url") or ""
                     if not u or u in seen:
                         continue
                     seen.add(u)
-                    name = f"{topic['id']}-x{len(saved)+1}.jpg"
+                    name = f"{topic['id']}-b{len(saved)+1}.jpg"
                     dest_work = img_dir / name
                     dest_pub = pub_dir / name
-                    if download_image(u, dest_work):
+                    if download_image(u, dest_work, seen_hashes=seen_hashes):
                         shutil.copy2(dest_work, dest_pub)
                         rel = f"/assets/blog/{day.replace('-', '')}/{name}"
                         saved.append({**c, "local": rel, "file": name})
@@ -681,42 +714,49 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
             if len(saved) >= 4:
                 break
 
-    # Always ensure at least one SVG fallback cover if no photos
-    svg_rel = None
+    # Prefer real photos only. Optional English-only chart as last resort
+    # (never Spanish decorative SVG covers).
+    chart_rel = None
     if not saved:
-        append_log(wd, "assets.svg_fallback", True)
-        svg_name = f"{topic['id']}-cover.svg"
-        svg_path = pub_dir / svg_name
-        title = topic.get("headline_angle") or topic.get("angleEs") or "Nota"
-        svg_path.write_text(
-            f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+        append_log(wd, "assets.en_chart_fallback", True)
+        chart_name = f"{topic['id']}-chart-en.svg"
+        chart_path = pub_dir / chart_name
+        title = (topic.get("headline_angle") or topic.get("angleEn") or topic.get("angleEs") or "Note")[
+            :56
+        ]
+        # English-only labels — charts are for US readers of the EN body
+        chart_path.write_text(
+            f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="{_xml(title)}">
   <rect width="1200" height="720" fill="#f7f1e8"/>
   <rect x="48" y="48" width="1104" height="624" rx="28" fill="#fffdf9" stroke="#e2d4bc"/>
-  <rect x="96" y="120" width="120" height="8" rx="4" fill="#c45c26"/>
-  <text x="96" y="300" font-family="Georgia, serif" font-size="40" fill="#1c1612">{_xml(title[:48])}</text>
-  <text x="96" y="520" font-family="system-ui,sans-serif" font-size="20" fill="#6b5a4c">Sur de Georgia · Leey Hernandez</text>
-  <text x="96" y="600" font-family="system-ui,sans-serif" font-size="16" fill="#8a7664">Lock &amp; Key Realty · leeyrealty.com</text>
+  <rect x="96" y="120" width="140" height="8" rx="4" fill="#c45c26"/>
+  <text x="96" y="220" font-family="Georgia, serif" font-size="36" fill="#1c1612">{_xml(title)}</text>
+  <text x="96" y="290" font-family="system-ui,sans-serif" font-size="22" fill="#6b5a4c">South Georgia · real estate note</text>
+  <text x="96" y="520" font-family="system-ui,sans-serif" font-size="20" fill="#6b5a4c">Leey Hernandez · Lock &amp; Key Realty</text>
+  <text x="96" y="580" font-family="system-ui,sans-serif" font-size="16" fill="#8a7664">leeyrealty.com · photo sources unavailable — chart placeholder</text>
 </svg>
 ''',
             encoding="utf-8",
         )
-        svg_rel = f"/assets/blog/{day.replace('-', '')}/{svg_name}"
+        chart_rel = f"/assets/blog/{day.replace('-', '')}/{chart_name}"
         saved.append(
             {
-                "local": svg_rel,
+                "local": chart_rel,
                 "license": "original",
                 "artist": "Leey Realty",
-                "source": "generated",
+                "source": "chart-en",
                 "title": title,
+                "lang": "en",
             }
         )
+        log(f"[assets] EN chart fallback only (no photos): {chart_rel}")
 
     assets = {
         "date": day,
         "queries": queries,
         "images": saved,
-        "cover": saved[0]["local"] if saved else svg_rel,
-        "photo_count": sum(1 for s in saved if s.get("source") != "generated"),
+        "cover": saved[0]["local"] if saved else chart_rel,
+        "photo_count": sum(1 for s in saved if s.get("source") not in ("generated", "chart-en")),
         "createdAt": utc_now(),
     }
     save_json(out_path, assets)
