@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Overnight prep for TOMORROW's 07:00 publish (or DATE if provided).
+# Overnight prep chain: research → topic → assets → write → editor (TOMORROW)
 set -euo pipefail
 ROOT="${LEEY_ROOT:-/home/terrerov/Projects/leey}"
-cd "$ROOT"
-export PATH="${HOME}/.local/bin:${HOME}/.npm-global/bin:/usr/local/bin:${PATH}"
-if [[ -n "${1:-}" ]]; then
-  DAY="$1"
-else
-  DAY="$(date -d 'tomorrow' +%F 2>/dev/null || date -v+1d +%F)"
-fi
-echo "=== blog PREP for $DAY ==="
-python3 scripts/blog_pipeline/run.py --date "$DAY" --stage prep
-echo "DONE prep $DAY"
+export LEEY_ROOT="$ROOT"
+export LEEY_BLOG_TARGET=tomorrow
+DAY="${1:-}"
+fail=0
+for s in 01-research 02-topic 03-assets 04-write 05-editor; do
+  echo ">>>> prep chain: $s"
+  if ! bash "$ROOT/scripts/blog_agents/${s}.sh" ${DAY:+$DAY}; then
+    echo "prep chain FAIL at $s"
+    exit 1
+  fi
+done
+echo "DONE prep chain"

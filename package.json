@@ -16,11 +16,17 @@
     "deploy": "npm run build && npx wrangler deploy",
     "ship": "npm run check && npm run build && npx wrangler deploy",
     "sync:daily": "bash scripts/daily-listings-update.sh",
-    "blog:daily": "bash scripts/blog-publish-morning.sh",
+    "blog:daily": "bash scripts/blog_agents/06-publish.sh",
     "blog:build-check": "npm run check",
     "blog:prep": "bash scripts/blog-prep.sh",
-    "blog:publish": "bash scripts/blog-publish-morning.sh",
-    "blog:pipeline": "python3 scripts/blog_pipeline/run.py"
+    "blog:publish": "bash scripts/blog_agents/06-publish.sh",
+    "blog:pipeline": "python3 scripts/blog_pipeline/run.py",
+    "blog:status": "bash scripts/blog_agents/00-status.sh",
+    "blog:research": "bash scripts/blog_agents/01-research.sh",
+    "blog:topic": "bash scripts/blog_agents/02-topic.sh",
+    "blog:assets": "bash scripts/blog_agents/03-assets.sh",
+    "blog:write": "bash scripts/blog_agents/04-write.sh",
+    "blog:editor": "bash scripts/blog_agents/05-editor.sh"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

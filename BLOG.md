@@ -1,47 +1,54 @@
-# Blog — Notas de Leey (multi-agent + retries)
+# Blog — Notas de Leey (multi-agent Hermes)
 
 ## Live
 - Index: https://leeyrealty.com/blog/
 - Feed: https://leeyrealty.com/data/blog/posts.json
 
-## Multi-agent pipeline
+## Architecture: one Hermes agent per phase
 
-Code: `scripts/blog_pipeline/run.py`
+| Agent cron | ET | Script | Does | Needs | Produces |
+|------------|-----|--------|------|-------|----------|
+| **leey-blog-research** | 21:00 | `blog_agents/01-research.sh` | Season, inventory, free web snippets, LLM synth | listings feed | `research.json` |
+| **leey-blog-topic** | 21:20 | `blog_agents/02-topic.sh` | Score topics bank + research | research | `topic.json` |
+| **leey-blog-assets** | 21:40 | `blog_agents/03-assets.sh` | Commons/Openverse photo download | topic | `assets.json` + JPGs |
+| **leey-blog-writer** | 22:10 | `blog_agents/04-write.sh` | Bilingual SEO draft (free/local + template) | research+topic+assets | `draft.json` |
+| **leey-blog-editor** | 22:40 | `blog_agents/05-editor.sh` | Polish, anti-AI, validation → READY | draft | `final.json`, `READY.json` |
+| **leey-blog-publish** | **07:00** | `blog_agents/06-publish.sh` | posts.json + git + ship | READY (or catch-up) | live blog |
 
+Hermes wrappers: `~/.hermes/scripts/leey-blog-0N-*.sh`  
+Skill: `leey-blog-pipeline` (software-development)
+
+Night agents target **tomorrow**. Publish targets **today**.
+
+## Pipeline code
+`scripts/blog_pipeline/run.py` — stages: research | topic | assets | write | polish | publish
+
+### Failure policy
 | Stage | On failure |
 |-------|------------|
-| **research** | Web fetch 3 tries; LLM synth 3 JSON correction rounds (free→local); deterministic season fallback |
-| **topic** | Bank scoring always works offline |
-| **assets** | Wiki/Openverse retries; broad query pass; SVG cover last resort |
-| **write** | 3 JSON correction rounds; human-voice template fallback |
-| **polish** | 3 polish rounds + up to 2 validation repair rounds (prefers `local` then free) + SEO guards |
-| **publish** | Late prep if missing; preflight repair; hard-gate on cover/titles/bodies; push/ship retry once |
+| research | HTTP retries; LLM JSON 3 rounds; season fallback |
+| topic | Offline bank scoring |
+| assets | Wiki/Openverse retries; broad pass; **EN chart only** if zero photos |
+| write | 3 JSON corrections → human template |
+| editor | polish + up to 2 repair rounds + SEO guards; hard gate cover/titles/bodies |
+| publish | catch-up full run if no READY; push/ship retry once |
 
-Logs per day: `data/blog/pipeline/DATE/pipeline.log.jsonl`  
-Artifacts: `research.round*.txt`, `write.round*.txt`, `repair*.round*.txt`, `READY.json`
-
-### Commands
+## Commands
 ```bash
-npm run blog:prep       # 22:00 — prep TOMORROW
-npm run blog:publish    # 07:00 — publish
-python3 scripts/blog_pipeline/run.py --date YYYY-MM-DD --stage polish --force
+bash scripts/blog_agents/00-status.sh          # gates for tomorrow
+bash scripts/blog_agents/01-research.sh        # single agent
+npm run blog:prep                              # full night chain
+npm run blog:publish                           # morning
+python3 scripts/blog_pipeline/run.py --stage assets --date YYYY-MM-DD --force
 ```
 
-### Hermes crons (ET)
-| Name | When | Script |
-|------|------|--------|
-| `leey-blog-prep` | 22:00 | prep for tomorrow |
-| `leey-blog-morning` | **07:00** | publish |
-
-Models: `free-then-local` → `free` → `local` → `background` (order flips on correction rounds).
-
-### Content rules
-- Leey voice, ES+EN, South Georgia only
-- No invented metrics
-- Real Commons/Openverse photos + attribution captions when available
-- SEO titles/meta + anti-AI scrub
-
 ## Media policy
-- Prefer real Commons/Openverse photos.
+- Prefer real Commons/Openverse photos (unique by hash).
 - No decorative Spanish SVG covers.
 - Charts/infographics only if needed, **English labels only**.
+
+## Content rules
+- Leey voice, ES+EN, South Georgia only
+- No invented metrics
+- SEO titles/meta + anti-AI scrub
+- Figure markers `{{figure:N}}` + sign-off — Leey
