@@ -26,7 +26,9 @@
     "blog:topic": "bash scripts/blog_agents/02-topic.sh",
     "blog:assets": "bash scripts/blog_agents/03-assets.sh",
     "blog:write": "bash scripts/blog_agents/04-write.sh",
-    "blog:editor": "bash scripts/blog_agents/05-editor.sh"
+    "blog:editor": "bash scripts/blog_agents/05-editor.sh",
+    "blog:image-search": "bash scripts/blog_agents/03a-image-search.sh",
+    "blog:image-download": "bash scripts/blog_agents/03b-image-download.sh"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

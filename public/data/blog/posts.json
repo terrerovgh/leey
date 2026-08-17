@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-17T20:44:17.000Z",
+  "updatedAt": "2026-08-17T23:12:31.000Z",
   "posts": [
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
@@ -78,7 +78,7 @@
     {
       "slug": "oferta-sin-prisa-valdosta",
       "date": "2026-08-16",
-      "updatedAt": "2026-08-17T20:16:11.000Z",
+      "updatedAt": "2026-08-17T23:12:31.000Z",
       "category": "buying",
       "readMinutes": 7,
       "tags": [
@@ -96,37 +96,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260816/first-offer-nerves-1.jpg",
-        "altEs": "Casa / oferta · Block Studio",
-        "altEn": "Home / offer · Block Studio"
+        "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
+        "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794"
       },
       "figures": [
         {
           "src": "/assets/blog/20260816/first-offer-nerves-1.jpg",
-          "altEs": "Casa / oferta · Block Studio",
-          "altEn": "Home / offer · Block Studio",
-          "captionEs": "Foto: Block Studio · Public domain",
-          "captionEn": "Photo: Block Studio · Public domain"
+          "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
+          "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794",
+          "captionEs": "Foto listing · Tyler Boatright · Tifton",
+          "captionEn": "Listing photo · Tyler Boatright · Tifton"
         },
         {
           "src": "/assets/blog/20260816/first-offer-nerves-2.jpg",
-          "altEs": "Casa / oferta · Infrogmation of New Orleans",
-          "altEn": "Home / offer · Infrogmation of New Orleans",
-          "captionEs": "Foto: Infrogmation of New Orleans · CC BY-SA 3.0",
-          "captionEn": "Photo: Infrogmation of New Orleans · CC BY-SA 3.0"
+          "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
+          "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794",
+          "captionEs": "Foto listing · Tyler Boatright · Tifton",
+          "captionEn": "Listing photo · Tyler Boatright · Tifton"
         },
         {
           "src": "/assets/blog/20260816/first-offer-nerves-3.jpg",
-          "altEs": "Casa / oferta · MartinD",
-          "altEn": "Home / offer · MartinD",
-          "captionEs": "Foto: MartinD · CC BY-SA 3.0",
-          "captionEn": "Photo: MartinD · CC BY-SA 3.0"
+          "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
+          "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794",
+          "captionEs": "Foto listing · Tyler Boatright · Tifton",
+          "captionEn": "Listing photo · Tyler Boatright · Tifton"
         },
         {
           "src": "/assets/blog/20260816/first-offer-nerves-4.jpg",
-          "altEs": "Casa / oferta · stevendamron",
-          "altEn": "Home / offer · stevendamron",
-          "captionEs": "Foto: stevendamron · by",
-          "captionEn": "Photo: stevendamron · by"
+          "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
+          "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794",
+          "captionEs": "Foto listing · Tyler Boatright · Tifton",
+          "captionEn": "Listing photo · Tyler Boatright · Tifton"
         }
       ],
       "titleEs": "Cómo armo una oferta sin prisa en Valdosta (aunque el mercado diga lo contrario)",

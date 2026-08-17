@@ -5,7 +5,9 @@ Leey blog multi-agent pipeline (free/local-first).
 Stages (agents):
   1 research  — season, local towns, market angle, sources
   2 topic     — pick/refine angle from research + topics bank
-  3 assets    — download free web photos (Wikimedia/Openverse); EN chart only if zero photos
+  3 assets    — image agents: prefer live listing photos, then color web photos (no B&W/archival)
+  3a image-search  — candidate pool only (listings + web)
+  3b image-download — download/filter/save final assets
   4 write     — bilingual draft (free LLM or human template)
   5 polish    — SEO + anti-AI humanizer pass
   6 publish   — merge into posts.json, commit, ship
@@ -508,14 +510,149 @@ def stage_topic(
     return topic
 
 
-# ── Stage 3: Assets (free web images) ──────────────────────────────────────
+# ── Stage 3: Assets / image agents ─────────────────────────────────────────
+
+def _meta_value(meta: dict, *keys: str) -> str:
+    for k in keys:
+        v = meta.get(k)
+        if isinstance(v, dict):
+            v = v.get("value")
+        if v:
+            return re.sub(r"<[^>]+>", " ", str(v)).strip()
+    return ""
+
+
+def image_is_colorful(path: Path, *, min_chroma: float = 12.0, sample: int = 48) -> bool:
+    """Reject grayscale / near-B&W photos. True = keep (color)."""
+    try:
+        from PIL import Image
+    except Exception:
+        return True
+    try:
+        with Image.open(path) as im:
+            im = im.convert("RGB")
+            im.thumbnail((sample, sample))
+            pixels = list(getattr(im, "get_flattened_data", im.getdata)())
+        if not pixels:
+            return False
+        chroma = 0.0
+        for r, g, b in pixels:
+            mx, mn = max(r, g, b), min(r, g, b)
+            chroma += float(mx - mn)
+        avg = chroma / len(pixels)
+        ok = avg >= min_chroma
+        if not ok:
+            log(f"[assets] reject B&W/low-color chroma={avg:.1f} {path.name}")
+        return ok
+    except Exception as e:
+        log(f"[assets] color check fail {path.name}: {e}")
+        return False
+
+
+def looks_archival_or_old(candidate: dict) -> bool:
+    """Reject historical/archival/HABS/old scans and B&W labelled media."""
+    title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''} {candidate.get('description') or ''}".lower()
+    date_raw = str(candidate.get("date") or candidate.get("year") or "")
+    blob = f"{title} {date_raw}".lower()
+
+    bad_tokens = (
+        "black and white",
+        "black-and-white",
+        "b&w",
+        "b & w",
+        "monochrome",
+        "grayscale",
+        "grey scale",
+        "sepia",
+        "habs",
+        "haer",
+        "historic american",
+        "historic photo",
+        "historical photograph",
+        "archival",
+        "archive photo",
+        "glass plate",
+        "daguerre",
+        "tintype",
+        "nitrate negative",
+        "postcard",
+        "old photo",
+        "vintage photo",
+        "circa 18",
+        "circa 19",
+        "19th century",
+        "18th century",
+        "civil war",
+        "wwii",
+        "world war",
+        "depression-era",
+        "dust bowl",
+        "library of congress survey",
+        "measured drawing",
+        "blueprint",
+        "sanborn",
+        "stereo view",
+        "stereograph",
+        "lantern slide",
+        "film negative",
+        "nara ",
+        "national archives",
+    )
+    if any(t in blob for t in bad_tokens):
+        return True
+
+    years = [int(y) for y in re.findall(r"\b(19\d{2}|20[0-2]\d)\b", blob)]
+    if years:
+        if max(years) < 2015:
+            return True
+    return False
+
+
+def download_image(
+    url: str,
+    dest: Path,
+    min_bytes: int = 12000,
+    seen_hashes: set | None = None,
+    *,
+    require_color: bool = True,
+) -> bool:
+    try:
+        data = http_get(url, timeout=45)
+        if len(data) < min_bytes:
+            return False
+        ok_magic = (
+            data[:3] == b"\xff\xd8\xff"
+            or data[:8] == b"\x89PNG\r\n\x1a\n"
+            or data[:4] == b"RIFF"
+        )
+        if not ok_magic and len(data) < 20000:
+            return False
+        h = hashlib.sha1(data).hexdigest()
+        if seen_hashes is not None and h in seen_hashes:
+            log(f"[assets] skip duplicate hash {h[:10]}")
+            return False
+        dest.write_bytes(data)
+        if require_color and not image_is_colorful(dest):
+            try:
+                dest.unlink(missing_ok=True)
+            except Exception:
+                pass
+            return False
+        if seen_hashes is not None:
+            seen_hashes.add(h)
+        return True
+    except Exception as e:
+        log(f"[assets] download fail {url[:80]}: {e}")
+        return False
+
 
 def wikimedia_search(query: str, limit: int = 6) -> list[dict]:
     api = "https://commons.wikimedia.org/w/api.php"
+    q = f'{query} -HABS -HAER -"black and white" -postcard'
     params = {
         "action": "query",
         "generator": "search",
-        "gsrsearch": query,
+        "gsrsearch": q,
         "gsrlimit": str(limit),
         "gsrnamespace": "6",
         "prop": "imageinfo",
@@ -530,41 +667,46 @@ def wikimedia_search(query: str, limit: int = 6) -> list[dict]:
     for _, pg in pages.items():
         info = (pg.get("imageinfo") or [{}])[0]
         mime = info.get("mime") or ""
-        if not mime.startswith("image/"):
-            continue
-        if "svg" in mime:
+        if not mime.startswith("image/") or "svg" in mime:
             continue
         meta = info.get("extmetadata") or {}
-        license_short = (meta.get("LicenseShortName") or {}).get("value") or ""
-        artist = re.sub(r"<[^>]+>", "", (meta.get("Artist") or {}).get("value") or "Wikimedia")
-        # Prefer freely reusable licenses
+        license_short = _meta_value(meta, "LicenseShortName")
+        artist = _meta_value(meta, "Artist") or "Wikimedia"
+        date_meta = _meta_value(meta, "DateTimeOriginal", "DateTime", "DateTimeMetadata")
+        desc = _meta_value(meta, "ImageDescription", "ObjectName")
         lic_l = license_short.lower()
         if not any(x in lic_l for x in ("cc0", "public domain", "cc by", "cc-by", "pd")):
-            # still allow cc by-sa
             if "cc" not in lic_l and "pd" not in lic_l and "public" not in lic_l:
                 continue
         thumb = info.get("thumburl") or info.get("url")
         full = info.get("url")
         if not thumb and not full:
             continue
-        out.append(
-            {
-                "url": thumb or full,
-                "full": full or thumb,
-                "title": pg.get("title") or query,
-                "license": license_short,
-                "artist": artist[:120],
-                "source": "wikimedia",
-                "page": f"https://commons.wikimedia.org/wiki/{urllib.parse.quote(pg.get('title') or '')}",
-            }
-        )
+        cand = {
+            "url": thumb or full,
+            "full": full or thumb,
+            "title": pg.get("title") or query,
+            "license": license_short,
+            "artist": artist[:120],
+            "source": "wikimedia",
+            "page": f"https://commons.wikimedia.org/wiki/{urllib.parse.quote(pg.get('title') or '')}",
+            "date": date_meta,
+            "description": desc[:200],
+        }
+        if looks_archival_or_old(cand):
+            continue
+        out.append(cand)
     return out
 
 
 def openverse_search(query: str, limit: int = 5) -> list[dict]:
-    # Openverse public API — free, attribution required
     url = "https://api.openverse.org/v1/images/?" + urllib.parse.urlencode(
-        {"q": query, "page_size": str(limit), "license": "cc0,pdm,by,by-sa"}
+        {
+            "q": query,
+            "page_size": str(limit),
+            "license": "cc0,pdm,by,by-sa",
+            "category": "photograph",
+        }
     )
     try:
         data = http_get_json(url, timeout=30)
@@ -573,194 +715,214 @@ def openverse_search(query: str, limit: int = 5) -> list[dict]:
         return []
     out = []
     for r in data.get("results") or []:
-        out.append(
-            {
-                "url": r.get("url") or r.get("thumbnail"),
-                "full": r.get("url"),
-                "title": r.get("title") or query,
-                "license": r.get("license") or "cc",
-                "artist": (r.get("creator") or "Openverse")[:120],
-                "source": "openverse",
-                "page": r.get("foreign_landing_url") or r.get("detail_url") or "",
-            }
+        tags = " ".join(
+            t.get("name", t) if isinstance(t, dict) else str(t)
+            for t in (r.get("tags") or [])
         )
+        cand = {
+            "url": r.get("url") or r.get("thumbnail"),
+            "full": r.get("url"),
+            "title": r.get("title") or query,
+            "license": r.get("license") or "cc",
+            "artist": (r.get("creator") or "Openverse")[:120],
+            "source": "openverse",
+            "page": r.get("foreign_landing_url") or r.get("detail_url") or "",
+            "date": str(r.get("created_on") or r.get("date") or ""),
+            "description": f"{r.get('description') or ''} {tags}"[:240],
+        }
+        if looks_archival_or_old(cand):
+            continue
+        out.append(cand)
     return out
 
 
-def download_image(url: str, dest: Path, min_bytes: int = 8000, seen_hashes: set | None = None) -> bool:
-    try:
-        data = http_get(url, timeout=45)
-        if len(data) < min_bytes:
-            return False
-        # basic magic — require real image bytes
-        ok_magic = (
-            data[:3] == b"\xff\xd8\xff"
-            or data[:8] == b"\x89PNG\r\n\x1a\n"
-            or data[:4] == b"RIFF"
-            or data[:4] == b"RIFF"
-        )
-        if not ok_magic and len(data) < 20000:
-            return False
-        # reject near-duplicates across posts
-        h = hashlib.sha1(data).hexdigest()
-        if seen_hashes is not None:
-            if h in seen_hashes:
-                log(f"[assets] skip duplicate hash {h[:10]}")
-                return False
-            seen_hashes.add(h)
-        dest.write_bytes(data)
-        return True
-    except Exception as e:
-        log(f"[assets] download fail {url[:80]}: {e}")
-        return False
+def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
+    """Prefer live Lock & Key / GAMLS listing photos (color, current inventory)."""
+    feed = load_json(ROOT / "public/data/listings.json", {"listings": []})
+    items = feed.get("listings") if isinstance(feed, dict) else feed
+    if not isinstance(items, list):
+        items = []
+
+    areas = [str(a).replace("-", " ").lower() for a in (topic.get("areas") or [])]
+    cat = (topic.get("category") or "").lower()
+    angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {topic.get('id') or ''}".lower()
+    want_interior = any(k in angle or k in cat for k in ("kitchen", "cocina", "interior", "remodel", "decor"))
+    want_porch = any(k in angle for k in ("porch", "porche", "curb"))
+    want_exterior = cat in ("buying", "selling", "neighborhoods", "market", "first_home") or not want_interior
+
+    scored: list[tuple[float, dict]] = []
+    seen_urls: set[str] = set()
+    for it in items:
+        city = str(it.get("city") or "").lower()
+        addr = str(it.get("address") or it.get("title") or "")
+        imgs = it.get("images") or []
+        if not imgs and it.get("image"):
+            imgs = [it.get("image")]
+        if not isinstance(imgs, list):
+            continue
+        area_boost = 0.0
+        for a in areas:
+            if a and (a in city or a in addr.lower()):
+                area_boost += 6.0
+        if not area_boost and areas:
+            area_boost = 1.0
+
+        ordered = list(imgs)
+        if want_interior and len(ordered) > 3:
+            ordered = ordered[1:8] + ordered[:1]
+        elif want_porch or want_exterior:
+            ordered = ordered[:6]
+
+        for idx, url in enumerate(ordered[:8]):
+            u = str(url or "").strip()
+            if not u.startswith("http"):
+                continue
+            if u in seen_urls:
+                continue
+            seen_urls.add(u)
+            ul = u.lower()
+            if any(x in ul for x in ("placeholder", "no-photo", "nophoto", "default-image")):
+                continue
+            score = 20.0 + area_boost - (idx * 0.3)
+            if "gamls" in ul or "connectmls" in ul:
+                score += 4.0
+            if "cdn" in ul:
+                score += 1.0
+            title = f"{addr} - listing photo {idx+1}"
+            scored.append(
+                (
+                    score,
+                    {
+                        "url": u,
+                        "full": u,
+                        "title": title,
+                        "license": "listing photo (Lock & Key / GAMLS inventory)",
+                        "artist": it.get("listedBy") or "Lock & Key Realty",
+                        "source": "listing",
+                        "page": it.get("sourceUrl") or it.get("zillowUrl") or "",
+                        "mlsId": it.get("mlsId") or it.get("id"),
+                        "city": it.get("city"),
+                        "address": addr,
+                        "date": it.get("updatedAt") or "",
+                        "description": f"Active inventory photo - {city}",
+                    },
+                )
+            )
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    out = [c for _, c in scored[:limit]]
+    log(f"[assets] listing candidates={len(out)} from inventory={len(items)}")
+    return out
 
 
 def relevance_score(candidate: dict, topic: dict) -> float:
-    """Higher is better. Filters off-topic Commons noise (docs, cars, maps…)."""
-    title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''}".lower()
-    blob = " ".join(
-        [
-            topic.get("id") or "",
-            topic.get("category") or "",
-            topic.get("angleEn") or "",
-            topic.get("angleEs") or "",
-            " ".join(topic.get("areas") or []),
-            " ".join(topic.get("image_queries") or []),
-        ]
-    ).lower()
+    """Higher is better. Prefer modern color homes; reject archival/off-topic."""
+    if looks_archival_or_old(candidate):
+        return -100.0
 
-    # Hard rejects
+    title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''} {candidate.get('description') or ''}".lower()
+    source = (candidate.get("source") or "").lower()
+
     bad = (
-        "constitution",
-        "djvu",
-        "map of",
-        "locator map",
-        "coat of arms",
-        "flag of",
-        "logo",
-        "svg",
-        "diagram",
-        "chart",
-        "screenshot",
-        "passport",
-        "document",
-        "dealership",
-        "subaru",
-        "toyota",
-        "ford dealer",
-        "airport",
-        "aircraft",
-        "military",
-        "museum interior exhibit",
-        "skeleton",
-        "anatomy",
-        "microscopy",
-        "ellipsis",
-        "postcard large letter",
+        "constitution", "djvu", "map of", "locator map", "coat of arms", "flag of",
+        "logo", "svg", "diagram", "chart", "screenshot", "passport", "document",
+        "dealership", "subaru", "toyota", "ford dealer", "airport", "aircraft",
+        "military", "museum interior exhibit", "skeleton", "anatomy", "microscopy",
+        "ellipsis", "postcard", "statue", "cemetery", "gravestone", "ruin",
+        "demolished", "fire damage", "warship", "locomotive", "steam engine",
     )
     if any(b in title for b in bad):
         return -100.0
 
     score = 0.0
-    # Prefer residential / realty cues
+    if source == "listing":
+        score += 25.0
+    elif source in ("wikimedia", "openverse"):
+        score += 2.0
+
     good = (
-        "house",
-        "home",
-        "residential",
-        "porch",
-        "yard",
-        "for sale",
-        "real estate",
-        "suburban",
-        "ranch",
-        "kitchen",
-        "neighborhood",
-        "street",
-        "downtown",
-        "georgia",
-        "valdosta",
-        "hahira",
-        "adel",
-        "cottage",
-        "bungalow",
-        "front",
-        "door",
-        "lawn",
+        "house", "home", "residential", "porch", "yard", "for sale", "real estate",
+        "suburban", "ranch", "kitchen", "neighborhood", "street", "downtown",
+        "georgia", "valdosta", "hahira", "adel", "cottage", "bungalow", "front",
+        "door", "lawn", "listing", "mls", "exterior", "interior", "driveway",
+        "brick", "siding",
     )
     for g in good:
         if g in title:
             score += 2.0
-    # Place boosts from topic areas
+
     for a in topic.get("areas") or []:
         token = str(a).replace("-", " ").lower()
         if token and token in title:
             score += 4.0
-    # Category boosts
+        if token and token in str(candidate.get("city") or "").lower():
+            score += 5.0
+
     cat = (topic.get("category") or "").lower()
-    if cat in ("buying", "selling") and any(w in title for w in ("for sale", "house", "home", "yard sign", "real estate")):
+    if cat in ("buying", "selling") and any(
+        w in title for w in ("for sale", "house", "home", "yard sign", "real estate", "listing")
+    ):
         score += 3.0
-    if cat == "neighborhoods" and any(w in title for w in ("downtown", "street", "georgia", "town")):
+    if cat == "neighborhoods" and any(w in title for w in ("downtown", "street", "georgia", "town", "listing")):
         score += 3.0
-    if cat in ("decor", "remodel") and any(w in title for w in ("kitchen", "porch", "interior", "room", "house")):
+    if cat in ("decor", "remodel") and any(
+        w in title for w in ("kitchen", "porch", "interior", "room", "house", "listing")
+    ):
         score += 3.0
-    # Mild preference if query words appear
+
     for q in topic.get("image_queries") or []:
         for token in str(q).lower().split():
             if len(token) > 4 and token in title:
                 score += 0.4
-    # Prefer larger / photo-looking titles over abstract art
-    if title.startswith("file:") and "house" not in title and "home" not in title and score < 2:
-        score -= 1.0
+
+    if any(w in title for w in ("historic district plaque", "museum house", "antebellum", "plantation house")):
+        score -= 8.0
     return score
 
 
-def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
-    wd = workdir(day)
-    out_path = wd / "assets.json"
-    if out_path.exists() and not force:
-        log("[assets] reuse existing")
-        return load_json(out_path)
-
+def build_image_queries(topic: dict) -> list[str]:
     queries = list(topic.get("image_queries") or ["South Georgia house exterior"])
-    # expand with towns + generic fallbacks
     for a in topic.get("areas") or []:
         queries.append(f"{a.replace('-', ' ')} Georgia residential house")
     cat = (topic.get("category") or "").lower()
     if cat in ("buying", "selling"):
-        queries.extend(
-            [
-                "house for sale yard sign residential",
-                "for sale sign in front of house",
-                "american suburban home exterior",
-                "brick ranch house front yard",
-            ]
-        )
+        queries.extend([
+            "modern house for sale yard sign color photo",
+            "suburban home exterior driveway color",
+            "american ranch house front yard",
+            "brick house exterior curb appeal",
+        ])
     elif cat == "neighborhoods":
-        queries.extend(
-            [
-                "small town Georgia main street",
-                "south Georgia residential neighborhood",
-                "downtown street Georgia USA",
-            ]
-        )
+        queries.extend([
+            "small town Georgia main street color",
+            "south Georgia residential neighborhood houses",
+            "downtown street Georgia USA color photo",
+        ])
     elif cat in ("decor", "remodel"):
-        queries.extend(
-            [
-                "southern front porch house",
-                "bright kitchen residential interior",
-                "house exterior curb appeal",
-            ]
-        )
+        queries.extend([
+            "southern front porch house color",
+            "bright kitchen residential interior color",
+            "house exterior curb appeal modern",
+        ])
     else:
-        queries.extend(
-            [
-                "Georgia ranch house exterior",
-                "Southern porch house",
-                "American suburban home front yard",
-            ]
-        )
-    queries = list(dict.fromkeys(queries))[:12]
+        queries.extend([
+            "Georgia ranch house exterior color",
+            "Southern porch house residential",
+            "American suburban home front yard",
+        ])
+    cleaned = []
+    for q in queries:
+        qs = str(q).strip()
+        if not qs:
+            continue
+        if "historic" in qs.lower() or "vintage" in qs.lower():
+            continue
+        cleaned.append(qs)
+    return list(dict.fromkeys(cleaned))[:12]
 
+
+def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> list[dict]:
+    queries = queries or build_image_queries(topic)
     candidates: list[dict] = []
     for q in queries:
         for attempt in range(1, 3):
@@ -777,36 +939,71 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
             except Exception as e:
                 log(f"[assets] openverse fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
-        time.sleep(0.3)
+        time.sleep(0.25)
         if len(candidates) >= 40:
             break
+    return candidates
 
-    # score + filter
-    scored = []
-    for c in candidates:
+
+def stage_image_search(day: str, topic: dict, force: bool = False) -> dict:
+    """Agent: image-search - build ranked candidate pool (no heavy downloads)."""
+    wd = workdir(day)
+    out_path = wd / "image_candidates.json"
+    if out_path.exists() and not force:
+        log("[image-search] reuse existing")
+        return load_json(out_path)
+
+    queries = build_image_queries(topic)
+    listing = listing_image_candidates(topic, limit=30)
+    web = collect_web_candidates(topic, queries)
+
+    scored: list[tuple[float, dict]] = []
+    for c in listing + web:
         s = relevance_score(c, topic)
         if s < 0:
             continue
-        scored.append((s, c))
+        scored.append((s, {**c, "_score": s}))
     scored.sort(key=lambda x: x[0], reverse=True)
-    log(f"[assets] candidates={len(candidates)} scored_keep={len(scored)} top={[round(s,1) for s,_ in scored[:5]]}")
 
-    # dedupe by url, keep score order
     seen = set()
-    uniq = []
+    pool = []
     for s, c in scored:
         u = c.get("url") or ""
         if not u or u in seen:
             continue
         seen.add(u)
-        c = {**c, "_score": s}
-        uniq.append(c)
+        pool.append(c)
+        if len(pool) >= 40:
+            break
 
-    saved = []
-    img_dir = wd / "images"
-    pub_dir = ASSETS_PUB / day.replace("-", "")
-    pub_dir.mkdir(parents=True, exist_ok=True)
-    # Global hash set of existing blog photos so posts don't share identical files
+    payload = {
+        "date": day,
+        "topicId": topic.get("id"),
+        "queries": queries,
+        "candidates": pool,
+        "counts": {
+            "listing": sum(1 for c in pool if c.get("source") == "listing"),
+            "web": sum(1 for c in pool if c.get("source") != "listing"),
+            "total": len(pool),
+        },
+        "policy": {
+            "prefer_listings": True,
+            "reject_bw": True,
+            "reject_archival": True,
+            "min_year_hint": 2015,
+        },
+        "createdAt": utc_now(),
+    }
+    save_json(out_path, payload)
+    append_log(wd, "image_search.done", payload["counts"])
+    log(
+        f"[image-search] pool={payload['counts']['total']} "
+        f"listing={payload['counts']['listing']} web={payload['counts']['web']}"
+    )
+    return payload
+
+
+def _global_seen_hashes(pub_dir: Path) -> set[str]:
     seen_hashes: set[str] = set()
     for existing in ASSETS_PUB.rglob("*"):
         if existing.suffix.lower() not in (".jpg", ".jpeg", ".png", ".webp"):
@@ -820,38 +1017,99 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
             seen_hashes.add(hashlib.sha1(existing.read_bytes()).hexdigest())
         except Exception:
             pass
+    return seen_hashes
 
-    for i, c in enumerate(uniq[:30]):
-        ext = ".jpg"
+
+def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
+    """Agent: image-download - download ranked pool with color/archival filters."""
+    wd = workdir(day)
+    out_path = wd / "assets.json"
+    if out_path.exists() and not force:
+        log("[image-download] reuse existing assets")
+        return load_json(out_path)
+
+    cand_path = wd / "image_candidates.json"
+    if force or not cand_path.exists():
+        pool_doc = stage_image_search(day, topic, force=True)
+    else:
+        pool_doc = load_json(cand_path) or stage_image_search(day, topic, force=True)
+    pool = list(pool_doc.get("candidates") or [])
+    queries = list(pool_doc.get("queries") or build_image_queries(topic))
+
+    pool.sort(
+        key=lambda c: (
+            0 if c.get("source") == "listing" else 1,
+            -(float(c.get("_score") or 0)),
+        )
+    )
+
+    img_dir = wd / "images"
+    img_dir.mkdir(parents=True, exist_ok=True)
+    pub_dir = ASSETS_PUB / day.replace("-", "")
+    pub_dir.mkdir(parents=True, exist_ok=True)
+    if force:
+        for old in pub_dir.glob("*"):
+            if old.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp", ".svg"):
+                try:
+                    old.unlink()
+                except Exception:
+                    pass
+
+    seen_hashes = _global_seen_hashes(pub_dir)
+    seen_urls: set[str] = set()
+    saved: list[dict] = []
+
+    def try_save(c: dict, name_prefix: str) -> bool:
+        nonlocal saved
         u = c.get("url") or ""
         full = c.get("full") or u
-        if ".png" in u.lower() or ".png" in full.lower():
+        if not u or u in seen_urls:
+            return False
+        if looks_archival_or_old(c):
+            return False
+        seen_urls.add(u)
+        ext = ".jpg"
+        probe = (full or u).lower()
+        if ".png" in probe:
             ext = ".png"
-        elif ".webp" in u.lower():
+        elif ".webp" in probe:
             ext = ".webp"
-        name = f"{topic['id']}-{i+1}{ext}"
+        name = f"{name_prefix}-{len(saved)+1}{ext}"
         dest_work = img_dir / name
         dest_pub = pub_dir / name
-        ok = download_image(u, dest_work, seen_hashes=seen_hashes)
+        ok = download_image(u, dest_work, seen_hashes=seen_hashes, require_color=True)
         if not ok and full != u:
-            ok = download_image(full, dest_work, seen_hashes=seen_hashes)
-        if ok:
-            shutil.copy2(dest_work, dest_pub)
-            rel = f"/assets/blog/{day.replace('-', '')}/{name}"
-            saved.append({**c, "local": rel, "file": name})
-            log(f"[assets] saved {rel} score={c.get('_score')} ({c.get('license')}) {(c.get('title') or '')[:60]}")
+            ok = download_image(full, dest_work, seen_hashes=seen_hashes, require_color=True)
+        if not ok:
+            return False
+        shutil.copy2(dest_work, dest_pub)
+        rel = f"/assets/blog/{day.replace('-', '')}/{name}"
+        saved.append({**c, "local": rel, "file": name})
+        log(
+            f"[image-download] saved {rel} src={c.get('source')} "
+            f"score={c.get('_score')} {(c.get('title') or '')[:55]}"
+        )
+        return True
+
+    for c in [x for x in pool if x.get("source") == "listing"]:
+        try_save(c, f"{topic.get('id') or 'img'}")
         if len(saved) >= 4:
             break
 
-    # If still thin, one more broad pass with residential queries only
+    if len(saved) < 4:
+        for c in [x for x in pool if x.get("source") != "listing"]:
+            try_save(c, f"{topic.get('id') or 'img'}")
+            if len(saved) >= 4:
+                break
+
     if len(saved) < 2:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
         for q in [
-            "house exterior United States residential",
-            "front porch American home",
-            "suburban house yard for sale sign",
-            "brick house front yard USA",
-            "ranch house exterior driveway",
+            "modern suburban house exterior United States color",
+            "new construction home front yard driveway",
+            "ranch house exterior color photo",
+            "front porch residential home color",
+            "bright kitchen residential interior window",
         ]:
             try:
                 more = wikimedia_search(q, limit=8) + openverse_search(q, limit=5)
@@ -863,18 +1121,8 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
                 for s, c in more_scored:
                     if s < 0:
                         continue
-                    u = c.get("url") or ""
-                    if not u or u in seen:
-                        continue
-                    seen.add(u)
-                    name = f"{topic['id']}-b{len(saved)+1}.jpg"
-                    dest_work = img_dir / name
-                    dest_pub = pub_dir / name
-                    if download_image(u, dest_work, seen_hashes=seen_hashes):
-                        shutil.copy2(dest_work, dest_pub)
-                        rel = f"/assets/blog/{day.replace('-', '')}/{name}"
-                        saved.append({**c, "local": rel, "file": name, "_score": s})
-                        log(f"[assets] broad saved {rel} score={s} {(c.get('title') or '')[:50]}")
+                    c = {**c, "_score": s}
+                    try_save(c, f"{topic.get('id') or 'img'}-b")
                     if len(saved) >= 4:
                         break
             except Exception as e:
@@ -882,49 +1130,53 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
             if len(saved) >= 4:
                 break
 
-    # Prefer real photos only. Optional English-only chart as last resort
-    # (never Spanish decorative SVG covers).
+    if len(saved) < 1:
+        for c in listing_image_candidates(topic, limit=40):
+            c = {**c, "_score": relevance_score(c, topic)}
+            try_save(c, f"{topic.get('id') or 'img'}-L")
+            if len(saved) >= 3:
+                break
+
     chart_rel = None
     if not saved:
         append_log(wd, "assets.en_chart_fallback", True)
         chart_name = f"{topic['id']}-chart-en.svg"
         chart_path = pub_dir / chart_name
-        title = (topic.get("headline_angle") or topic.get("angleEn") or topic.get("angleEs") or "Note")[
-            :56
-        ]
-        # English-only labels — charts are for US readers of the EN body
+        title = (topic.get("headline_angle") or topic.get("angleEn") or topic.get("angleEs") or "Note")[:56]
         chart_path.write_text(
-            f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="{_xml(title)}">
-  <rect width="1200" height="720" fill="#f7f1e8"/>
-  <rect x="48" y="48" width="1104" height="624" rx="28" fill="#fffdf9" stroke="#e2d4bc"/>
-  <rect x="96" y="120" width="140" height="8" rx="4" fill="#c45c26"/>
-  <text x="96" y="220" font-family="Georgia, serif" font-size="36" fill="#1c1612">{_xml(title)}</text>
-  <text x="96" y="290" font-family="system-ui,sans-serif" font-size="22" fill="#6b5a4c">South Georgia · real estate note</text>
-  <text x="96" y="520" font-family="system-ui,sans-serif" font-size="20" fill="#6b5a4c">Leey Hernandez · Lock &amp; Key Realty</text>
-  <text x="96" y="580" font-family="system-ui,sans-serif" font-size="16" fill="#8a7664">leeyrealty.com · photo sources unavailable — chart placeholder</text>
-</svg>
-''',
+            '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">'
+            '<rect width="1200" height="720" fill="#f7f1e8"/>'
+            '<rect x="48" y="48" width="1104" height="624" rx="28" fill="#fffdf9" stroke="#e2d4bc"/>'
+            f'<text x="96" y="220" font-family="Georgia, serif" font-size="36" fill="#1c1612">{_xml(title)}</text>'
+            '<text x="96" y="290" font-family="system-ui,sans-serif" font-size="22" fill="#6b5a4c">South Georgia real estate note</text>'
+            '<text x="96" y="520" font-family="system-ui,sans-serif" font-size="20" fill="#6b5a4c">Leey Hernandez - Lock and Key Realty</text>'
+            '</svg>\n',
             encoding="utf-8",
         )
         chart_rel = f"/assets/blog/{day.replace('-', '')}/{chart_name}"
-        saved.append(
-            {
-                "local": chart_rel,
-                "license": "original",
-                "artist": "Leey Realty",
-                "source": "chart-en",
-                "title": title,
-                "lang": "en",
-            }
-        )
+        saved.append({
+            "local": chart_rel,
+            "license": "original",
+            "artist": "Leey Realty",
+            "source": "chart-en",
+            "title": title,
+            "lang": "en",
+        })
         log(f"[assets] EN chart fallback only (no photos): {chart_rel}")
 
+    listing_n = sum(1 for s in saved if s.get("source") == "listing")
     assets = {
         "date": day,
         "queries": queries,
         "images": saved,
         "cover": saved[0]["local"] if saved else chart_rel,
         "photo_count": sum(1 for s in saved if s.get("source") not in ("generated", "chart-en")),
+        "listing_photo_count": listing_n,
+        "policy": {
+            "prefer_listings": True,
+            "reject_bw": True,
+            "reject_archival": True,
+        },
         "createdAt": utc_now(),
     }
     save_json(out_path, assets)
@@ -937,9 +1189,15 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         + "\n",
         encoding="utf-8",
     )
-    append_log(wd, "assets.done", {"images": len(saved), "photos": assets["photo_count"]})
-    log(f"[assets] {len(saved)} image(s) photos={assets['photo_count']}")
+    append_log(wd, "assets.done", {"images": len(saved), "photos": assets["photo_count"], "listing": listing_n})
+    log(f"[image-download] {len(saved)} image(s) photos={assets['photo_count']} listing={listing_n}")
     return assets
+
+
+def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
+    """Combined assets stage = image-search + image-download."""
+    stage_image_search(day, topic, force=force)
+    return stage_image_download(day, topic, force=force)
 
 
 def _xml(s: str) -> str:
@@ -1483,7 +1741,7 @@ def main() -> int:
     ap.add_argument("--date", default=date.today().isoformat())
     ap.add_argument(
         "--stage",
-        choices=["all", "research", "topic", "assets", "write", "polish", "publish", "prep"],
+        choices=["all", "research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish", "prep"],
         default="all",
     )
     ap.add_argument("--force", action="store_true")
@@ -1499,7 +1757,7 @@ def main() -> int:
 
     stage = args.stage
     # Single-stage mode: run ONLY that stage (no cascade via load-or-run fallbacks).
-    single = stage in ("research", "topic", "assets", "write", "polish", "publish")
+    single = stage in ("research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish")
 
     research = load_json(workdir(day) / "research.json")
     topic = load_json(workdir(day) / "topic.json")
@@ -1520,6 +1778,24 @@ def main() -> int:
         if stage == "topic":
             log("[stage] topic only — stop")
             return 0
+
+    if stage == "image-search":
+        if not topic:
+            if not research:
+                research = stage_research(day, force=False)
+            topic = stage_topic(day, research, force=False, topic_id=args.topic_id)
+        stage_image_search(day, topic, force=True)
+        log("[stage] image-search only — stop")
+        return 0
+
+    if stage == "image-download":
+        if not topic:
+            if not research:
+                research = stage_research(day, force=False)
+            topic = stage_topic(day, research, force=False, topic_id=args.topic_id)
+        assets = stage_image_download(day, topic, force=True)
+        log("[stage] image-download only — stop")
+        return 0
 
     if stage in ("all", "prep", "assets"):
         if not research:
