@@ -549,6 +549,36 @@ def image_is_colorful(path: Path, *, min_chroma: float = 12.0, sample: int = 48)
         return False
 
 
+def compress_image_file(path: Path, *, max_edge: int = 1600, max_bytes: int = 1_200_000, quality: int = 82) -> None:
+    """Downscale/re-encode large photos so blog assets stay web-friendly."""
+    try:
+        if path.suffix.lower() not in (".jpg", ".jpeg", ".png", ".webp"):
+            return
+        if path.stat().st_size <= max_bytes and True:
+            # still normalize huge dimensions even if under byte cap slightly over
+            pass
+        from PIL import Image
+        with Image.open(path) as im:
+            im = im.convert("RGB")
+            if max(im.size) > max_edge or path.stat().st_size > max_bytes:
+                im.thumbnail((max_edge, max_edge))
+                tmp = path.with_suffix(".tmp.jpg")
+                im.save(tmp, "JPEG", quality=quality, optimize=True, progressive=True)
+                tmp.replace(path if path.suffix.lower() in (".jpg", ".jpeg") else path.with_suffix(".jpg"))
+                # if original was png/webp renamed, remove old if needed
+                if path.suffix.lower() not in (".jpg", ".jpeg") and path.exists() and path != tmp:
+                    try:
+                        # when replaced onto .jpg sibling
+                        jpg = path.with_suffix(".jpg")
+                        if jpg.exists() and path.exists() and path != jpg:
+                            path.unlink(missing_ok=True)
+                    except Exception:
+                        pass
+                log(f"[assets] compressed {path.name} -> {path.with_suffix('.jpg').stat().st_size if path.with_suffix('.jpg').exists() else path.stat().st_size}B")
+    except Exception as e:
+        log(f"[assets] compress skip {path.name}: {e}")
+
+
 def looks_archival_or_old(candidate: dict) -> bool:
     """Reject historical/archival/HABS/old scans and B&W labelled media."""
     title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''} {candidate.get('description') or ''}".lower()
@@ -1090,8 +1120,20 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         if not ok:
             return False
         shutil.copy2(dest_work, dest_pub)
-        rel = f"/assets/blog/{day.replace('-', '')}/{name}"
-        saved.append({**c, "local": rel, "file": name})
+        compress_image_file(dest_pub)
+        # if compress rewrote png/webp to jpg, keep names consistent when possible
+        if dest_pub.suffix.lower() not in (".jpg", ".jpeg") and dest_pub.with_suffix(".jpg").exists():
+            try:
+                dest_pub.unlink(missing_ok=True)
+            except Exception:
+                pass
+            dest_pub = dest_pub.with_suffix(".jpg")
+            name = dest_pub.name
+        elif dest_pub.suffix.lower() in (".jpg", ".jpeg"):
+            # recompressed in place
+            pass
+        rel = f"/assets/blog/{day.replace('-', '')}/{dest_pub.name}"
+        saved.append({**c, "local": rel, "file": dest_pub.name})
         log(
             f"[image-download] saved {rel} src={c.get('source')} "
             f"score={c.get('_score')} {(c.get('title') or '')[:55]}"
