@@ -69,8 +69,6 @@ for code in agents:
     text = re.sub(r"<[^>]+>", "\n", text)
     text = text.replace("&nbsp;", " ").replace("&amp;", "&")
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    hrefs = re.findall(r'href=["\'](/[^"\']+/(\d{7,8}))["\']', page)
-    path_by_mls = {mid: path for path, mid in hrefs}
     for i, ln in enumerate(lines):
         m = re.match(r"MLS#:\s*(\d+)", ln)
         if not m:
@@ -112,8 +110,6 @@ PY
 
 # 2) Sync feed (GAMLS public + optional manual seed)
 log "[sync] running SYNC_MODE=$SYNC_MODE npm run sync:zillow"
-# Avoid burning RapidAPI quota on daily free runs: force empty zillow location search
-# by using existing .env but skip realtor; zillow may still 404 bymlsid — fine.
 SYNC_MODE="$SYNC_MODE" REALTOR_ENABLED=0 npm run sync:zillow
 
 FEED="public/data/listings.json"
@@ -148,14 +144,12 @@ print(f"[validate] agents: {dict(Counter(x.get('listedBy') or '?' for x in rows)
 print(f"[validate] cities: {dict(Counter(x.get('city') or '?' for x in rows))}")
 print(f"[validate] syncedAt={d.get('syncedAt')} sources={d.get('meta',{}).get('sourcesUsed')}")
 
-# Hard fails: empty, missing prices on all, non L&K contamination
 if with_price == 0:
     print("[validate] FAIL: all prices are 0")
     sys.exit(3)
 if non_lk:
     print(f"[validate] FAIL: non Lock & Key brokerages present: {non_lk}")
     sys.exit(4)
-# Soft warnings only
 if with_phone < n:
     print(f"[validate] WARN: {n - with_phone} listings missing listedByPhone")
 if with_multi < max(1, n // 2):
@@ -164,14 +158,10 @@ print("[validate] OK")
 PY
 
 # 4) Commit / ship only if inventory files changed
-CHANGED=$(git status --porcelain -- data/mls-ids.txt public/data/listings.json scripts/sync-zillow.mjs || true)
-if [[ -z "${CHANGED}" ]]; then
-  # still allow ship if dist is stale? only when feed differs from last commit
-  if git diff --quiet HEAD -- public/data/listings.json data/mls-ids.txt 2>/dev/null; then
-    log "[git] no inventory changes — skip commit/ship"
-    log "DONE: no-op"
-    exit 0
-  fi
+if git diff --quiet HEAD -- public/data/listings.json data/mls-ids.txt 2>/dev/null; then
+  log "[git] no inventory changes — skip commit/ship"
+  log "DONE: no-op"
+  exit 0
 fi
 
 log "[git] staging inventory files"
@@ -187,7 +177,6 @@ COUNT=$(python3 -c 'import json;print(len(json.load(open("public/data/listings.j
 MSG="chore(sync): daily Lock & Key inventory refresh (${COUNT} listings)"
 
 git commit -m "$MSG" || die "commit failed"
-# push if remote configured
 if git remote get-url origin >/dev/null 2>&1; then
   git push origin HEAD || die "push failed"
   log "[git] pushed"
