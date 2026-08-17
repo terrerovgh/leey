@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "mixed",
-  "syncedAt": "2026-08-17T15:07:26.646Z",
+  "syncedAt": "2026-08-17T17:16:17.313Z",
   "agent": {
     "name": "Leyanis Hernandez",
     "zillowProfileUrl": "https://www.zillow.com/profile/leey63/",
@@ -64,7 +64,8 @@
       "lock & key",
       "lockandkey"
     ],
-    "note": "Lock & Key Realty inventory only (brokerage/MLS/manual filter)."
+    "note": "Lock & Key Realty inventory only (brokerage/MLS/manual filter).",
+    "deployNote": "force-asset-reupload 2026-08-17"
   },
   "listings": [
     {
