@@ -351,16 +351,18 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
       parsed.zip ||
       ""
   );
-  const price = num(
+  // GAMLS / manual-shaped rows often only set priceUsd (not price).
+  // Comma-formatted strings ("372,450") must be stripped before Number().
+  const priceRaw =
     raw.unformattedPrice ??
-      raw.price ??
-      hdp.price ??
-      raw.listPrice ??
-      raw.list_price ??
-      raw.price_raw ??
-      (typeof raw.price === "string"
-        ? String(raw.price).replace(/[^0-9.]/g, "")
-        : undefined),
+    raw.priceUsd ??
+    raw.price ??
+    hdp.price ??
+    raw.listPrice ??
+    raw.list_price ??
+    raw.price_raw;
+  const price = num(
+    typeof priceRaw === "string" ? String(priceRaw).replace(/[^0-9.]/g, "") : priceRaw,
     0
   );
   const beds = num(
@@ -577,11 +579,94 @@ function matchesBrokerage(rawOrListing) {
   return BROKERAGE_FILTER.some((f) => bro.includes(f.replace(/\s+/g, " ")));
 }
 
+function streetNorm(s) {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[.,#]/g, " ")
+    .replace(/\bstreet\b/g, "st")
+    .replace(/\bavenue\b/g, "ave")
+    .replace(/\broad\b/g, "rd")
+    .replace(/\bdrive\b/g, "dr")
+    .replace(/\bcourt\b/g, "ct")
+    .replace(/\blane\b/g, "ln")
+    .replace(/\bboulevard\b/g, "blvd")
+    .replace(/\bhighway\b/g, "hwy")
+    .replace(/\bnorth\b/g, "n")
+    .replace(/\bsouth\b/g, "s")
+    .replace(/\beast\b/g, "e")
+    .replace(/\bwest\b/g, "w")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function addressKey(p) {
+  const rawStreet = (p.address || p.title || "").split(",")[0] || p.title || "";
+  const street = streetNorm(rawStreet);
+  const zip = String(p.zip || "").trim();
+  const city = String(p.city || "").toLowerCase().trim();
+  if (!street) return "";
+  // Prefer house# + zip: collapses "601 40th St E" vs "601 40th Street"
+  const house = (street.match(/^(\d+)/) || [])[1];
+  if (house && zip) return `addr:${house}|${zip}`;
+  if (house && city) return `addr:${house}|${city}`;
+  return `addr:${street}|${zip || city}`;
+}
+
 function listingKey(p) {
   if (p.mlsId) return `mls:${String(p.mlsId).toLowerCase()}`;
   if (p.zpid) return `zpid:${p.zpid}`;
-  const addr = `${p.address || p.title}|${p.zip || p.city}`.toLowerCase();
-  return `addr:${addr}`;
+  return addressKey(p) || `id:${p.id || Math.random()}`;
+}
+
+function findExistingKey(map, p) {
+  const candidates = [
+    p.mlsId ? `mls:${String(p.mlsId).toLowerCase()}` : null,
+    p.zpid ? `zpid:${p.zpid}` : null,
+    addressKey(p) || null,
+  ].filter(Boolean);
+  for (const c of candidates) {
+    if (map.has(c)) return c;
+  }
+  // scan by address when keys differ (manual zpid vs gamls mls)
+  const ak = addressKey(p);
+  if (ak) {
+    for (const [k, prev] of map.entries()) {
+      if (addressKey(prev) === ak) return k;
+    }
+  }
+  return null;
+}
+
+function mergeInto(prev, p) {
+  for (const key of Object.keys(p)) {
+    if (prev[key] == null || prev[key] === "" || prev[key] === 0) {
+      if (p[key] != null && p[key] !== "") prev[key] = p[key];
+    }
+  }
+  // Prefer GAMLS office/agent when present (more authoritative for L&K)
+  if (p.sourcePortal === "mls") {
+    if (p.brokerage) prev.brokerage = p.brokerage;
+    if (p.listedBy) prev.listedBy = p.listedBy;
+    if (p.mlsId) prev.mlsId = p.mlsId;
+    if (p.sourceUrl) prev.sourceUrl = p.sourceUrl;
+    if (p.description && String(p.description).length > String(prev.description || "").length) {
+      prev.description = p.description;
+    }
+    if (p.title && String(p.title).length > String(prev.title || "").length) {
+      prev.title = p.title;
+    }
+    if (p.address && String(p.address).length > String(prev.address || "").length) {
+      prev.address = p.address;
+    }
+  }
+  if (p.zpid && !prev.zpid) prev.zpid = p.zpid;
+  if (p.zillowUrl && !prev.zillowUrl) prev.zillowUrl = p.zillowUrl;
+  if ((!prev.images || !prev.images.length) && p.images?.length) {
+    prev.images = p.images;
+    prev.image = p.image;
+  }
+  // keep id stable: prefer mls-* when we have mlsId
+  if (prev.mlsId) prev.id = `mls-${String(prev.mlsId).toLowerCase()}`;
 }
 
 function mergeListings(groups) {
@@ -591,28 +676,17 @@ function mergeListings(groups) {
     items.forEach((raw, i) => {
       const p = normalizeListing(raw, i, portal);
       if (!(p.priceUsd > 0 || p.image || p.zpid || p.mlsId)) return;
-      // Honesty: do not invent listing agent/office for market inventory.
-      // Manual / MLS agent inventory may keep explicit fields from source.
-      const k = listingKey(p);
-      if (map.has(k)) {
-        // fill gaps from newer source without clobbering
-        const prev = map.get(k);
-        for (const key of Object.keys(p)) {
-          if (prev[key] == null || prev[key] === "" || prev[key] === 0) {
-            if (p[key] != null && p[key] !== "") prev[key] = p[key];
-          }
-        }
-        if ((!prev.images || !prev.images.length) && p.images?.length) {
-          prev.images = p.images;
-          prev.image = p.image;
-        }
+      const existing = findExistingKey(map, p);
+      if (existing) {
+        mergeInto(map.get(existing), p);
       } else {
+        const k = listingKey(p);
         map.set(k, p);
         order.push(k);
       }
     });
   }
-  return order.map((k) => map.get(k)).slice(0, MAX_LISTINGS);
+  return order.map((k) => map.get(k)).filter(Boolean).slice(0, MAX_LISTINGS);
 }
 
 function demoFeed() {
@@ -1159,7 +1233,25 @@ async function gamlsFetchListing(mlsId) {
 
   const streetNum = String(row.stn || "").trim();
   const streetName = String(row.strt || "").trim();
-  const street = [streetNum, streetName].filter(Boolean).join(" ").trim();
+  let street = [streetNum, streetName].filter(Boolean).join(" ").trim();
+  // listing_url slug is fuller than strt (e.g. "40th-street" vs "40th")
+  const pathHint = String(row.listing_url || "");
+  if (pathHint) {
+    const slugPart = pathHint.replace(/^\/+/, "").split("/")[0] || "";
+    // 601-40th-street-tifton-ga-31794 → drop trailing city-state-zip
+    const m = slugPart.match(
+      new RegExp(
+        `^${streetNum ? streetNum + "-" : ""}(.+?)-${slug(String(row.city || ""))}-ga-\\d{5}$`,
+        "i"
+      )
+    );
+    if (m) {
+      const fromSlug = m[1].replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      if (fromSlug.length > streetName.length) {
+        street = [streetNum, fromSlug].filter(Boolean).join(" ").trim();
+      }
+    }
+  }
   const city = String(row.city || htmlMeta.city || "").trim();
   const zip = String(row.zip || htmlMeta.zip || "").trim();
   const state = "GA";

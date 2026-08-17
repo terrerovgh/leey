@@ -2,13 +2,32 @@
 # Resolved via public Georgia MLS (no RapidAPI needed).
 # Sold are skipped unless GAMLS_INCLUDE_SOLD=1.
 #
-# How to get IDs:
-#  1) Office flyer / CRM / GAMLS member search
-#  2) Zillow or Realtor listing page → MLS field
-#  3) Public listing URL: https://www.georgiamls.com/listing/{MLS}
-#
-# Example (sold — do not leave active):
-# 20146849
-# 20132531
+# Source: GAMLS office LKEY01 agent pages (Active only), scraped 2026-08-17.
+# Verify: https://www.georgiamls.com/listing/{MLS}
 #
 # Paste ACTIVE ids below:
+10726301
+10766426
+10800313
+10778141
+10765680
+10765687
+10721807
+10672911
+10822717
+10817521
+10688253
+10722410
+10719932
+10762401
+10762402
+10824706
+10782312
+10756306
+10799244
+10785743
+10660369
+10725083
+10788039
+10715638
+10715609
