@@ -394,10 +394,15 @@ No hype. No invented statistics. Towns only from South Georgia list: {SOUTH_GA}.
 
 # ── Stage 2: Topic ─────────────────────────────────────────────────────────
 
-def stage_topic(day: str, research: dict, force: bool = False) -> dict:
+def stage_topic(
+    day: str,
+    research: dict,
+    force: bool = False,
+    topic_id: str | None = None,
+) -> dict:
     wd = workdir(day)
     out_path = wd / "topic.json"
-    if out_path.exists() and not force:
+    if out_path.exists() and not force and not topic_id:
         log("[topic] reuse existing")
         return load_json(out_path)
 
@@ -405,35 +410,47 @@ def stage_topic(day: str, research: dict, force: bool = False) -> dict:
     posts = load_json(POSTS_PATH, {"posts": []}).get("posts") or []
     used = " ".join(json.dumps(p, ensure_ascii=False) for p in posts).lower()
 
-    scored = []
-    for t in topics:
-        score = sum(1 for p in posts if t["id"] in json.dumps(p, ensure_ascii=False))
-        key = t["angleEs"].split(":")[0].lower()
-        if key in used:
-            score += 2
-        # season boost
-        season = (research.get("season") or "").lower()
-        blob = (t["angleEs"] + t["angleEn"] + t["category"]).lower()
-        if "summer" in season and any(w in blob for w in ("porche", "patio", "yard", "humedad", "paint")):
-            score -= 1
-        if "spring" in season and any(w in blob for w in ("polen", "porche", "yard", "list")):
-            score -= 1
-        if "fall" in season and any(w in blob for w in ("list", "precio", "school", "vender")):
-            score -= 1
-        scored.append((score, t))
-    scored.sort(key=lambda x: (x[0], x[1]["id"]))
-    base = scored[0][1]
+    base = None
+    if topic_id:
+        for t in topics:
+            if t.get("id") == topic_id:
+                base = t
+                break
+        if not base:
+            raise SystemExit(f"[topic] unknown topic_id={topic_id}")
+        log(f"[topic] pinned id={topic_id}")
+    else:
+        scored = []
+        for t in topics:
+            score = sum(1 for p in posts if t["id"] in json.dumps(p, ensure_ascii=False))
+            key = t["angleEs"].split(":")[0].lower()
+            if key in used:
+                score += 2
+            # season boost
+            season = (research.get("season") or "").lower()
+            blob = (t["angleEs"] + t["angleEn"] + t["category"]).lower()
+            if "summer" in season and any(w in blob for w in ("porche", "patio", "yard", "humedad", "paint")):
+                score -= 1
+            if "spring" in season and any(w in blob for w in ("polen", "porche", "yard", "list")):
+                score -= 1
+            if "fall" in season and any(w in blob for w in ("list", "precio", "school", "vender")):
+                score -= 1
+            scored.append((score, t))
+        scored.sort(key=lambda x: (x[0], x[1]["id"]))
+        base = scored[0][1]
 
     synth = research.get("synth") or {}
+    # When topic is pinned, prefer bank angles over research drift
+    prefer_bank = bool(topic_id)
     topic = {
         "id": base["id"],
-        "category": synth.get("category") or base["category"],
-        "areas": synth.get("primary_towns") or base.get("areas") or ["valdosta"],
+        "category": base["category"] if prefer_bank else (synth.get("category") or base["category"]),
+        "areas": base.get("areas") or synth.get("primary_towns") or ["valdosta"],
         "angleEs": base["angleEs"],
         "angleEn": base["angleEn"],
-        "headline_angle": synth.get("headline_angle") or base["angleEs"],
+        "headline_angle": base["angleEs"] if prefer_bank else (synth.get("headline_angle") or base["angleEs"]),
         "why_now": synth.get("why_now") or research.get("season"),
-        "keywords_es": synth.get("keywords_es") or base.get("mustInclude") or [],
+        "keywords_es": base.get("mustInclude") or synth.get("keywords_es") or [],
         "keywords_en": synth.get("keywords_en") or [],
         "image_queries": synth.get("image_queries")
         or [
@@ -442,11 +459,24 @@ def stage_topic(day: str, research: dict, force: bool = False) -> dict:
             "brick ranch house yard Georgia",
         ],
         "researchDate": day,
+        "pinned": prefer_bank,
     }
     # normalize areas to slugs-ish
     topic["areas"] = [
         re.sub(r"[^a-z0-9]+", "-", str(a).lower()).strip("-") for a in topic["areas"]
     ][:4]
+    # enrich image queries from topic must-include / angle
+    extra_q = []
+    blob = (topic["angleEn"] + " " + topic["angleEs"]).lower()
+    if any(w in blob for w in ("porch", "porche")):
+        extra_q += ["southern front porch house", "georgia porch rocking chair home"]
+    if any(w in blob for w in ("kitchen", "cocina")):
+        extra_q += ["bright kitchen interior residential", "kitchen remodel before after home"]
+    if any(w in blob for w in ("offer", "oferta")):
+        extra_q += ["house for sale yard sign", "couple touring home interior"]
+    if any(w in blob for w in ("valdosta", "hahira", "adel", "town", "pueblo")):
+        extra_q += ["small town georgia main street", "south georgia residential neighborhood"]
+    topic["image_queries"] = list(dict.fromkeys((topic.get("image_queries") or []) + extra_q))[:8]
     save_json(out_path, topic)
     log(f"[topic] {topic['id']} / {topic['category']}")
     return topic
@@ -1093,7 +1123,14 @@ Post actual:
 
 # ── Stage 6: Publish ───────────────────────────────────────────────────────
 
-def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int:
+def stage_publish(
+    day: str,
+    final: dict | None = None,
+    dry: bool = False,
+    replace: bool = False,
+    preserve_slug: str | None = None,
+    no_ship: bool = False,
+) -> int:
     wd = workdir(day)
     final = final or load_json(wd / "final.json")
     if not final:
@@ -1127,16 +1164,27 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
 
     posts_data = load_json(POSTS_PATH, {"version": 1, "posts": []})
     posts = posts_data.get("posts") or []
-    # skip if date exists
+    # skip if date exists (unless replace)
     if any(p.get("date") == day for p in posts):
-        log(f"[publish] already published for {day}")
-        return 0
-    # unique slug
-    slug = final["slug"]
+        if replace:
+            before = len(posts)
+            posts = [p for p in posts if p.get("date") != day]
+            log(f"[publish] replace mode: removed {before - len(posts)} post(s) for {day}")
+            append_log(wd, "publish.replace", {"removed": before - len(posts)})
+        else:
+            log(f"[publish] already published for {day}")
+            return 0
+    # unique slug — prefer preserved slug on rewrite
+    slug = preserve_slug or final.get("slug") or f"note-{day}"
+    slug = slugify(str(slug))
     existing = {p.get("slug") for p in posts}
-    if slug in existing:
+    if slug in existing and not replace:
         slug = f"{slug}-{day[5:].replace('-', '')}"
-        final["slug"] = slug
+    elif slug in existing and replace:
+        # still unique among remaining
+        if slug in existing:
+            slug = f"{slug}-r{day[8:]}"
+    final["slug"] = slug
 
     post = {
         "slug": slug,
@@ -1167,10 +1215,17 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
 
     if dry:
         log(f"[publish] DRY would publish {slug}")
+        save_json(wd / "final.json", final)
         return 0
 
     save_json(POSTS_PATH, posts_data)
     log(f"[publish] wrote posts.json (+{slug})")
+
+    if no_ship:
+        log("[publish] no-ship: feed updated, skip git/ship")
+        save_json(wd / "PUBLISHED.json", {"slug": slug, "at": utc_now(), "validation": checks, "replaced": replace, "no_ship": True})
+        append_log(wd, "publish.done_no_ship", {"slug": slug})
+        return 0
 
     # git + ship
     env = os.environ.copy()
@@ -1180,8 +1235,13 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
     if st.returncode == 0:
         log("[publish] nothing staged after write?")
     else:
+        msg = (
+            f"content(blog): rewrite multi-agent note {slug}"
+            if replace
+            else f"content(blog): multi-agent daily note {slug}"
+        )
         subprocess.run(
-            ["git", "commit", "-m", f"content(blog): multi-agent daily note {slug}"],
+            ["git", "commit", "-m", msg],
             cwd=str(ROOT),
             check=False,
         )
@@ -1204,8 +1264,8 @@ def stage_publish(day: str, final: dict | None = None, dry: bool = False) -> int
             if r.returncode != 0:
                 append_log(wd, "publish.ship_fail", {"code": r.returncode})
                 return 3
-    save_json(wd / "PUBLISHED.json", {"slug": slug, "at": utc_now(), "validation": checks})
-    append_log(wd, "publish.done", {"slug": slug})
+    save_json(wd / "PUBLISHED.json", {"slug": slug, "at": utc_now(), "validation": checks, "replaced": replace})
+    append_log(wd, "publish.done", {"slug": slug, "replaced": replace})
     log(f"[publish] DONE {slug}")
     return 0
 
@@ -1220,10 +1280,14 @@ def main() -> int:
     )
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--dry-publish", action="store_true")
+    ap.add_argument("--replace", action="store_true", help="Replace existing post for --date")
+    ap.add_argument("--topic-id", default=None, help="Pin topic bank id (e.g. porch-seasonal)")
+    ap.add_argument("--preserve-slug", default=None, help="Keep this slug on publish/replace")
+    ap.add_argument("--no-ship", action="store_true", help="Update posts.json only (no git/ship)")
     args = ap.parse_args()
     day = args.date
     os.chdir(ROOT)
-    log(f"=== leey blog pipeline {day} stage={args.stage} ===")
+    log(f"=== leey blog pipeline {day} stage={args.stage} force={args.force} topic={args.topic_id} ===")
 
     if args.stage in ("all", "prep", "research"):
         research = stage_research(day, force=args.force)
@@ -1231,9 +1295,11 @@ def main() -> int:
         research = load_json(workdir(day) / "research.json") or stage_research(day)
 
     if args.stage in ("all", "prep", "topic"):
-        topic = stage_topic(day, research, force=args.force)
+        topic = stage_topic(day, research, force=args.force, topic_id=args.topic_id)
     else:
-        topic = load_json(workdir(day) / "topic.json") or stage_topic(day, research)
+        topic = load_json(workdir(day) / "topic.json") or stage_topic(
+            day, research, topic_id=args.topic_id
+        )
 
     if args.stage in ("all", "prep", "assets"):
         assets = stage_assets(day, topic, force=args.force)
@@ -1251,7 +1317,14 @@ def main() -> int:
         final = load_json(workdir(day) / "final.json") or stage_polish(day, draft)
 
     if args.stage in ("all", "publish"):
-        return stage_publish(day, final, dry=args.dry_publish)
+        return stage_publish(
+            day,
+            final,
+            dry=args.dry_publish,
+            replace=args.replace,
+            preserve_slug=args.preserve_slug,
+            no_ship=args.no_ship,
+        )
 
     log(f"[prep] ready for publish: {(workdir(day) / 'READY.json').exists()}")
     return 0
