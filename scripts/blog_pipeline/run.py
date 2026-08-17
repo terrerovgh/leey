@@ -615,6 +615,105 @@ def download_image(url: str, dest: Path, min_bytes: int = 8000, seen_hashes: set
         return False
 
 
+def relevance_score(candidate: dict, topic: dict) -> float:
+    """Higher is better. Filters off-topic Commons noise (docs, cars, maps…)."""
+    title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''}".lower()
+    blob = " ".join(
+        [
+            topic.get("id") or "",
+            topic.get("category") or "",
+            topic.get("angleEn") or "",
+            topic.get("angleEs") or "",
+            " ".join(topic.get("areas") or []),
+            " ".join(topic.get("image_queries") or []),
+        ]
+    ).lower()
+
+    # Hard rejects
+    bad = (
+        "constitution",
+        "djvu",
+        "map of",
+        "locator map",
+        "coat of arms",
+        "flag of",
+        "logo",
+        "svg",
+        "diagram",
+        "chart",
+        "screenshot",
+        "passport",
+        "document",
+        "dealership",
+        "subaru",
+        "toyota",
+        "ford dealer",
+        "airport",
+        "aircraft",
+        "military",
+        "museum interior exhibit",
+        "skeleton",
+        "anatomy",
+        "microscopy",
+        "ellipsis",
+        "postcard large letter",
+    )
+    if any(b in title for b in bad):
+        return -100.0
+
+    score = 0.0
+    # Prefer residential / realty cues
+    good = (
+        "house",
+        "home",
+        "residential",
+        "porch",
+        "yard",
+        "for sale",
+        "real estate",
+        "suburban",
+        "ranch",
+        "kitchen",
+        "neighborhood",
+        "street",
+        "downtown",
+        "georgia",
+        "valdosta",
+        "hahira",
+        "adel",
+        "cottage",
+        "bungalow",
+        "front",
+        "door",
+        "lawn",
+    )
+    for g in good:
+        if g in title:
+            score += 2.0
+    # Place boosts from topic areas
+    for a in topic.get("areas") or []:
+        token = str(a).replace("-", " ").lower()
+        if token and token in title:
+            score += 4.0
+    # Category boosts
+    cat = (topic.get("category") or "").lower()
+    if cat in ("buying", "selling") and any(w in title for w in ("for sale", "house", "home", "yard sign", "real estate")):
+        score += 3.0
+    if cat == "neighborhoods" and any(w in title for w in ("downtown", "street", "georgia", "town")):
+        score += 3.0
+    if cat in ("decor", "remodel") and any(w in title for w in ("kitchen", "porch", "interior", "room", "house")):
+        score += 3.0
+    # Mild preference if query words appear
+    for q in topic.get("image_queries") or []:
+        for token in str(q).lower().split():
+            if len(token) > 4 and token in title:
+                score += 0.4
+    # Prefer larger / photo-looking titles over abstract art
+    if title.startswith("file:") and "house" not in title and "home" not in title and score < 2:
+        score -= 1.0
+    return score
+
+
 def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
     wd = workdir(day)
     out_path = wd / "assets.json"
@@ -622,48 +721,85 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         log("[assets] reuse existing")
         return load_json(out_path)
 
-    queries = topic.get("image_queries") or ["South Georgia house exterior"]
+    queries = list(topic.get("image_queries") or ["South Georgia house exterior"])
     # expand with towns + generic fallbacks
     for a in topic.get("areas") or []:
         queries.append(f"{a.replace('-', ' ')} Georgia residential house")
-    queries.extend(
-        [
-            "Georgia ranch house exterior",
-            "Southern porch house",
-            "American suburban home front yard",
-            "kitchen remodel residential interior",
-        ]
-    )
-    queries = list(dict.fromkeys(queries))[:8]
+    cat = (topic.get("category") or "").lower()
+    if cat in ("buying", "selling"):
+        queries.extend(
+            [
+                "house for sale yard sign residential",
+                "for sale sign in front of house",
+                "american suburban home exterior",
+                "brick ranch house front yard",
+            ]
+        )
+    elif cat == "neighborhoods":
+        queries.extend(
+            [
+                "small town Georgia main street",
+                "south Georgia residential neighborhood",
+                "downtown street Georgia USA",
+            ]
+        )
+    elif cat in ("decor", "remodel"):
+        queries.extend(
+            [
+                "southern front porch house",
+                "bright kitchen residential interior",
+                "house exterior curb appeal",
+            ]
+        )
+    else:
+        queries.extend(
+            [
+                "Georgia ranch house exterior",
+                "Southern porch house",
+                "American suburban home front yard",
+            ]
+        )
+    queries = list(dict.fromkeys(queries))[:12]
 
     candidates: list[dict] = []
     for q in queries:
         for attempt in range(1, 3):
             try:
-                candidates.extend(wikimedia_search(q, limit=5))
+                candidates.extend(wikimedia_search(q, limit=6))
                 break
             except Exception as e:
                 log(f"[assets] wiki fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
         for attempt in range(1, 3):
             try:
-                candidates.extend(openverse_search(q, limit=4))
+                candidates.extend(openverse_search(q, limit=5))
                 break
             except Exception as e:
                 log(f"[assets] openverse fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
-        time.sleep(0.35)
-        if len(candidates) >= 20:
+        time.sleep(0.3)
+        if len(candidates) >= 40:
             break
 
-    # dedupe by url
+    # score + filter
+    scored = []
+    for c in candidates:
+        s = relevance_score(c, topic)
+        if s < 0:
+            continue
+        scored.append((s, c))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    log(f"[assets] candidates={len(candidates)} scored_keep={len(scored)} top={[round(s,1) for s,_ in scored[:5]]}")
+
+    # dedupe by url, keep score order
     seen = set()
     uniq = []
-    for c in candidates:
+    for s, c in scored:
         u = c.get("url") or ""
         if not u or u in seen:
             continue
         seen.add(u)
+        c = {**c, "_score": s}
         uniq.append(c)
 
     saved = []
@@ -675,7 +811,6 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
     for existing in ASSETS_PUB.rglob("*"):
         if existing.suffix.lower() not in (".jpg", ".jpeg", ".png", ".webp"):
             continue
-        # skip files belonging to this day's folder (we're rewriting them)
         try:
             if pub_dir in existing.parents or existing.parent == pub_dir:
                 continue
@@ -686,7 +821,7 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
         except Exception:
             pass
 
-    for i, c in enumerate(uniq[:18]):
+    for i, c in enumerate(uniq[:30]):
         ext = ".jpg"
         u = c.get("url") or ""
         full = c.get("full") or u
@@ -704,23 +839,30 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
             shutil.copy2(dest_work, dest_pub)
             rel = f"/assets/blog/{day.replace('-', '')}/{name}"
             saved.append({**c, "local": rel, "file": name})
-            log(f"[assets] saved {rel} ({c.get('license')})")
+            log(f"[assets] saved {rel} score={c.get('_score')} ({c.get('license')}) {(c.get('title') or '')[:60]}")
         if len(saved) >= 4:
             break
 
-    # If still thin, one more broad pass
+    # If still thin, one more broad pass with residential queries only
     if len(saved) < 2:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
         for q in [
-            "house exterior United States",
+            "house exterior United States residential",
             "front porch American home",
-            "suburban house yard",
-            "kitchen window natural light home",
-            "for sale home yard sign residential",
-            "small town main street Georgia USA",
+            "suburban house yard for sale sign",
+            "brick house front yard USA",
+            "ranch house exterior driveway",
         ]:
             try:
-                for c in wikimedia_search(q, limit=6) + openverse_search(q, limit=4):
+                more = wikimedia_search(q, limit=8) + openverse_search(q, limit=5)
+                more_scored = sorted(
+                    ((relevance_score(c, topic), c) for c in more),
+                    key=lambda x: x[0],
+                    reverse=True,
+                )
+                for s, c in more_scored:
+                    if s < 0:
+                        continue
                     u = c.get("url") or ""
                     if not u or u in seen:
                         continue
@@ -731,8 +873,8 @@ def stage_assets(day: str, topic: dict, force: bool = False) -> dict:
                     if download_image(u, dest_work, seen_hashes=seen_hashes):
                         shutil.copy2(dest_work, dest_pub)
                         rel = f"/assets/blog/{day.replace('-', '')}/{name}"
-                        saved.append({**c, "local": rel, "file": name})
-                        log(f"[assets] broad saved {rel}")
+                        saved.append({**c, "local": rel, "file": name, "_score": s})
+                        log(f"[assets] broad saved {rel} score={s} {(c.get('title') or '')[:50]}")
                     if len(saved) >= 4:
                         break
             except Exception as e:

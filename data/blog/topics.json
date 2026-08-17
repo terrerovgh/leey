@@ -3,17 +3,37 @@
     "id": "porch-seasonal",
     "category": "decor",
     "areas": ["valdosta", "hahira"],
-    "angleEs": "Porche en temporada de polen o lluvia: qué limpiar primero y qué no vale la pena comprar.",
-    "angleEn": "Porch in pollen or rain season: what to clean first and what is not worth buying.",
-    "mustInclude": ["porche", "sur de Georgia", "visita"]
+    "angleEs": "El porche del sur de Georgia: lo primero que mira la gente y lo que sí vale arreglar.",
+    "angleEn": "The South Georgia porch: what people notice first and what is worth fixing.",
+    "mustInclude": ["porche", "sur de Georgia", "visita"],
+    "image_queries": [
+      "southern front porch house",
+      "american front porch rocking chair",
+      "wooden porch residential home USA",
+      "brick house front porch",
+      "georgia porch home exterior",
+      "house front steps porch railing",
+      "curb appeal front porch flowers",
+      "southern home veranda"
+    ]
   },
   {
     "id": "first-offer-nerves",
     "category": "buying",
-    "areas": ["valdosta", "tifton"],
-    "angleEs": "La primera oferta: cómo bajar el nervio sin bajar el criterio.",
-    "angleEn": "The first offer: how to calm the nerves without lowering standards.",
-    "mustInclude": ["oferta", "inspección", "presupuesto"]
+    "areas": ["valdosta", "tifton", "hahira"],
+    "angleEs": "Cómo armo una oferta sin prisa en Valdosta (aunque el mercado diga lo contrario).",
+    "angleEn": "How I build an offer without rushing in Valdosta (even when the market says otherwise).",
+    "mustInclude": ["oferta", "inspección", "presupuesto", "Valdosta"],
+    "image_queries": [
+      "house for sale yard sign United States",
+      "real estate for sale sign front yard",
+      "residential home exterior with for sale sign",
+      "couple looking at house exterior",
+      "homebuyer touring house interior",
+      "suburban house front porch Georgia",
+      "American brick ranch house for sale",
+      "open house residential street USA"
+    ]
   },
   {
     "id": "list-before-paint",
