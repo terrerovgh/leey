@@ -54,17 +54,17 @@ const LISTINGS = FEED.listings.filter((p) => p.status === "for_sale" || p.status
 
 /* ── Area data (mirror of lib/areas.ts) ──────────────────────────── */
 const AREAS = [
-  { slug: "valdosta", city: "Valdosta", state: "GA", taglineEs: "El corazón del sur de Georgia.", taglineEn: "South Georgia's hub city.", bodyEs: ["Valdosta es el centro económico del sur de Georgia: sede de Valdosta State University, hospital regional y corredores comerciales sobre la I-75. Sus barrios combinan ranchos de ladrillo asequibles con casas nuevas en desarrollos planificados.", "Como agente bilingüe licenciada en Georgia y Florida, ayudo a familias a comprar y vender en Valdosta sin fricción, en español o en inglés. Conozco los precios por barrio, las escuelas y qué reparaciones valen la pena antes de listar."], bodyEn: ["Valdosta is the economic hub of South Georgia — home to Valdosta State University, a regional hospital, and I-75 commercial corridors.", "As a bilingual agent licensed in Georgia and Florida, I help families buy and sell in Valdosta with no friction, in Spanish or English."], kwEs: ["realtor Valdosta GA", "casas en venta Valdosta"], kwEn: ["Valdosta realtor", "homes for sale Valdosta GA"] },
+  { slug: "valdosta", city: "Valdosta", state: "GA", taglineEs: "El centro del sur de Georgia para comprar o vender con guía local.", taglineEn: "South Georgia’s hub for buying or selling with local guidance.", bodyEs: ["Valdosta es el centro económico del sur de Georgia: sede de Valdosta State University, hospital regional y corredores comerciales sobre la I-75. Sus barrios combinan ranchos de ladrillo asequibles con casas nuevas en desarrollos planificados.", "Como agente bilingüe de Lock & Key Realty, licenciada en Georgia y Florida, ayudo a familias a comprar y vender en Valdosta en español o en inglés. Te oriento en precio por zona, escuelas y qué reparaciones valen la pena antes de listar o ofertar."], bodyEn: ["Valdosta is the economic hub of South Georgia — home to Valdosta State University, a regional hospital, and I-75 commercial corridors.", "As a bilingual Lock & Key Realty agent licensed in Georgia and Florida, I help families buy and sell in Valdosta in Spanish or English."], kwEs: ["realtor Valdosta GA", "casas en venta Valdosta", "Leey Hernandez Valdosta"], kwEn: ["Valdosta realtor", "homes for sale Valdosta GA", "Leey Hernandez Valdosta"] },
   { slug: "hahira", city: "Hahira", state: "GA", taglineEs: "Pueblo unido, lotes amplios, a minutos de Valdosta.", taglineEn: "Close-knit town, wider lots, minutes from Valdosta.", bodyEs: ["Hahira conserva el encanto de un pueblo pequeño con lotes más generosos y una comunidad muy unida.", "Te ayudo a encontrar esa casa con porche y jardín en Hahira, o a listar la tuya."], bodyEn: ["Hahira keeps small-town charm with wider lots and a tight-knit community.", "I'll help you find that porch-and-yard home in Hahira, or list yours."], kwEs: ["realtor Hahira GA", "casas Hahira"], kwEn: ["Hahira realtor", "homes for sale Hahira GA"] },
   { slug: "adel", city: "Adel", state: "GA", taglineEs: "Condado de Cook. Buen valor y ambiente familiar.", taglineEn: "Cook County. Solid value and a family feel.", bodyEs: ["Adel, en el condado de Cook, ofrece casas con muy buen valor y un ambiente familiar auténtico.", "Conozco el inventario de Adel y te guío desde la búsqueda hasta el cierre."], bodyEn: ["Adel, in Cook County, offers strong home value and an authentic family feel.", "I know Adel's inventory and I'll walk you from search to closing."], kwEs: ["realtor Adel GA", "casas en Adel GA"], kwEn: ["Adel realtor", "homes for sale Adel GA"] },
-  { slug: "sparks", city: "Sparks", state: "GA", taglineEs: "Opciones accesibles junto a Adel.", taglineEn: "Attainable options next to Adel.", bodyEs: ["Sparks es una comunidad pequeña junto a Adel con opciones de vivienda más accesibles.", "Te ayudo a evaluar propiedades en Sparks con datos reales de mercado."], bodyEn: ["Sparks is a small community next to Adel with attainable housing.", "I'll help you evaluate Sparks properties with real market data."], kwEs: ["realtor Sparks GA", "casas Sparks GA"], kwEn: ["Sparks realtor", "homes for sale Sparks GA"] },
+  { slug: "sparks", city: "Sparks", state: "GA", taglineEs: "Opciones más accesibles junto a Adel.", taglineEn: "More attainable options next to Adel.", bodyEs: ["Sparks es una comunidad pequeña junto a Adel con opciones de vivienda más accesibles.", "Te ayudo a evaluar propiedades en Sparks con datos reales de mercado."], bodyEn: ["Sparks is a small community next to Adel with attainable housing.", "I'll help you evaluate Sparks properties with real market data."], kwEs: ["realtor Sparks GA", "casas Sparks GA"], kwEn: ["Sparks realtor", "homes for sale Sparks GA"] },
   { slug: "lenox", city: "Lenox", state: "GA", taglineEs: "Vida de pueblo tranquilo cerca del corredor I-75.", taglineEn: "Quiet town living near the I-75 corridor.", bodyEs: ["Lenox combina la calma de un pueblo con la ventaja de estar cerca del corredor I-75.", "Busco contigo la propiedad adecuada en Lenox."], bodyEn: ["Lenox pairs small-town calm with proximity to the I-75 corridor.", "I'll search Lenox with you."], kwEs: ["realtor Lenox GA", "casas Lenox GA"], kwEn: ["Lenox realtor", "homes for sale Lenox GA"] },
-  { slug: "ray-city", city: "Ray City", state: "GA", taglineEs: "Condado de Berrien. Casas con terreno y comunidad.", taglineEn: "Berrien County. Homes with land and community.", bodyEs: ["Ray City atrae a quienes buscan casa con terreno y una comunidad cercana.", "Te ayudo a encontrar esa propiedad con terreno en Ray City."], bodyEn: ["Ray City draws buyers wanting homes with land and a close community.", "I'll help you find that land-and-home property in Ray City."], kwEs: ["realtor Ray City GA", "casas Ray City GA"], kwEn: ["Ray City realtor", "homes for sale Ray City GA"] },
-  { slug: "moultrie", city: "Moultrie", state: "GA", taglineEs: "Condado de Colquitt. Pueblo activo con buen parque residencial.", taglineEn: "Colquitt County. Active town with solid residential stock.", bodyEs: ["Moultrie es un pueblo activo con inventario residencial sólido y lotes grandes.", "Si buscas casa con terreno en Moultrie, te ayudo a identificar la mejor opción."], bodyEn: ["Moultrie is an active town with solid residential stock and large lots.", "If you want a home with land in Moultrie, I'll help you spot the best option."], kwEs: ["realtor Moultrie GA", "casas Moultrie GA"], kwEn: ["Moultrie realtor", "homes for sale Moultrie GA"] },
+  { slug: "ray-city", city: "Ray City", state: "GA", taglineEs: "Condado de Berrien. Casas con terreno y comunidad unida.", taglineEn: "Berrien County. Homes with land and community.", bodyEs: ["Ray City atrae a quienes buscan casa con terreno y una comunidad cercana.", "Te ayudo a encontrar esa propiedad con terreno en Ray City."], bodyEn: ["Ray City draws buyers wanting homes with land and a close community.", "I'll help you find that land-and-home property in Ray City."], kwEs: ["realtor Ray City GA", "casas Ray City GA"], kwEn: ["Ray City realtor", "homes for sale Ray City GA"] },
+  { slug: "moultrie", city: "Moultrie", state: "GA", taglineEs: "Condado de Colquitt. Ciudad activa con buen stock residencial.", taglineEn: "Colquitt County. Active town with solid residential stock.", bodyEs: ["Moultrie es un pueblo activo con inventario residencial sólido y lotes grandes.", "Si buscas casa con terreno en Moultrie, te ayudo a identificar la mejor opción."], bodyEn: ["Moultrie is an active town with solid residential stock and large lots.", "If you want a home with land in Moultrie, I'll help you spot the best option."], kwEs: ["realtor Moultrie GA", "casas Moultrie GA"], kwEn: ["Moultrie realtor", "homes for sale Moultrie GA"] },
   { slug: "thomasville", city: "Thomasville", state: "GA", taglineEs: "Condado de Thomas. Encanto histórico y barrios consolidados.", taglineEn: "Thomas County. Historic charm and established neighborhoods.", bodyEs: ["Thomasville destaca por su encanto histórico, sus bungalows y barrios con sombra de robles.", "Te ayudo a navegar el mercado histórico de Thomasville."], bodyEn: ["Thomasville stands out for historic charm, oak-shaded streets, and character bungalows.", "I'll help you navigate Thomasville's historic market."], kwEs: ["realtor Thomasville GA", "casas Thomasville GA"], kwEn: ["Thomasville realtor", "homes for sale Thomasville GA"] },
   { slug: "nashville", city: "Nashville", state: "GA", taglineEs: "Condado de Berrien. Ritmo de pueblo pequeño y opciones accesibles.", taglineEn: "Berrien County. Small-town pace and attainable options.", bodyEs: ["Nashville ofrece el ritmo de un pueblo pequeño y opciones de vivienda accesibles.", "Te acompaño en la compra o venta de tu casa en Nashville."], bodyEn: ["Nashville offers small-town pace and attainable housing.", "I'll stand with you through buying or selling your Nashville home."], kwEs: ["realtor Nashville GA", "casas Nashville GA"], kwEn: ["Nashville realtor", "homes for sale Nashville GA"] },
   { slug: "tifton", city: "Tifton", state: "GA", taglineEs: "Condado de Tift. Energía universitaria, comercios y casas familiares.", taglineEn: "Tift County. Campus energy, retail corridors, family homes.", bodyEs: ["Tifton suma energía universitaria, corredores comerciales y casas familiares bien ubicadas.", "Te ayudo a comprar o vender en Tifton con conocimiento del mercado local."], bodyEn: ["Tifton blends campus energy, retail corridors, and well-located family homes.", "I'll help you buy or sell in Tifton with local-market knowledge."], kwEs: ["realtor Tifton GA", "casas Tifton GA"], kwEn: ["Tifton realtor", "homes for sale Tifton GA"] },
-  { slug: "north-florida", city: "North Florida", state: "FL", taglineEs: "Compra y vende al sur de la línea estatal.", taglineEn: "Buy and sell south of the state line.", bodyEs: ["Si cruzas desde Georgia hacia el norte de Florida, trabajar con una agente licenciada en ambos estados ahorra meses.", "Te ayudo con la compra o venta de tu propiedad en el norte de Florida."], bodyEn: ["If you're crossing from Georgia into North Florida, working with an agent licensed in both states saves months.", "I'll help you buy or sell your North Florida property."], kwEs: ["realtor norte de Florida", "casas norte de Florida"], kwEn: ["North Florida realtor", "homes for sale North Florida"] },
+  { slug: "north-florida", city: "North Florida", state: "FL", taglineEs: "Compra y vende al sur de la línea estatal — licencia en Florida incluida.", taglineEn: "Buy and sell south of the state line — Florida license included.", bodyEs: ["Si cruzas desde Georgia hacia el norte de Florida, una sola agente licenciada en ambos estados evita cambiar de profesional a mitad del proceso.", "Te ayudo a comprar o vender en el norte de Florida en español o en inglés, con el mismo proceso claro que uso en el sur de Georgia."], bodyEn: ["If you're crossing from Georgia into North Florida, one agent licensed in both states means you don't switch professionals mid-move.", "I'll help you buy or sell in North Florida in Spanish or English, with the same clear process I use across South Georgia."], kwEs: ["realtor norte de Florida", "casas norte de Florida"], kwEn: ["North Florida realtor", "homes for sale North Florida"] },
 ];
 
 /* ── HTML helpers ─────────────────────────────────────────────────── */
@@ -206,7 +206,7 @@ function agentLd() {
     logo: `${SITE_URL}/assets/lock-and-key-logo.png`,
     telephone: PHONE_TEL,
     email: EMAIL,
-    description: "Real estate agent licensed in Georgia and Florida with Lock & Key Realty. Serving Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton and North Florida.",
+    description: "Leyanis “Leey” Hernandez is a bilingual real estate agent with Lock & Key Realty, licensed in Georgia and Florida. She helps families buy and sell homes in Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida — in Spanish or English.",
     knowsLanguage: ["es", "en"],
     areaServed: [
       ...["Valdosta", "Hahira", "Adel", "Sparks", "Lenox", "Ray City", "Moultrie", "Thomasville", "Nashville", "Tifton"].map((n) => ({
@@ -299,10 +299,25 @@ const pages = [];
 pages.push({
   file: "index.html",
   head: buildHead({
-    title: `${AGENT} | Realtor bilingüe · Sur de Georgia & Florida`,
-    description: `${AGENT} — agente de ${BROKERAGE}. Licenciada en Georgia y Florida. Casas en ${AREAS.map((a) => a.city).join(", ")}. ${PHONE_DISPLAY}.`,
+    title: "Leey Hernandez | Realtor bilingüe en Valdosta y el sur de Georgia",
+    description: `Compra o vende con ${AGENT} de ${BROKERAGE}. Licenciada en Georgia y Florida. Atención en español e inglés en Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton y el norte de Florida. Llama al ${PHONE_DISPLAY}.`,
     path: "/",
-    keywords: ["realtor Valdosta", "realtor Moultrie", "realtor Thomasville", "realtor Tifton", "agente inmobiliario bilingüe", "Lock and Key Realty"],
+    keywords: [
+      "Leey Hernandez realtor",
+      "Leyanis Hernandez realtor",
+      "realtor Valdosta GA",
+      "realtor Moultrie",
+      "realtor Thomasville",
+      "realtor Tifton",
+      "Hahira homes for sale",
+      "Adel GA real estate",
+      "Lock and Key Realty",
+      "comprar casa sur Georgia",
+      "vender casa Valdosta",
+      "agente inmobiliario bilingüe Valdosta",
+      "bilingual realtor South Georgia",
+      "Georgia Florida real estate agent",
+    ],
     jsonLd: [agentLd()],
   }),
   body: homeContent(),
@@ -311,10 +326,17 @@ pages.push({
 pages.push({
   file: "properties/index.html",
   head: buildHead({
-    title: "Casas en venta · Sur de Georgia & Florida | Leey Hernandez",
-    description: "Inventario de casas en venta en Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton y Norte de Florida con Leey, agente bilingüe de Lock & Key Realty.",
+    title: "Casas en venta en el sur de Georgia y Florida | Leey Hernandez",
+    description: `Casas de ${BROKERAGE} en venta en Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton y el norte de Florida. Filtra por precio, habitaciones y tipo. Trabaja con Leey, agente bilingüe licenciada en Georgia y Florida. ${PHONE_DISPLAY}.`,
     path: "/properties",
-    keywords: ["casas en venta Valdosta", "homes for sale South Georgia", "casas en venta Florida", "MLS Georgia real estate"],
+    keywords: [
+      "casas en venta Valdosta",
+      "homes for sale South Georgia",
+      "Lock & Key Realty listings",
+      "casas en venta Florida",
+      "MLS Georgia real estate",
+      "Leey Hernandez listings",
+    ],
     jsonLd: [agentLd()],
   }),
   body: propertiesContent(),
