@@ -16,9 +16,9 @@ export const en: Strings = {
   hero: {
     title: "Your next home in South Georgia.",
     subtitle:
-      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida.",
-    cta1: "View homes",
-    cta2: "Get in touch",
+      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida. Spanish or English.",
+    cta1: "View homes for sale",
+    cta2: "Talk to Leey",
     speakEs: "Hablamos español",
   },
 
@@ -54,7 +54,7 @@ export const en: Strings = {
     items: [
       {
         title: "Buying",
-        desc: "Local search, tours, offers, and closing — clear numbers, no rush.",
+        desc: "Local search, tours, offers, and closing. Clear numbers, no rush.",
       },
       {
         title: "Selling",
@@ -158,23 +158,28 @@ export const en: Strings = {
 
   listings: {
     eyebrow: "Homes",
-    title: "Local selection",
+    title: "Homes for sale in South Georgia",
     subtitle:
-      "Inventory with Lock & Key Realty. Every card shows the office, agent, and Leey’s contact.",
+      "Local market inventory so you can see what’s moving in each town. Every card connects you with me at Lock & Key Realty for tours and offers.",
     viewAll: "View all",
     filters: "Filters",
+    liveLabel: "Inventory updated",
+    marketLabel: "Local market · not only Leey’s listings",
+    previewLabel: "Preview · connect Zillow or MLS for live inventory",
+    loadingLabel: "Loading inventory…",
     search: {
-      placeholder: "City or ZIP",
+      placeholder: "City, address, or ZIP",
       type: "Type",
       beds: "Beds",
       price: "Max price",
+      city: "City",
       all: "All",
       any: "Any",
       from: "From",
       upTo: "Up to",
       clear: "Clear",
       apply: "Apply",
-      noResults: "No results with those filters.",
+      noResults: "No results with those filters. Try another city or raise the price cap.",
       nResults: (n: number) =>
         `${n} ${n === 1 ? "property" : "properties"}`,
     },
@@ -202,6 +207,12 @@ export const en: Strings = {
     },
     cta: "Schedule a tour",
     contactForPrice: "Inquire for price",
+    sort: {
+      newest: "Newest",
+      priceAsc: "Price: low to high",
+      priceDesc: "Price: high to low",
+      sqftDesc: "Largest",
+    },
   },
 
   testimonials: {

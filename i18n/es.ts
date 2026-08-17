@@ -1,6 +1,6 @@
 /**
- * Español — copy compacto, sin repetición.
- * Bilingüe solo en bio (+ frase corta opcional).
+ * Español — copy compacto, sin relleno de IA.
+ * Bilingüe solo en bio (+ frase corta opcional en hero).
  */
 export const es = {
   nav: {
@@ -18,9 +18,9 @@ export const es = {
   hero: {
     title: "Tu próxima casa en el sur de Georgia.",
     subtitle:
-      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida.",
-    cta1: "Ver propiedades",
-    cta2: "Contactar",
+      "Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida. En español o en inglés.",
+    cta1: "Ver casas en venta",
+    cta2: "Hablar con Leey",
     speakEs: "Hablamos español",
   },
 
@@ -56,7 +56,7 @@ export const es = {
     items: [
       {
         title: "Comprar",
-        desc: "Búsqueda local, visitas, ofertas y cierre — con calma y números claros.",
+        desc: "Búsqueda local, visitas, ofertas y cierre. Números claros, sin prisa.",
       },
       {
         title: "Vender",
@@ -160,23 +160,28 @@ export const es = {
 
   listings: {
     eyebrow: "Propiedades",
-    title: "Selección local",
+    title: "Casas en venta en el sur de Georgia",
     subtitle:
-      "Inventario con Lock & Key Realty. Cada ficha muestra oficina, agente y contacto de Leey.",
+      "Inventario del mercado local para que veas qué se mueve en cada zona. Cada ficha te conecta conmigo (Lock & Key Realty) para visitas y ofertas.",
     viewAll: "Ver todas",
     filters: "Filtros",
+    liveLabel: "Inventario actualizado",
+    marketLabel: "Mercado local · no es solo listados de Leey",
+    previewLabel: "Vista previa · conecta Zillow o MLS para inventario en vivo",
+    loadingLabel: "Cargando inventario…",
     search: {
-      placeholder: "Ciudad o ZIP",
+      placeholder: "Ciudad, dirección o ZIP",
       type: "Tipo",
       beds: "Habitaciones",
       price: "Precio máximo",
+      city: "Ciudad",
       all: "Todos",
       any: "Cualquiera",
       from: "Desde",
       upTo: "Hasta",
       clear: "Limpiar",
       apply: "Aplicar",
-      noResults: "Sin resultados con esos filtros.",
+      noResults: "Sin resultados con esos filtros. Prueba otra ciudad o sube el precio.",
       nResults: (n: number) => `${n} ${n === 1 ? "propiedad" : "propiedades"}`,
     },
     types: {
@@ -203,6 +208,12 @@ export const es = {
     },
     cta: "Agendar visita",
     contactForPrice: "Consultar precio",
+    sort: {
+      newest: "Más recientes",
+      priceAsc: "Precio: bajo a alto",
+      priceDesc: "Precio: alto a bajo",
+      sqftDesc: "Más tamaño",
+    },
   },
 
   testimonials: {

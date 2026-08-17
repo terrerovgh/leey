@@ -15,11 +15,12 @@
     "locations": [
       "Valdosta, GA"
     ],
-    "note": "Recovered from successful API pulls before BASIC monthly quota hit during endpoint discovery.",
+    "note": "Market FOR_SALE inventory for service areas \u2014 not exclusively Leey/Lock & Key listings. Prefer MLS mode + data/mls-ids.txt for agent-accurate inventory. Feed preserved after RapidAPI BASIC monthly quota.",
     "preserved": true,
     "preserveReason": "all_sources_empty",
     "attemptedAt": "2026-07-27T20:28:35.725Z",
-    "sourcesTried": []
+    "sourcesTried": [],
+    "inventoryKind": "market"
   },
   "listings": [
     {
@@ -42,8 +43,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/c7e7238286b3d50e6aa8612145dd43d8-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,645 sqft",
-      "description": "4 bed · 2 bath · 1,645 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,645 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,645 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4067-Gramercy-Dr-Valdosta-GA-31605/294863538_zpid/",
       "lat": 30.93429,
       "lng": -83.25123,
@@ -69,8 +70,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/3509d41773101755cee250e462da5ee8-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,960 sqft",
-      "description": "4 bed · 2 bath · 1,960 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,960 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,960 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4640-Rustic-Ridge-Rd-Valdosta-GA-31602/76513963_zpid/",
       "lat": 30.889545,
       "lng": -83.33209,
@@ -96,8 +97,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/2d4177e09eed1c53681bb5e530ffd44b-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,892 sqft",
-      "description": "4 bed · 2 bath · 1,892 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,892 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,892 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2039-Meadow-Cove-Dr-Valdosta-GA-31605/443968482_zpid/",
       "lat": 30.88691,
       "lng": -83.26119,
@@ -124,8 +125,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/16c35f4a1cdf4f3d25fc6564a366fc51-p_e.jpg"
       ],
-      "tagline": "6 bd · 4 ba · 2,540 sqft",
-      "description": "6 bed · 4 bath · 2,540 sqft in Valdosta, GA.",
+      "tagline": "6 bd \u00b7 4 ba \u00b7 2,540 sqft",
+      "description": "6 bed \u00b7 4 bath \u00b7 2,540 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1249-Baymeadows-Dr-A-B-Valdosta-GA-31601/459960402_zpid/",
       "lat": 30.852697,
       "lng": -83.25963,
@@ -151,8 +152,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/a7d9a9b8a65e498be9e4396a2e910e7f-p_e.jpg"
       ],
-      "tagline": "3 bd · 1 ba · 1,086 sqft",
-      "description": "3 bed · 1 bath · 1,086 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 1 ba \u00b7 1,086 sqft",
+      "description": "3 bed \u00b7 1 bath \u00b7 1,086 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/230-Beck-St-Valdosta-GA-31601/76516877_zpid/",
       "lat": 30.827564,
       "lng": -83.30614,
@@ -178,8 +179,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/47591987c6fdb2c935b21f6064dcc59a-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,816 sqft",
-      "description": "4 bed · 2 bath · 1,816 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,816 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,816 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3828-Coventry-Dr-Valdosta-GA-31605/247299942_zpid/",
       "lat": 30.92664,
       "lng": -83.25072,
@@ -205,8 +206,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/08b8bd7d9be929525c44a6959d0ad868-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,892 sqft",
-      "description": "4 bed · 2 bath · 1,892 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,892 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,892 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2060-Meadow-Cove-Dr-Valdosta-GA-31605/443968498_zpid/",
       "lat": 30.886103,
       "lng": -83.2618,
@@ -232,8 +233,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/01e14eacb7ba60484f0dd45c6ffa277e-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,181 sqft",
-      "description": "4 bed · 3 bath · 2,181 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,181 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,181 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3807-Chris-Cir-Valdosta-GA-31605/76496443_zpid/",
       "lat": 30.9348,
       "lng": -83.26087,
@@ -259,8 +260,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/76327b33177eb4585cb5ae11b636e0c6-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,700 sqft",
-      "description": "3 bed · 2 bath · 1,700 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,700 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,700 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2007-Azalea-Dr-Valdosta-GA-31602/76486691_zpid/",
       "lat": 30.854183,
       "lng": -83.298225,
@@ -286,8 +287,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/05b0e38246e92e508cf76aab59ec8b70-p_e.jpg"
       ],
-      "tagline": "4 bd · 4 ba · 2,200 sqft",
-      "description": "4 bed · 4 bath · 2,200 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 4 ba \u00b7 2,200 sqft",
+      "description": "4 bed \u00b7 4 bath \u00b7 2,200 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4043-Liska-Cir-Valdosta-GA-31605/76496867_zpid/",
       "lat": 30.938816,
       "lng": -83.25964,
@@ -314,8 +315,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/6bf125e1c6a3ae4b54687234337a829d-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,590 sqft",
-      "description": "3 bed · 2 bath · 1,590 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,590 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,590 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3106-Lakeland-Hwy-Valdosta-GA-31605/76505156_zpid/",
       "lat": 30.88932,
       "lng": -83.20808,
@@ -341,8 +342,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/b2e9db80bf42210c5b51443b41ddd0c4-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,216 sqft",
-      "description": "3 bed · 2 bath · 1,216 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,216 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,216 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2909-Remington-Ave-Valdosta-GA-31602/76499125_zpid/",
       "lat": 30.874872,
       "lng": -83.25738,
@@ -368,8 +369,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/0b1962de47fdd415b6589db90845c97b-p_e.jpg"
       ],
-      "tagline": "5 bd · 3 ba · 4,589 sqft",
-      "description": "5 bed · 3 bath · 4,589 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 3 ba \u00b7 4,589 sqft",
+      "description": "5 bed \u00b7 3 bath \u00b7 4,589 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/206-Wells-St-Valdosta-GA-31601/217676694_zpid/",
       "lat": 30.83035,
       "lng": -83.28619,
@@ -395,8 +396,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/8d91c67bfaaf914609b131118dde61b3-p_e.jpg"
       ],
-      "tagline": "6 bd · 5 ba · 3,790 sqft",
-      "description": "6 bed · 5 bath · 3,790 sqft in Valdosta, GA.",
+      "tagline": "6 bd \u00b7 5 ba \u00b7 3,790 sqft",
+      "description": "6 bed \u00b7 5 bath \u00b7 3,790 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3428-Hickory-Grove-Rd-N-Valdosta-GA-31606/76505491_zpid/",
       "lat": 30.791103,
       "lng": -83.22309,
@@ -422,8 +423,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/ff59bf9311dd4c2916abdf9e00cc1771-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,665 sqft",
-      "description": "4 bed · 2 bath · 1,665 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,665 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,665 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/704-Lausanne-Dr-Valdosta-GA-31601/76490145_zpid/",
       "lat": 30.84895,
       "lng": -83.274734,
@@ -450,8 +451,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/a279d774f1da1351eb8286fd40634420-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,325 sqft",
-      "description": "3 bed · 2 bath · 1,325 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,325 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,325 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1709-Marion-St-Valdosta-GA-31602/217673531_zpid/",
       "lat": 30.853588,
       "lng": -83.279335,
@@ -477,8 +478,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/f70e3463452292a0d52b26c276b7820f-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,920 sqft",
-      "description": "4 bed · 3 bath · 2,920 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,920 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,920 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/745-Lake-Laurie-Dr-Valdosta-GA-31605/76503324_zpid/",
       "lat": 30.895445,
       "lng": -83.29782,
@@ -504,8 +505,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/ce8d55fc76f8ff8720a6380bf274daf0-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,800 sqft",
-      "description": "4 bed · 3 bath · 2,800 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,800 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,800 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1301-Bethune-Dr-Valdosta-GA-31601/76501401_zpid/",
       "lat": 30.828245,
       "lng": -83.25646,
@@ -531,8 +532,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/05514d156b1d4fff0734aef98bc543a7-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,042 sqft",
-      "description": "3 bed · 2 bath · 1,042 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,042 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,042 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/133-Blue-Pool-Dr-Valdosta-GA-31602/217669135_zpid/",
       "lat": 30.876139,
       "lng": -83.27756,
@@ -558,8 +559,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/9f77cbf602f2fe1544a301a1042a7035-p_e.jpg"
       ],
-      "tagline": "2 bd · 2 ba · 2,058 sqft",
-      "description": "2 bed · 2 bath · 2,058 sqft in Valdosta, GA.",
+      "tagline": "2 bd \u00b7 2 ba \u00b7 2,058 sqft",
+      "description": "2 bed \u00b7 2 bath \u00b7 2,058 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/119-Princeton-Ln-Valdosta-GA-31605/76504230_zpid/",
       "lat": 30.888874,
       "lng": -83.29594,
@@ -586,8 +587,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/34e7dec2f1ef7f6a726f1129aca911d4-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,222 sqft",
-      "description": "4 bed · 3 bath · 2,222 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,222 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,222 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4614-Briarberry-Dr-Valdosta-GA-31602/76514054_zpid/",
       "lat": 30.892328,
       "lng": -83.33317,
@@ -613,8 +614,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/976a9ac447eb93a725af4a7032b7f18a-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,810 sqft",
-      "description": "4 bed · 2 bath · 1,810 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,810 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,810 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/6173-Clyattville-Lake-Park-Rd-Valdosta-GA-31601/217679789_zpid/",
       "lat": 30.685478,
       "lng": -83.27124,
@@ -640,8 +641,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/4fe7c15c3a838cd59741cbf53667c31d-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,819 sqft",
-      "description": "3 bed · 2 bath · 1,819 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,819 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,819 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/617-Justin-Dr-Valdosta-GA-31602/76487165_zpid/",
       "lat": 30.879715,
       "lng": -83.28438,
@@ -667,8 +668,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/e74f776fe6411ccfcac3ed7d8cbe42dd-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 1,947 sqft",
-      "description": "4 bed · 3 bath · 1,947 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 1,947 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 1,947 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3924-Medieval-Ct-Valdosta-GA-31605/247295680_zpid/",
       "lat": 30.929773,
       "lng": -83.232925,
@@ -694,7 +695,7 @@
       "images": [
         "https://photos.zillowstatic.com/fp/6baa8a0b28f66959c509ddd6c1704cbf-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba",
+      "tagline": "4 bd \u00b7 2 ba",
       "description": "Home in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/317-Webster-St-Valdosta-GA-31601/217676170_zpid/",
       "lat": 30.836609,
@@ -722,8 +723,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/b9ff5c993cb73067d47113239283baf8-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 2,193 sqft",
-      "description": "3 bed · 2 bath · 2,193 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 2,193 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 2,193 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/community/valdosta-ga-build-on-your-lot/464153788_zpid/",
       "lat": 30.82548,
       "lng": -83.31717,
@@ -749,8 +750,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/8c54a4890c4bd5722efdc59a640b78de-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,285 sqft",
-      "description": "4 bed · 3 bath · 2,285 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,285 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,285 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3365-Norton-Pl-Valdosta-GA-31605/217684779_zpid/",
       "lat": 30.892729,
       "lng": -83.24596,
@@ -777,8 +778,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/2438b73e10e47a966024eba0a7231983-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,774 sqft",
-      "description": "4 bed · 3 bath · 2,774 sqft in Lake Park, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,774 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,774 sqft in Lake Park, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/5818-Lake-Loriana-Cir-Lake-Park-GA-31636/76503566_zpid/",
       "lat": 30.666449,
       "lng": -83.26699,
@@ -804,8 +805,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/dc7fc8a490ae5fa9d2594b9d3b885137-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,875 sqft",
-      "description": "3 bed · 2 bath · 1,875 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,875 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,875 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2402-Spring-Valley-Cir-Valdosta-GA-31602/76515328_zpid/",
       "lat": 30.857933,
       "lng": -83.31906,
@@ -831,8 +832,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/0cbc36289b7422ad7ebe0e34118b1bf2-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,382 sqft",
-      "description": "3 bed · 2 bath · 1,382 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,382 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,382 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3910-Foxridge-Dr-Valdosta-GA-31605/76495367_zpid/",
       "lat": 30.941664,
       "lng": -83.243515,
@@ -858,8 +859,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/3f441ed9f47d5a79c7e8bd951268bc4b-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,083 sqft",
-      "description": "4 bed · 3 bath · 2,083 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,083 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,083 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3916-Duchess-Ct-Valdosta-GA-31605/2057875326_zpid/",
       "lat": 30.935041,
       "lng": -83.23356,
@@ -885,8 +886,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/79dfa9101a1ad96b22183957f3e1e5af-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,260 sqft",
-      "description": "3 bed · 2 bath · 1,260 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,260 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,260 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2203-Pin-Oak-Cir-Valdosta-GA-31602/76487836_zpid/",
       "lat": 30.86025,
       "lng": -83.269875,
@@ -912,8 +913,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/4675257f8883d733a10ce22f5e2fe4ad-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,630 sqft",
-      "description": "3 bed · 2 bath · 1,630 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,630 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,630 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/704-Thornbrooke-Ct-Valdosta-GA-31602/76506281_zpid/",
       "lat": 30.878521,
       "lng": -83.30336,
@@ -939,8 +940,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/a3b8e87ff31d39b5340ae142be39198c-p_e.jpg"
       ],
-      "tagline": "4 bd · 4 ba · 2,889 sqft",
-      "description": "4 bed · 4 bath · 2,889 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 4 ba \u00b7 2,889 sqft",
+      "description": "4 bed \u00b7 4 bath \u00b7 2,889 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3737-Bermuda-Run-Dr-Valdosta-GA-31605/76506948_zpid/",
       "lat": 30.886606,
       "lng": -83.30004,
@@ -966,8 +967,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/78252b556c093bbfc526056644852928-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,982 sqft",
-      "description": "3 bed · 2 bath · 1,982 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,982 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,982 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2014-Oakdale-Dr-Valdosta-GA-31602/76515450_zpid/",
       "lat": 30.848366,
       "lng": -83.3193,
@@ -993,8 +994,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/4faad9e15ac1c0ae92046f841b087d53-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 2,736 sqft",
-      "description": "4 bed · 2 bath · 2,736 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 2,736 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 2,736 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3207-Stafford-Xing-Valdosta-GA-31605/217667012_zpid/",
       "lat": 30.922163,
       "lng": -83.28592,
@@ -1021,8 +1022,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/f83a4b9da008341c19102d2de1d21aa7-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,298 sqft",
-      "description": "3 bed · 2 bath · 1,298 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,298 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,298 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3795-Robin-Ln-Valdosta-GA-31605/76497721_zpid/",
       "lat": 30.916004,
       "lng": -83.24703,
@@ -1048,8 +1049,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/d47904218f12049f73e1f068a02a35a3-p_e.jpg"
       ],
-      "tagline": "6 bd · 4 ba · 2,858 sqft",
-      "description": "6 bed · 4 bath · 2,858 sqft in Valdosta, GA.",
+      "tagline": "6 bd \u00b7 4 ba \u00b7 2,858 sqft",
+      "description": "6 bed \u00b7 4 bath \u00b7 2,858 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4271-Tillman-Bluff-Rd-Valdosta-GA-31602/217658928_zpid/",
       "lat": 30.919943,
       "lng": -83.34934,
@@ -1076,8 +1077,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/28ebb0c90fbe666bffe08dda8be5816c-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,682 sqft",
-      "description": "4 bed · 3 bath · 2,682 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,682 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,682 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4063-Cane-Mill-Cir-Valdosta-GA-31601/217660410_zpid/",
       "lat": 30.807137,
       "lng": -83.3808,
@@ -1103,8 +1104,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/ca70b6a746e351d42a44616230707538-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,705 sqft",
-      "description": "3 bed · 2 bath · 1,705 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,705 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,705 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4121-Lantern-Ln-Valdosta-GA-31602/217662456_zpid/",
       "lat": 30.892033,
       "lng": -83.32559,
@@ -1130,8 +1131,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/d3e3da7b2b5dc909795af327af35921b-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,858 sqft",
-      "description": "3 bed · 2 bath · 1,858 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,858 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,858 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3811-Napa-Dr-Valdosta-GA-31605/76504975_zpid/",
       "lat": 30.894312,
       "lng": -83.282,
@@ -1157,8 +1158,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/bb64350efc3ffcaf61854e242a3fd6fd-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,584 sqft",
-      "description": "3 bed · 2 bath · 1,584 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,584 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,584 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3109-Oakwood-Ter-Valdosta-GA-31605/76498490_zpid/",
       "lat": 30.893993,
       "lng": -83.246925,
@@ -1184,8 +1185,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/e3f25b0b1a805dcefc0e95cbc4122b2c-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,305 sqft",
-      "description": "4 bed · 3 bath · 2,305 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,305 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,305 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4279-Knights-Academy-Rd-Valdosta-GA-31605/76505011_zpid/",
       "lat": 30.911198,
       "lng": -83.21265,
@@ -1212,8 +1213,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/1c3bac1534cff2868e0a64721ab4a579-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,688 sqft",
-      "description": "4 bed · 2 bath · 1,688 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,688 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,688 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/202-Wayne-Ave-Valdosta-GA-31602/76486958_zpid/",
       "lat": 30.85808,
       "lng": -83.29124,
@@ -1239,8 +1240,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/3338fad3b7a38f30be6818dc188af5f1-p_e.jpg"
       ],
-      "tagline": "5 bd · 3 ba · 3,177 sqft",
-      "description": "5 bed · 3 bath · 3,177 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 3 ba \u00b7 3,177 sqft",
+      "description": "5 bed \u00b7 3 bath \u00b7 3,177 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2302-Riverhill-Dr-Valdosta-GA-31602/76514877_zpid/",
       "lat": 30.856438,
       "lng": -83.32626,
@@ -1266,8 +1267,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/73343296226e776b2c850de6bc1833e7-p_e.jpg"
       ],
-      "tagline": "3 bd · 1 ba · 1,284 sqft",
-      "description": "3 bed · 1 bath · 1,284 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 1 ba \u00b7 1,284 sqft",
+      "description": "3 bed \u00b7 1 bath \u00b7 1,284 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3084-Stallings-Rd-Valdosta-GA-31605/76498528_zpid/",
       "lat": 30.890326,
       "lng": -83.23018,
@@ -1293,8 +1294,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/082a30a84ef74ae0d1647f71ac3155b0-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 4,270 sqft",
-      "description": "4 bed · 3 bath · 4,270 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 4,270 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 4,270 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2424-Westwood-Dr-Valdosta-GA-31602/76517173_zpid/",
       "lat": 30.863272,
       "lng": -83.309586,
@@ -1320,8 +1321,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/d025cdd7033ee2e83f2cfc3659b5e734-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,203 sqft",
-      "description": "4 bed · 3 bath · 2,203 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,203 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,203 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4008-Medieval-Ct-Valdosta-GA-31605/2071915143_zpid/",
       "lat": 30.934418,
       "lng": -83.23219,
@@ -1347,8 +1348,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/2b933f1eae468d8605fe8e45a38c96fb-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,014 sqft",
-      "description": "3 bed · 2 bath · 1,014 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,014 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,014 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/6-Prince-Cv-Valdosta-GA-31601/217686894_zpid/",
       "lat": 30.855055,
       "lng": -83.263664,
@@ -1374,7 +1375,7 @@
       "images": [
         "https://photos.zillowstatic.com/fp/658e23bff847382d81cb3b5fea751eaf-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba",
+      "tagline": "3 bd \u00b7 2 ba",
       "description": "Home in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/53-Faith-Ln-32-Valdosta-GA-31602/462696115_zpid/",
       "lat": 30.853636,
@@ -1402,8 +1403,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/bb2e78b35407d40cc71eee01862cb602-p_e.jpg"
       ],
-      "tagline": "3 bd · 3 ba · 2,566 sqft",
-      "description": "3 bed · 3 bath · 2,566 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 3 ba \u00b7 2,566 sqft",
+      "description": "3 bed \u00b7 3 bath \u00b7 2,566 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/600-Mack-Dr-Valdosta-GA-31602/76487287_zpid/",
       "lat": 30.861282,
       "lng": -83.29742,
@@ -1429,8 +1430,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/79f72443c0dd6ac9e821a10a4f4ad400-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,014 sqft",
-      "description": "3 bed · 2 bath · 1,014 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,014 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,014 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1215-Melissa-Dr-Valdosta-GA-31601/217674817_zpid/",
       "lat": 30.83575,
       "lng": -83.30283,
@@ -1456,8 +1457,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/ccd34abde5c1cd95a07e9c69e0116c0d-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 2,722 sqft",
-      "description": "4 bed · 3 bath · 2,722 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 2,722 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 2,722 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2604-Pebblewood-Dr-Valdosta-GA-31602/76514825_zpid/",
       "lat": 30.871618,
       "lng": -83.34115,
@@ -1483,8 +1484,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/144d82928c8fa6ad9974668b937eaff0-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 2,180 sqft",
-      "description": "4 bed · 2 bath · 2,180 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 2,180 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 2,180 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2830-Loch-Laurel-Rd-Valdosta-GA-31601/450295374_zpid/",
       "lat": 30.753483,
       "lng": -83.2571,
@@ -1511,8 +1512,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/e25122969c3353e68d81732e292b08d6-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,865 sqft",
-      "description": "4 bed · 2 bath · 1,865 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,865 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,865 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3707-Deidra-Miller-Cir-Valdosta-GA-31605/448049221_zpid/",
       "lat": 30.888304,
       "lng": -83.25733,
@@ -1539,8 +1540,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/8e02c62a22efdb2c9dda4ff47fce2767-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,335 sqft",
-      "description": "3 bed · 2 bath · 1,335 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,335 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,335 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2831-Kirkwood-Cir-Valdosta-GA-31602/217685954_zpid/",
       "lat": 30.874603,
       "lng": -83.25569,
@@ -1566,8 +1567,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/1625442215ee57291930455197f11a13-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 1,934 sqft",
-      "description": "4 bed · 3 bath · 1,934 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 1,934 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 1,934 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1707-Toni-Ter-Valdosta-GA-31601/76489747_zpid/",
       "lat": 30.853203,
       "lng": -83.268776,
@@ -1593,8 +1594,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/54b290a388e8219988943e0404822d41-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 2,466 sqft",
-      "description": "3 bed · 2 bath · 2,466 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 2,466 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 2,466 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/204-Brookview-Ter-Valdosta-GA-31605/76503833_zpid/",
       "lat": 30.893536,
       "lng": -83.29632,
@@ -1620,8 +1621,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/6865ad24ebf8b248668462652ea9fe95-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,426 sqft",
-      "description": "3 bed · 2 bath · 1,426 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,426 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,426 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/5781-Adams-Rd-Valdosta-GA-31601/76506726_zpid/",
       "lat": 30.733849,
       "lng": -83.43192,
@@ -1648,8 +1649,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/defcad8fcbd613f39472145b1efcaddd-p_e.jpg"
       ],
-      "tagline": "5 bd · 5 ba · 6,403 sqft",
-      "description": "5 bed · 5 bath · 6,403 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 5 ba \u00b7 6,403 sqft",
+      "description": "5 bed \u00b7 5 bath \u00b7 6,403 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2006-N-Patterson-St-Valdosta-GA-31602/76486575_zpid/",
       "lat": 30.855015,
       "lng": -83.28908,
@@ -1675,8 +1676,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/a9ef7afed2f4847cbd8752120de48591-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 2,117 sqft",
-      "description": "3 bed · 2 bath · 2,117 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 2,117 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 2,117 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/404-Northfield-Rd-Valdosta-GA-31602/76485243_zpid/",
       "lat": 30.87357,
       "lng": -83.29861,
@@ -1702,8 +1703,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/5baae1f35d4bff491cbb18e94cbaf5e1-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,490 sqft",
-      "description": "3 bed · 2 bath · 1,490 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,490 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,490 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/5232-Northridge-Rd-N-Valdosta-GA-31605/76495600_zpid/",
       "lat": 30.948166,
       "lng": -83.23822,
@@ -1729,8 +1730,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/7f1275490d40368a572521ef894f8a52-p_e.jpg"
       ],
-      "tagline": "5 bd · 4 ba · 5,010 sqft",
-      "description": "5 bed · 4 bath · 5,010 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 4 ba \u00b7 5,010 sqft",
+      "description": "5 bed \u00b7 4 bath \u00b7 5,010 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2202-Dogwood-Dr-Valdosta-GA-31602/76515807_zpid/",
       "lat": 30.852869,
       "lng": -83.31193,
@@ -1756,8 +1757,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/abecc7eac9b92d459283c089a984ae6a-p_e.jpg"
       ],
-      "tagline": "5 bd · 4 ba · 3,235 sqft",
-      "description": "5 bed · 4 bath · 3,235 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 4 ba \u00b7 3,235 sqft",
+      "description": "5 bed \u00b7 4 bath \u00b7 3,235 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4873-Summit-Ridge-Rd-Valdosta-GA-31602/76511612_zpid/",
       "lat": 30.923983,
       "lng": -83.36249,
@@ -1783,8 +1784,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/52d2d060d12fd72416d1721960a8ab64-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 2,111 sqft",
-      "description": "3 bed · 2 bath · 2,111 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 2,111 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 2,111 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1307-W-Park-Ave-Valdosta-GA-31602/217664651_zpid/",
       "lat": 30.849785,
       "lng": -83.31164,
@@ -1810,8 +1811,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/f7372099a8630717a69959da4ca17b91-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 2,269 sqft",
-      "description": "3 bed · 2 bath · 2,269 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 2,269 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 2,269 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2205-Pinecliff-Dr-Valdosta-GA-31602/217663608_zpid/",
       "lat": 30.854864,
       "lng": -83.32164,
@@ -1837,8 +1838,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/d057dc6bda04ce60222a7d1351f7940a-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,977 sqft",
-      "description": "4 bed · 2 bath · 1,977 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,977 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,977 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2899-Cotton-Bay-Xing-Valdosta-GA-31605/217691940_zpid/",
       "lat": 30.890135,
       "lng": -83.22368,
@@ -1864,8 +1865,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/9290b3aa758dc47b27ca9c0e5ddd5f0e-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,490 sqft",
-      "description": "3 bed · 2 bath · 1,490 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,490 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,490 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3749-Old-Pine-Rd-Valdosta-GA-31605/76496815_zpid/",
       "lat": 30.928774,
       "lng": -83.2575,
@@ -1892,8 +1893,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/564cca332f69d26d04d1a87323e686da-p_e.jpg"
       ],
-      "tagline": "4 bd · 3 ba · 3,024 sqft",
-      "description": "4 bed · 3 bath · 3,024 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 3 ba \u00b7 3,024 sqft",
+      "description": "4 bed \u00b7 3 bath \u00b7 3,024 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/2202-Lakeshore-Dr-Valdosta-GA-31602/76515003_zpid/",
       "lat": 30.852896,
       "lng": -83.32843,
@@ -1919,8 +1920,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/b6bcc00f2a2c6f091fe50233d8f04959-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,636 sqft",
-      "description": "4 bed · 2 bath · 1,636 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,636 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,636 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1907-Fawnridge-Rd-Valdosta-GA-31602/76499008_zpid/",
       "lat": 30.877817,
       "lng": -83.25896,
@@ -1946,8 +1947,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/eeccb1a267662351e3f78d7da2c2c793-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,628 sqft",
-      "description": "3 bed · 2 bath · 1,628 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,628 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,628 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/5068-Pearl-Davis-Rd-Valdosta-GA-31605/76495735_zpid/",
       "lat": 30.945108,
       "lng": -83.23798,
@@ -1973,8 +1974,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/9c913baf9229c26a2ab05e01ec0e5233-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,683 sqft",
-      "description": "4 bed · 2 bath · 1,683 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,683 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,683 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3581-Guest-Rd-Valdosta-GA-31605/112611188_zpid/",
       "lat": 30.912758,
       "lng": -83.23732,
@@ -2000,8 +2001,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/dc93e1d43b3a77b1a0851e0c3f940623-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,302 sqft",
-      "description": "3 bed · 2 bath · 1,302 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,302 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,302 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1803-Northside-Dr-Valdosta-GA-31602/217685583_zpid/",
       "lat": 30.87161,
       "lng": -83.26216,
@@ -2028,8 +2029,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/cfb64efc84eb5fe55509a70d9ad04a71-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,850 sqft",
-      "description": "3 bed · 2 bath · 1,850 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,850 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,850 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3853-Brookfield-Dr-Valdosta-GA-31605/76496837_zpid/",
       "lat": 30.923662,
       "lng": -83.23996,
@@ -2055,8 +2056,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/1e4ae373076e44977962db4bbdbe43ac-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,792 sqft",
-      "description": "3 bed · 2 bath · 1,792 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,792 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,792 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3914-White-Tail-Cir-Valdosta-GA-31606/76505673_zpid/",
       "lat": 30.804756,
       "lng": -83.19475,
@@ -2082,8 +2083,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/96db89a7d96654e57c02cbe0021bb919-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,304 sqft",
-      "description": "3 bed · 2 bath · 1,304 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,304 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,304 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/5-Shanna-Cir-Valdosta-GA-31601/217687030_zpid/",
       "lat": 30.85201,
       "lng": -83.26402,
@@ -2109,8 +2110,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/bdfd03bcb27b83d35ac0a2e12731b2f8-p_e.jpg"
       ],
-      "tagline": "3 bd · 3 ba · 1,990 sqft",
-      "description": "3 bed · 3 bath · 1,990 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 3 ba \u00b7 1,990 sqft",
+      "description": "3 bed \u00b7 3 bath \u00b7 1,990 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/901-Pineridge-Dr-Valdosta-GA-31602/76515384_zpid/",
       "lat": 30.857517,
       "lng": -83.30581,
@@ -2136,8 +2137,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/37075826ad5133cef1c86ab91c5f18c4-p_e.jpg"
       ],
-      "tagline": "4 bd · 2 ba · 1,876 sqft",
-      "description": "4 bed · 2 bath · 1,876 sqft in Valdosta, GA.",
+      "tagline": "4 bd \u00b7 2 ba \u00b7 1,876 sqft",
+      "description": "4 bed \u00b7 2 bath \u00b7 1,876 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3520-Harvest-Trl-Valdosta-GA-31605/217683467_zpid/",
       "lat": 30.911377,
       "lng": -83.23761,
@@ -2163,8 +2164,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/ffa555e7283d2b0e0d552598c87c288f-p_e.jpg"
       ],
-      "tagline": "5 bd · 4 ba · 4,154 sqft",
-      "description": "5 bed · 4 bath · 4,154 sqft in Valdosta, GA.",
+      "tagline": "5 bd \u00b7 4 ba \u00b7 4,154 sqft",
+      "description": "5 bed \u00b7 4 bath \u00b7 4,154 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/318-Eager-Rd-Valdosta-GA-31602/217670100_zpid/",
       "lat": 30.869522,
       "lng": -83.296455,
@@ -2190,8 +2191,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/7e7d21b6e18782617c6e4b660a225352-p_e.jpg"
       ],
-      "tagline": "3 bd · 2 ba · 1,204 sqft",
-      "description": "3 bed · 2 bath · 1,204 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 2 ba \u00b7 1,204 sqft",
+      "description": "3 bed \u00b7 2 bath \u00b7 1,204 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/1711-Iola-Dr-Valdosta-GA-31602/217672295_zpid/",
       "lat": 30.853954,
       "lng": -83.282234,
@@ -2217,8 +2218,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/dc1b4116dcc23a48f6e097498a61bcf0-p_e.jpg"
       ],
-      "tagline": "3 bd · 3 ba · 3,002 sqft",
-      "description": "3 bed · 3 bath · 3,002 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 3 ba \u00b7 3,002 sqft",
+      "description": "3 bed \u00b7 3 bath \u00b7 3,002 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/3111-Country-Club-Dr-Valdosta-GA-31602/76514336_zpid/",
       "lat": 30.876698,
       "lng": -83.304565,
@@ -2244,8 +2245,8 @@
       "images": [
         "https://photos.zillowstatic.com/fp/5d588fca025c654a93ee0d349bc7b234-p_e.jpg"
       ],
-      "tagline": "3 bd · 3 ba · 2,160 sqft",
-      "description": "3 bed · 3 bath · 2,160 sqft in Valdosta, GA.",
+      "tagline": "3 bd \u00b7 3 ba \u00b7 2,160 sqft",
+      "description": "3 bed \u00b7 3 bath \u00b7 2,160 sqft in Valdosta, GA.",
       "zillowUrl": "https://www.zillow.com/homedetails/4680-Cat-Creek-Rd-Valdosta-GA-31605/344749489_zpid/",
       "lat": 30.96959,
       "lng": -83.24125,

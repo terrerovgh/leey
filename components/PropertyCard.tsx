@@ -22,9 +22,9 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
   const isEs = lang === "es";
 
   const badgeLabel = property.badge ? t.listings.badges[property.badge] : undefined;
-  const office =
-    property.brokerage?.trim() || SITE.brokerage.name;
-  const listedBy = property.listedBy?.trim() || SITE.agent.displayName;
+  // Presenting office: Lock & Key (Leey's brokerage). Listing office/agent from feed only when known.
+  const listingOffice = property.brokerage?.trim();
+  const listingAgent = property.listedBy?.trim();
 
   return (
     <article
@@ -35,8 +35,8 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
     >
       <div className={`relative overflow-hidden ${variant === "tall" ? "h-[420px]" : "h-72"}`}>
         <img
-          src={property.image}
-          alt={property.title}
+          src={property.image || property.images?.[0] || "/assets/leey-portrait.jpg"}
+          alt={`${property.title}${property.city ? ` · ${property.city}` : ""}`}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
         />
@@ -50,7 +50,7 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
             {property.status.replace("_", " ")}
           </span>
         )}
-        <span className="absolute right-4 bottom-4 bg-pine-700/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-ivory-50 backdrop-blur">
+        <span className="absolute bottom-4 right-4 bg-pine-700/90 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-ivory-50 backdrop-blur">
           {t.listings.types[property.type]}
         </span>
       </div>
@@ -59,15 +59,22 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-[11px] uppercase tracking-[0.25em] text-clay-500">
-              {property.city} · {property.neighborhood}
+              {property.city}
+              {property.neighborhood && property.neighborhood !== property.city
+                ? ` · ${property.neighborhood}`
+                : ""}
             </div>
             <h3 className="mt-2 font-display text-2xl font-light leading-tight text-ink-900">
               {property.title}
             </h3>
-            <p className="mt-2 text-sm text-ink-500">{property.tagline}</p>
+            {property.tagline && (
+              <p className="mt-2 text-sm text-ink-500">{property.tagline}</p>
+            )}
           </div>
-          <div className="text-right text-xl font-medium tracking-tight text-pine-700 whitespace-nowrap">
-            {formatPrice(property.priceUsd)}
+          <div className="whitespace-nowrap text-right text-xl font-medium tracking-tight text-pine-700">
+            {property.priceUsd > 0
+              ? formatPrice(property.priceUsd)
+              : t.listings.contactForPrice}
           </div>
         </div>
 
@@ -89,15 +96,12 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
           {property.sqft > 0 && (
             <span className="flex items-center gap-1.5">
               <Maximize className="h-4 w-4 text-clay-500" strokeWidth={1.5} />
-              <span className="font-medium">
-                {property.sqft.toLocaleString()}
-              </span>
+              <span className="font-medium">{property.sqft.toLocaleString()}</span>
               <span className="text-xs text-ink-400">{t.listings.fields.sqft}</span>
             </span>
           )}
         </div>
 
-        {/* Presenting brokerage + agent (logo is decorative here; sole outbound link stays in nav/footer) */}
         <div className="mt-5 flex items-center gap-3 border-t hairline pt-4">
           <img
             src={SITE.brokerage.logo}
@@ -109,17 +113,24 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
           />
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-ink-700">
-              {office}
+              {SITE.brokerage.name}
             </div>
             <div className="mt-0.5 truncate text-xs text-ink-500">
-              {listedBy}
+              {SITE.agent.shortName}
               <span className="text-ink-300"> · </span>
               <span className="text-clay-600">{SITE.agent.phoneDisplay}</span>
             </div>
+            {(listingOffice || listingAgent) && (
+              <div className="mt-1 truncate text-[11px] text-ink-400">
+                {isEs ? "Listado" : "Listed"}
+                {listingAgent ? `: ${listingAgent}` : ""}
+                {listingOffice ? ` · ${listingOffice}` : ""}
+              </div>
+            )}
             <div className="sr-only">
               {isEs
-                ? `Presentado por ${listedBy}, ${office}`
-                : `Presented by ${listedBy}, ${office}`}
+                ? `Contacto: ${SITE.agent.displayName}, ${SITE.brokerage.name}`
+                : `Contact: ${SITE.agent.displayName}, ${SITE.brokerage.name}`}
             </div>
           </div>
         </div>

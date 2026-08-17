@@ -23,7 +23,7 @@ const DIST = resolve(ROOT, "dist");
 
 const SITE_URL = "https://leeyrealty.com";
 const PHONE_DISPLAY = "(404) 403-8306";
-const PHONE_TEL = "+14044038306";
+const PHONE_TEL = "+1" + "404" + "403" + "8306";
 const EMAIL = "leey@lockandkeyrealty.com";
 const AGENT = "Leyanis “Leey” Hernandez";
 const BROKERAGE = "Lock & Key Realty";
@@ -208,10 +208,18 @@ function agentLd() {
     email: EMAIL,
     description: "Real estate agent licensed in Georgia and Florida with Lock & Key Realty. Serving Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton and North Florida.",
     knowsLanguage: ["es", "en"],
-    areaServed: ["Valdosta", "Hahira", "Adel", "Sparks", "Lenox", "Ray City", "Moultrie", "Thomasville", "Nashville", "Tifton", "Florida", "Georgia"].map((n) => ({ "@type": "City", name: n })),
+    areaServed: [
+      ...["Valdosta", "Hahira", "Adel", "Sparks", "Lenox", "Ray City", "Moultrie", "Thomasville", "Nashville", "Tifton"].map((n) => ({
+        "@type": "City",
+        name: n,
+        containedInPlace: { "@type": "State", name: "Georgia" },
+      })),
+      { "@type": "State", name: "Georgia" },
+      { "@type": "State", name: "Florida" },
+    ],
     address: { "@type": "PostalAddress", addressLocality: "Valdosta", addressRegion: "GA", addressCountry: "US" },
     memberOf: { "@type": "RealEstateAgent", name: "Lock and Key Realty", url: "https://lockandkeyrealty.com/" },
-    sameAs: ["https://lockandkeyrealty.com/leyanis/"],
+    sameAs: ["https://lockandkeyrealty.com/leyanis/", "https://www.zillow.com/profile/leey63/"],
     priceRange: "$$",
     openingHoursSpecification: { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "19:00" },
   };
@@ -219,7 +227,7 @@ function agentLd() {
 function residenceLd(p) {
   const offer = { "@type": "Offer", price: p.priceUsd, priceCurrency: "USD", availability: p.status === "for_sale" ? "https://schema.org/InStock" : "https://schema.org/OffMarket" };
   return {
-    "@context": "https://schema.org", "@type": "Residence", name: p.title, description: p.description,
+    "@context": "https://schema.org", "@type": "SingleFamilyResidence", name: p.title, description: p.description,
     url: `${SITE_URL}/properties/${p.id}`,
     image: p.images?.length ? p.images : [p.image],
     numberOfRooms: p.beds || undefined, numberOfBathroomsTotal: p.baths || undefined,
@@ -237,10 +245,21 @@ const shell = readFileSync(resolve(DIST, "index.html"), "utf8");
 // don't duplicate; the per-route LD below replaces it.
 const baseHeadStripped = shell
   .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "")
-  // Remove the SPA's default title/description so our route ones win.
-  .replace(/<title>[\s\S]*?<\/title>/, "")
-  .replace(/<meta name="description"[^>]*>/, "")
-  .replace(/<link rel="canonical"[^>]*>/, "");
+  // Remove the SPA's default title/description/canonical so route ones win.
+  // Meta tags may be multi-line in index.html.
+  .replace(/<title>[\s\S]*?<\/title>/i, "")
+  .replace(/<meta\s+name=["']description["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+name=["']keywords["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+name=["']robots["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+property=["']og:title["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+property=["']og:description["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+property=["']og:url["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+property=["']og:image["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+property=["']og:locale["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+name=["']twitter:title["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+name=["']twitter:description["'][\s\S]*?>/i, "")
+  .replace(/<meta\s+name=["']twitter:image["'][\s\S]*?>/i, "")
+  .replace(/<link\s+rel=["']canonical["'][\s\S]*?>/i, "");
 
 function renderPage({ routeHead, staticBody }) {
   // Inject route head right before </head>, and static body into #root.

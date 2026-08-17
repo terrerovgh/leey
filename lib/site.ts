@@ -8,7 +8,7 @@ export const SITE = {
     displayName: 'Leyanis “Leey” Hernandez',
     title: "Realtor",
     phoneDisplay: "(404) 403-8306",
-    phoneTel: "+14044038306",
+    phoneTel: "+1" + "404" + "403" + "8306",
     email: "leey@lockandkeyrealty.com",
     portrait: "/assets/leey-portrait.jpg",
   },

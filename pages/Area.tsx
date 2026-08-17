@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, ArrowLeft } from "lucide-react";
 import { useI18n } from "../i18n";
 import { SITE } from "../lib/site";
 import { useSeo } from "../lib/useSeo";
-import { areaSeo, propertiesSeo } from "../lib/seo";
+import { areaSeo } from "../lib/seo";
 import { AREAS, getArea } from "../lib/areas";
 import { useListings } from "../lib/useListings";
 import { PropertyCard } from "../components/PropertyCard";
@@ -16,6 +16,27 @@ export function AreaPage() {
   const isEs = lang === "es";
   const { listings } = useListings();
   const area = cleanSlug ? getArea(cleanSlug) : undefined;
+
+  useSeo(
+    area
+      ? areaSeo(
+          area.slug,
+          area.city,
+          area.state,
+          isEs ? area.taglineEs : area.taglineEn,
+          isEs ? area.keywordsEs : area.keywordsEn,
+          lang,
+        )
+      : {
+          path: cleanSlug ? `/areas/${cleanSlug}` : "/areas",
+          title: isEs ? "Zona | Leey Hernandez" : "Area | Leey Hernandez",
+          description: isEs
+            ? "Zonas de servicio de Leey Hernandez en el sur de Georgia y Florida."
+            : "Service areas for Leey Hernandez in South Georgia and Florida.",
+          lang,
+          noindex: true,
+        },
+  );
 
   if (!area) {
     return (
@@ -35,10 +56,6 @@ export function AreaPage() {
       </main>
     );
   }
-
-  useSeo(
-    areaSeo(area.slug, area.city, area.state, isEs ? area.taglineEs : area.taglineEn, isEs ? area.keywordsEs : area.keywordsEn),
-  );
 
   const local = listings.filter((p) => p.city.toLowerCase() === area.city.toLowerCase());
   const body = isEs ? area.bodyEs : area.bodyEn;

@@ -35,6 +35,21 @@ export function PropertyDetailPage() {
   const isEs = lang === "es";
   const [active, setActive] = useState(0);
 
+  // Hooks must run unconditionally — pass a stub when property not ready.
+  useSeo(
+    property
+      ? propertySeo(property, lang)
+      : {
+          path: id ? `/properties/${id}` : "/properties",
+          title: isEs ? "Propiedad | Leey Hernandez" : "Property | Leey Hernandez",
+          description: isEs
+            ? "Detalle de propiedad con Leey Hernandez, Lock & Key Realty."
+            : "Property detail with Leey Hernandez, Lock & Key Realty.",
+          lang,
+          noindex: true,
+        },
+  );
+
   if (loading) {
     return (
       <main className="bg-ivory-50 pt-32 pb-24">
@@ -68,7 +83,6 @@ export function PropertyDetailPage() {
   const similar = listings
     .filter((p) => p.id !== property.id && p.city === property.city)
     .slice(0, 3);
-  useSeo(propertySeo(property));
 
   return (
     <main className="bg-ivory-50 pt-28 pb-24">
@@ -304,6 +318,11 @@ export function PropertyDetailPage() {
                     {property.brokerage}
                   </p>
                 )}
+                <p className="pt-2 text-xs leading-relaxed text-ink-400">
+                  {isEs
+                    ? "Contacto para visitas: Leey · Lock & Key Realty."
+                    : "Tour contact: Leey · Lock & Key Realty."}
+                </p>
               </div>
             </div>
           </aside>

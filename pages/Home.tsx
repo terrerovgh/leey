@@ -1,6 +1,3 @@
-/**
- * Home / Landing page — composed of reusable sections.
- */
 import { Hero } from "../components/Hero";
 import { Marquee } from "../components/Marquee";
 import { About } from "../components/About";
@@ -11,11 +8,13 @@ import { ListingsTeaser } from "../components/ListingsTeaser";
 import { Testimonials } from "../components/Testimonials";
 import { Contact } from "../components/Contact";
 import { FinalCTA } from "../components/FinalCTA";
+import { useI18n } from "../i18n";
 import { useSeo } from "../lib/useSeo";
 import { homeSeo } from "../lib/seo";
 
 export function HomePage() {
-  useSeo(homeSeo());
+  const { lang } = useI18n();
+  useSeo(homeSeo(lang));
   return (
     <main>
       <Hero />

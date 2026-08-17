@@ -4,12 +4,13 @@
  *  - useSeo() hook → updates <head> on client-side navigation (SPA)
  *  - scripts/prerender.mjs → emits static <head> + JSON-LD into pre-built HTML
  * Keep every URL absolute and canonical. Phone is the single source of truth
- * from lib/site.ts (currently (404) 403-8306).
+ * from lib/site.ts.
  */
 import { SITE } from "./site";
 import type { Property } from "../data/types";
 
 const U = SITE.url;
+const PHONE = SITE.agent.phoneDisplay;
 
 export interface SeoConfig {
   path: string;
@@ -27,80 +28,202 @@ export interface SeoConfig {
 }
 
 const BASE_KEYWORDS = [
-  "realtor Valdosta",
-  "realtor Moultrie",
-  "realtor Thomasville",
-  "realtor Tifton",
+  "realtor Valdosta GA",
+  "realtor Moultrie GA",
+  "realtor Thomasville GA",
+  "realtor Tifton GA",
   "realtor Nashville GA",
-  "Hahira homes",
+  "Hahira homes for sale",
   "Adel GA real estate",
+  "South Georgia realtor",
   "Lock and Key Realty",
   "comprar casa sur Georgia",
-  "agente inmobiliario bilingüe",
+  "agente inmobiliario bilingüe Valdosta",
+  "bilingual realtor South Georgia",
 ];
 
-export function homeSeo(): SeoConfig {
+function clip(s: string, n = 158) {
+  const t = String(s || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (t.length <= n) return t;
+  return t.slice(0, n - 1).replace(/\s+\S*$/, "") + "…";
+}
+
+export function homeSeo(lang: "es" | "en" = "es"): SeoConfig {
+  if (lang === "en") {
+    return {
+      path: "/",
+      title: "Leyanis “Leey” Hernandez | Bilingual Realtor · South Georgia & Florida",
+      description: clip(
+        `Leyanis “Leey” Hernandez — Lock & Key Realty. Licensed in Georgia and Florida. Homes in Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton, and North Florida. ${PHONE}.`,
+      ),
+      lang: "en",
+      keywords: BASE_KEYWORDS,
+      image: `${U}/assets/leey-portrait.jpg`,
+      jsonLd: [realEstateAgentLd(), websiteLd(), breadcrumbLd([{ name: "Home", path: "/" }])],
+    };
+  }
   return {
     path: "/",
-    title: "Leyanis “Leey” Hernandez | Realtor bilingüe · Sur de Georgia & Florida",
-    description:
-      "Leyanis Hernandez (Leey) — agente de Lock & Key Realty. Licenciada en Georgia y Florida. Casas en Valdosta, Hahira, Moultrie, Thomasville, Tifton, Nashville, Adel, Sparks, Lenox, Ray City y Norte de Florida. (404) 403-8306.",
+    title: "Leyanis “Leey” Hernandez | Realtor bilingüe · Sur de Georgia y Florida",
+    description: clip(
+      `Leyanis “Leey” Hernandez — Lock & Key Realty. Licenciada en Georgia y Florida. Casas en Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton y el norte de Florida. ${PHONE}.`,
+    ),
     lang: "es",
     keywords: BASE_KEYWORDS,
-    jsonLd: [realEstateAgentLd()],
+    image: `${U}/assets/leey-portrait.jpg`,
+    jsonLd: [realEstateAgentLd(), websiteLd(), breadcrumbLd([{ name: "Inicio", path: "/" }])],
   };
 }
 
-export function propertiesSeo(): SeoConfig {
+export function propertiesSeo(
+  listings: Property[] = [],
+  lang: "es" | "en" = "es",
+): SeoConfig {
+  const cities = [
+    ...new Set(listings.map((p) => p.city).filter(Boolean)),
+  ].slice(0, 8);
+  const cityHint = cities.length
+    ? cities.join(", ")
+    : "Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton";
+
+  if (lang === "en") {
+    return {
+      path: "/properties",
+      title: "Homes for sale · South Georgia & Florida | Leey Hernandez",
+      description: clip(
+        `Browse homes for sale in ${cityHint}. Filter by price, beds, and type. Leey — bilingual agent with Lock & Key Realty — helps you tour, offer, and close. ${PHONE}.`,
+      ),
+      lang: "en",
+      keywords: [
+        "homes for sale Valdosta GA",
+        "homes for sale South Georgia",
+        "casas en venta Florida",
+        "MLS South Georgia",
+        ...BASE_KEYWORDS,
+      ],
+      image: listings[0]?.images?.[0] || listings[0]?.image || `${U}/assets/leey-portrait.jpg`,
+      jsonLd: [
+        realEstateAgentLd(),
+        itemListLd(listings),
+        breadcrumbLd([
+          { name: "Home", path: "/" },
+          { name: "Listings", path: "/properties" },
+        ]),
+      ],
+    };
+  }
+
   return {
     path: "/properties",
-    title: "Casas en venta · Sur de Georgia & Florida | Leey Hernandez",
-    description:
-      "Inventario de casas en venta en Valdosta, Hahira, Adel, Moultrie, Thomasville, Tifton y Norte de Florida. Filtra por precio, tipo y habitaciones con Leey, agente bilingüe de Lock & Key Realty.",
+    title: "Casas en venta · Sur de Georgia y Florida | Leey Hernandez",
+    description: clip(
+      `Casas en venta en ${cityHint}. Filtra por precio, habitaciones y tipo. Leey — agente bilingüe de Lock & Key Realty — te ayuda a visitar, ofertar y cerrar. ${PHONE}.`,
+    ),
     lang: "es",
     keywords: [
       "casas en venta Valdosta",
+      "casas en venta sur Georgia",
       "homes for sale South Georgia",
-      "casas en venta Florida",
       "MLS Georgia real estate",
       ...BASE_KEYWORDS,
     ],
-    jsonLd: [realEstateAgentLd(), itemListLd()],
+    image: listings[0]?.images?.[0] || listings[0]?.image || `${U}/assets/leey-portrait.jpg`,
+    jsonLd: [
+      realEstateAgentLd(),
+      itemListLd(listings),
+      breadcrumbLd([
+        { name: "Inicio", path: "/" },
+        { name: "Propiedades", path: "/properties" },
+      ]),
+    ],
   };
 }
 
-export function propertySeo(p: Property): SeoConfig {
+export function propertySeo(p: Property, lang: "es" | "en" = "es"): SeoConfig {
   const price = `$${p.priceUsd.toLocaleString("en-US")}`;
   const beds = p.beds ? `${p.beds} bd` : "";
   const baths = p.baths ? `${p.baths} ba` : "";
   const sqft = p.sqft ? `${p.sqft.toLocaleString("en-US")} sqft` : "";
   const specs = [beds, baths, sqft].filter(Boolean).join(" · ");
-  const loc = [p.neighborhood, p.city, p.state].filter(Boolean).join(", ");
+  const loc = [p.address || p.title, p.city, p.state, p.zip].filter(Boolean).join(", ");
+  const descBase =
+    lang === "en"
+      ? `${p.title} — ${price}. ${specs}. ${loc}. ${p.tagline || p.description || ""} Work with Leey Hernandez, bilingual realtor, Lock & Key Realty. ${PHONE}.`
+      : `${p.title} — ${price}. ${specs}. ${loc}. ${p.tagline || p.description || ""} Con Leey Hernandez, realtor bilingüe de Lock & Key Realty. ${PHONE}.`;
+
   return {
     path: `/properties/${p.id}`,
     title: `${p.title} — ${price} | Leey Hernandez`,
-    description: `${p.tagline} ${specs}. ${loc}. ${p.description}`,
-    lang: "es",
+    description: clip(descBase),
+    lang,
     image: p.images?.[0] ?? p.image,
     keywords: [
       `casas en ${p.city}`,
       `${p.city} homes for sale`,
-      `${p.type} for sale ${p.state}`,
+      `${p.type} for sale ${p.state || "GA"}`,
+      p.zip ? `${p.zip} real estate` : "",
       ...BASE_KEYWORDS,
+    ].filter(Boolean),
+    jsonLd: [
+      realEstateAgentLd(),
+      residenceLd(p),
+      breadcrumbLd([
+        { name: lang === "en" ? "Home" : "Inicio", path: "/" },
+        { name: lang === "en" ? "Listings" : "Propiedades", path: "/properties" },
+        { name: p.title, path: `/properties/${p.id}` },
+      ]),
     ],
-    jsonLd: [realEstateAgentLd(), residenceLd(p)],
   };
 }
 
-export function areaSeo(slug: string, city: string, state: string, tagline: string, keywords: string[]): SeoConfig {
+export function areaSeo(
+  slug: string,
+  city: string,
+  state: string,
+  tagline: string,
+  keywords: string[],
+  lang: "es" | "en" = "es",
+): SeoConfig {
   const isFl = state === "FL";
+  if (lang === "en") {
+    return {
+      path: `/areas/${slug}`,
+      title: `Realtor in ${city}, ${state} | Leey Hernandez — Lock & Key Realty`,
+      description: clip(
+        `${tagline} Buy or sell in ${city}, ${state} with Leey Hernandez — bilingual agent licensed in Georgia and Florida. ${PHONE}.`,
+      ),
+      lang: "en",
+      keywords: [...keywords, ...BASE_KEYWORDS],
+      image: `${U}/assets/leey-portrait.jpg`,
+      jsonLd: [
+        realEstateAgentLd(),
+        areaLd(city, state, isFl),
+        breadcrumbLd([
+          { name: "Home", path: "/" },
+          { name: city, path: `/areas/${slug}` },
+        ]),
+      ],
+    };
+  }
   return {
     path: `/areas/${slug}`,
     title: `Realtor en ${city}, ${state} | Leey Hernandez — Lock & Key Realty`,
-    description: `${tagline} Casas en venta y asesoría inmobiliaria en ${city}, ${state} con Leey Hernandez, agente bilingüe licenciada en Georgia y Florida. (404) 403-8306.`,
+    description: clip(
+      `${tagline} Compra o vende en ${city}, ${state} con Leey Hernandez, agente bilingüe licenciada en Georgia y Florida. ${PHONE}.`,
+    ),
     lang: "es",
     keywords: [...keywords, ...BASE_KEYWORDS],
-    jsonLd: [realEstateAgentLd(), areaLd(city, state, isFl)],
+    image: `${U}/assets/leey-portrait.jpg`,
+    jsonLd: [
+      realEstateAgentLd(),
+      areaLd(city, state, isFl),
+      breadcrumbLd([
+        { name: "Inicio", path: "/" },
+        { name: city, path: `/areas/${slug}` },
+      ]),
+    ],
   };
 }
 
@@ -119,12 +242,27 @@ export function realEstateAgentLd() {
     telephone: SITE.agent.phoneTel,
     email: SITE.agent.email,
     description:
-      "Real estate agent licensed in Georgia and Florida with Lock & Key Realty. Serving Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton and North Florida.",
+      "Bilingual real estate agent licensed in Georgia and Florida with Lock & Key Realty. Serving Valdosta, Hahira, Adel, Sparks, Lenox, Ray City, Moultrie, Thomasville, Nashville, Tifton and North Florida.",
     knowsLanguage: ["es", "en"],
     areaServed: [
-      "Valdosta", "Hahira", "Adel", "Sparks", "Lenox", "Ray City",
-      "Moultrie", "Thomasville", "Nashville", "Tifton", "Florida", "Georgia",
-    ].map((n) => ({ "@type": "City", name: n })),
+      "Valdosta",
+      "Hahira",
+      "Adel",
+      "Sparks",
+      "Lenox",
+      "Ray City",
+      "Moultrie",
+      "Thomasville",
+      "Nashville",
+      "Tifton",
+    ].map((n) => ({
+      "@type": "City",
+      name: n,
+      containedInPlace: { "@type": "State", name: "Georgia" },
+    })).concat([
+      { "@type": "State", name: "Florida" } as any,
+      { "@type": "State", name: "Georgia" } as any,
+    ]),
     address: {
       "@type": "PostalAddress",
       addressLocality: "Valdosta",
@@ -136,24 +274,76 @@ export function realEstateAgentLd() {
       name: "Lock and Key Realty",
       url: "https://lockandkeyrealty.com/",
     },
-    sameAs: ["https://lockandkeyrealty.com/leyanis/"],
+    sameAs: [
+      "https://lockandkeyrealty.com/leyanis/",
+      SITE.zillow.profileUrl,
+    ],
     priceRange: "$$",
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
       opens: "09:00",
       closes: "19:00",
     },
   };
 }
 
-export function itemListLd() {
-  // Lightweight: full per-item LD lives on each property page.
+export function websiteLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${U}/#website`,
+    url: `${U}/`,
+    name: "Leyanis Hernandez Realtor",
+    description:
+      "Bilingual realtor for South Georgia and North Florida — Lock & Key Realty.",
+    publisher: { "@id": `${U}/#agent` },
+    inLanguage: ["es-US", "en-US"],
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${U}/properties?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+export function breadcrumbLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: `${U}${it.path === "/" ? "/" : it.path}`,
+    })),
+  };
+}
+
+export function itemListLd(listings: Property[] = []) {
+  const active = listings
+    .filter((p) => p.status === "for_sale" || p.status === "pending")
+    .slice(0, 24);
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Homes for sale — South Georgia & Florida",
     url: `${U}/properties`,
+    numberOfItems: active.length || undefined,
+    itemListElement: active.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${U}/properties/${p.id}`,
+      name: p.title,
+      image: p.images?.[0] || p.image,
+    })),
   };
 }
 
@@ -162,30 +352,44 @@ export function residenceLd(p: Property) {
     "@type": "Offer",
     price: p.priceUsd,
     priceCurrency: "USD",
+    url: `${U}/properties/${p.id}`,
     availability:
       p.status === "for_sale"
         ? "https://schema.org/InStock"
-        : "https://schema.org/OffMarket",
+        : p.status === "pending"
+          ? "https://schema.org/LimitedAvailability"
+          : "https://schema.org/OffMarket",
+    seller: { "@id": `${U}/#agent` },
   };
   if (p.mlsId) (offer as any).sku = `MLS-${p.mlsId}`;
+
+  const street = p.address || p.title;
   return {
     "@context": "https://schema.org",
-    "@type": "Residence",
+    "@type": "SingleFamilyResidence",
     name: p.title,
-    description: p.description,
+    description: clip(p.description || p.tagline || p.title, 300),
     url: `${U}/properties/${p.id}`,
     image: p.images?.length ? p.images : [p.image],
     numberOfRooms: p.beds || undefined,
+    numberOfBedrooms: p.beds || undefined,
     numberOfBathroomsTotal: p.baths || undefined,
-    floorSize: p.sqft ? { "@type": "QuantitativeValue", value: p.sqft, unitCode: "SQF" } : undefined,
+    floorSize: p.sqft
+      ? { "@type": "QuantitativeValue", value: p.sqft, unitCode: "SQF" }
+      : undefined,
     yearBuilt: p.yearBuilt || undefined,
     address: {
       "@type": "PostalAddress",
+      streetAddress: street,
       addressLocality: p.city,
-      addressRegion: p.state,
-      postalCode: p.zip,
+      addressRegion: p.state || "GA",
+      postalCode: p.zip || undefined,
       addressCountry: "US",
     },
+    geo:
+      p.lat && p.lng
+        ? { "@type": "GeoCoordinates", latitude: p.lat, longitude: p.lng }
+        : undefined,
     offers: offer,
     realEstateAgent: { "@id": `${U}/#agent` },
   };
@@ -202,6 +406,9 @@ export function areaLd(city: string, state: string, isFl: boolean) {
       addressRegion: state,
       addressCountry: "US",
     },
-    containedInPlace: { "@type": "State", name: isFl ? "Florida" : "Georgia" },
+    containedInPlace: {
+      "@type": "State",
+      name: isFl ? "Florida" : "Georgia",
+    },
   };
 }

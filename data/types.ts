@@ -60,6 +60,24 @@ export interface Property {
   listedBy?: string;
 }
 
+export interface ListingsFeedMeta {
+  mode?: string;
+  inventoryKind?: "agent" | "market" | "mixed" | "demo" | "manual";
+  zillowHost?: string;
+  realtorHost?: string;
+  locations?: string[];
+  mlsIds?: string[];
+  manualPath?: string;
+  sourcesUsed?: string[];
+  brokerageFilter?: string[];
+  preserved?: boolean;
+  preserveReason?: string;
+  attemptedAt?: string;
+  note?: string;
+  enriched?: number;
+  [key: string]: unknown;
+}
+
 export interface ListingsFeed {
   version: 1;
   source: "zillow" | "demo" | "manual" | "mixed";
@@ -72,4 +90,5 @@ export interface ListingsFeed {
     brokerage?: string;
   };
   listings: Property[];
+  meta?: ListingsFeedMeta;
 }

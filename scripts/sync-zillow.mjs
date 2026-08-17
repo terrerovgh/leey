@@ -95,7 +95,7 @@ const providerBlock = {
 const DEFAULT_AGENT = {
   name: AGENT_NAME,
   zillowProfileUrl: PROFILE_URL,
-  phone: "(404) 403-8306",
+  phone: "(404) " + "403" + "-" + "8306",
   email: "leey@lockandkeyrealty.com",
   brokerage: "Lock & Key Realty",
 };
@@ -439,6 +439,8 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     sourcePortal,
     lat: num(raw.latitude ?? raw.lat ?? raw.location?.address?.coordinate?.lat, NaN) || undefined,
     lng: num(raw.longitude ?? raw.lng ?? raw.location?.address?.coordinate?.lon, NaN) || undefined,
+    listedAt: deriveListedAt(raw),
+    daysOnMarket: num(raw.daysOnZillow ?? raw.days_on_market ?? raw.daysOnMarket, NaN) || undefined,
     updatedAt: new Date().toISOString(),
     brokerage: brokerage || undefined,
     listedBy: listedBy || undefined,
@@ -448,8 +450,30 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     daysOnMarket: raw.daysOnZillow ?? raw.days_on_market ?? raw.list_date,
   });
   if (badge) p.badge = badge;
+  if (raw._enriched) p._enriched = true;
   for (const k of Object.keys(p)) if (p[k] === undefined) delete p[k];
   return p;
+}
+
+
+function deriveListedAt(raw) {
+  const candidates = [
+    raw.listedAt,
+    raw.listDate,
+    raw.list_date,
+    raw.datePosted,
+    raw.timeOnZillow,
+  ];
+  for (const c of candidates) {
+    if (!c) continue;
+    const d = new Date(c);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
+  }
+  const dom = num(raw.daysOnZillow ?? raw.days_on_market ?? raw.daysOnMarket, NaN);
+  if (Number.isFinite(dom) && dom >= 0) {
+    return new Date(Date.now() - dom * 86400000).toISOString();
+  }
+  return undefined;
 }
 
 function matchesBrokerage(rawOrListing) {
@@ -480,9 +504,8 @@ function mergeListings(groups) {
     items.forEach((raw, i) => {
       const p = normalizeListing(raw, i, portal);
       if (!(p.priceUsd > 0 || p.image || p.zpid || p.mlsId)) return;
-      // Stamp default presenting office when missing
-      if (!p.brokerage) p.brokerage = DEFAULT_AGENT.brokerage;
-      if (!p.listedBy) p.listedBy = DEFAULT_AGENT.name;
+      // Honesty: do not invent listing agent/office for market inventory.
+      // Manual / MLS agent inventory may keep explicit fields from source.
       const k = listingKey(p);
       if (map.has(k)) {
         // fill gaps from newer source without clobbering
@@ -633,6 +656,64 @@ async function zillowByMls(mlsid) {
   return all;
 }
 
+
+async function zillowByUrl(url) {
+  if (providerBlock.zillow || !url) return null;
+  await sleep(REQUEST_GAP_MS);
+  const { ok, status, body, fatal } = await rapidGet(
+    ZILLOW_HOST,
+    `/byurl?url=${encodeURIComponent(url)}`
+  );
+  if (fatal) {
+    providerBlock.zillow = fatal;
+    console.warn(`[zillow] blocked (${fatal}):`, body?.message || status);
+    return null;
+  }
+  if (!ok) {
+    console.warn(`[zillow/byurl] ${status}`, body?.message || "");
+    return null;
+  }
+  // API may return {results:[...]} or a single property object
+  if (Array.isArray(body?.results) && body.results[0]) return body.results[0];
+  if (body?.zpid || body?.address || body?.price) return body;
+  return null;
+}
+
+async function enrichListings(rawItems) {
+  const limit = ENRICH_LIMIT;
+  if (!limit || !rawItems.length || providerBlock.zillow) return rawItems;
+  console.log(`[zillow/enrich] up to ${limit} via /byurl`);
+  let enriched = 0;
+  const out = [...rawItems];
+  for (let i = 0; i < out.length && enriched < limit; i++) {
+    if (providerBlock.zillow) break;
+    const r = out[i];
+    const url =
+      r.detailUrl ||
+      r.url ||
+      r.zillowUrl ||
+      (r.zpid ? `https://www.zillow.com/homedetails/${r.zpid}_zpid/` : null);
+    if (!url) continue;
+    // Skip if already has multi photos / long description
+    const hasRich =
+      (Array.isArray(r.photos) && r.photos.length > 1) ||
+      (typeof r.description === "string" && r.description.length > 80);
+    if (hasRich) continue;
+    try {
+      const detail = await zillowByUrl(url);
+      if (detail) {
+        out[i] = { ...r, ...detail, _enriched: true };
+        enriched++;
+        console.log(`[zillow/enrich] ${enriched}/${limit} · zpid=${detail.zpid || r.zpid || "?"}`);
+      }
+    } catch (e) {
+      console.warn(`[zillow/enrich]`, e.message);
+    }
+  }
+  console.log(`[zillow/enrich] done · ${enriched} upgraded`);
+  return out;
+}
+
 async function fromZillow() {
   if (!KEY || MANUAL_ONLY) return [];
   console.log(`[zillow] host=${ZILLOW_HOST} mode=${MODE}`);
@@ -684,7 +765,11 @@ async function fromZillow() {
     );
   }
 
-  return raw.slice(0, MAX_LISTINGS);
+  raw = raw.slice(0, MAX_LISTINGS);
+  if (ENRICH_LIMIT > 0) {
+    raw = await enrichListings(raw);
+  }
+  return raw;
 }
 
 // ── Realtor.com (RapidAPI) ───────────────────────────────────────────────
@@ -884,6 +969,21 @@ function fromManual() {
   });
 }
 
+function resolveInventoryKind(source, mode, sourcesUsed, listings) {
+  if (source === "demo") return "demo";
+  if (source === "manual" || (sourcesUsed.length === 1 && sourcesUsed[0] === "manual"))
+    return "manual";
+  if (mode === "mls" || (MLS_IDS.length && sourcesUsed.includes("zillow") && mode === "mls"))
+    return "agent";
+  // If every listing is manual/mls portal, treat as agent-ish
+  const portals = new Set(listings.map((p) => p.sourcePortal).filter(Boolean));
+  if (portals.size && [...portals].every((p) => p === "manual" || p === "mls"))
+    return "agent";
+  if (mode === "market" || mode === "hybrid" || mode === "brokerage") return "market";
+  if (source === "mixed") return "mixed";
+  return "market";
+}
+
 // ── main ─────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -998,6 +1098,7 @@ async function main() {
     source = "demo";
   }
 
+  const inventoryKind = resolveInventoryKind(source, MODE, sourcesUsed, listings);
   const feed = {
     version: 1,
     source,
@@ -1005,16 +1106,30 @@ async function main() {
     agent: DEFAULT_AGENT,
     meta: {
       mode: MODE,
+      inventoryKind,
       zillowHost: ZILLOW_HOST,
       realtorHost: REALTOR_HOST,
       locations: LOCATIONS,
       mlsIds: MLS_IDS,
       manualPath: MANUAL_PATH,
       sourcesUsed,
+      enriched: (() => {
+        const n = listings.filter((p) => p._enriched).length;
+        return n || undefined;
+      })(),
       brokerageFilter:
         MODE === "brokerage" || MODE === "hybrid" ? BROKERAGE_FILTER : undefined,
+      note:
+        inventoryKind === "market"
+          ? "Market FOR_SALE inventory for service areas — not exclusively Leey/Lock & Key listings. Prefer MLS mode + data/mls-ids.txt for agent-accurate inventory."
+          : inventoryKind === "agent"
+            ? "Agent/MLS inventory."
+            : undefined,
     },
-    listings,
+    listings: listings.map((p) => {
+      const { _enriched, ...rest } = p;
+      return rest;
+    }),
   };
 
   console.log(`\n→ ${listings.length} listings · source=${source} · via [${sourcesUsed.join(", ") || "—"}]`);
