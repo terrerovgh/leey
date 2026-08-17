@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "manual",
-  "syncedAt": "2026-08-17T14:14:28.225Z",
+  "syncedAt": "2026-08-17T14:35:40.904Z",
   "agent": {
     "name": "Leyanis Hernandez",
     "zillowProfileUrl": "https://www.zillow.com/profile/leey63/",
@@ -12,7 +12,7 @@
   "meta": {
     "mode": "brokerage",
     "inventoryKind": "agent",
-    "zillowHost": "zillow-com-live-data-scraper-api.p.rapidapi.com",
+    "zillowHost": "real-estate-zillow-com.p.rapidapi.com",
     "realtorHost": "realty-in-us.p.rapidapi.com",
     "locations": [
       "Valdosta, GA",
@@ -27,13 +27,11 @@
       "Sparks, GA",
       "Lenox, GA"
     ],
-    "mlsIds": [
-      "20146849",
-      "20132531",
-      "10737712"
-    ],
+    "mlsIds": [],
     "manualPath": "data/manual-listings.json",
-    "sourcesUsed": [],
+    "sourcesUsed": [
+      "manual"
+    ],
     "brokerageFilter": [
       "lock and key",
       "lock & key",
@@ -41,5 +39,68 @@
     ],
     "note": "Lock & Key Realty inventory only (brokerage/MLS/manual filter)."
   },
-  "listings": []
+  "listings": [
+    {
+      "id": "zpid-462461557",
+      "zpid": "462461557",
+      "status": "for_sale",
+      "title": "601 40th St E",
+      "address": "601 40th St E, Tifton, GA 31794",
+      "city": "Tifton",
+      "neighborhood": "Tifton",
+      "state": "GA",
+      "zip": "31794",
+      "type": "house",
+      "beds": 4,
+      "baths": 2,
+      "sqft": 1910,
+      "yearBuilt": 0,
+      "priceUsd": 372450,
+      "image": "https://photos.zillowstatic.com/fp/b8c6709ba14527938cc64ae6425750d6-p_e.jpg",
+      "images": [
+        "https://photos.zillowstatic.com/fp/b8c6709ba14527938cc64ae6425750d6-p_e.jpg"
+      ],
+      "tagline": "4 bd · 2 ba · 1,910 sqft",
+      "description": "4 bd · 2 ba · 1,910 sqft in Tifton, GA. Listed with Lock and Key Realty.",
+      "zillowUrl": "https://www.zillow.com/homedetails/601-40th-St-E-Tifton-GA-31794/462461557_zpid/",
+      "sourceUrl": "https://www.zillow.com/homedetails/601-40th-St-E-Tifton-GA-31794/462461557_zpid/",
+      "sourcePortal": "zillow",
+      "lat": 31.486483,
+      "lng": -83.49968,
+      "updatedAt": "2026-08-17T14:35:21.828648+00:00",
+      "brokerage": "Lock and Key Realty",
+      "listedBy": "Leyanis Hernandez"
+    },
+    {
+      "id": "zpid-105163117",
+      "zpid": "105163117",
+      "status": "for_sale",
+      "title": "408 Janice Ave",
+      "address": "408 Janice Ave, Nashville, GA 31639",
+      "city": "Nashville",
+      "neighborhood": "Nashville",
+      "state": "GA",
+      "zip": "31639",
+      "type": "house",
+      "beds": 4,
+      "baths": 2,
+      "sqft": 2128,
+      "yearBuilt": 0,
+      "priceUsd": 198000,
+      "image": "https://photos.zillowstatic.com/fp/0a8be75fe57223b54b369468b58923bb-p_e.jpg",
+      "images": [
+        "https://photos.zillowstatic.com/fp/0a8be75fe57223b54b369468b58923bb-p_e.jpg"
+      ],
+      "tagline": "4 bd · 2 ba · 2,128 sqft",
+      "description": "4 bd · 2 ba · 2,128 sqft in Nashville, GA. Listed with Lock and Key Realty.",
+      "zillowUrl": "https://www.zillow.com/homedetails/408-Janice-Ave-Nashville-GA-31639/105163117_zpid/",
+      "sourceUrl": "https://www.zillow.com/homedetails/408-Janice-Ave-Nashville-GA-31639/105163117_zpid/",
+      "sourcePortal": "zillow",
+      "lat": 31.195053,
+      "lng": -83.25767,
+      "updatedAt": "2026-08-17T14:35:21.828664+00:00",
+      "brokerage": "Lock and Key Realty",
+      "listedBy": "Leyanis Hernandez"
+    }
+  ]
 }

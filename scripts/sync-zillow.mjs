@@ -5,7 +5,9 @@
  * Sources (merged, first wins on id collision after normalize):
  *   1. Manual JSON     — data/manual-listings.json (or MANUAL_LISTINGS_PATH)
  *   2. Georgia MLS     — public /listing + mapping.cfc detail for MLS ids
- *   3. Zillow RapidAPI — host RAPIDAPI_HOST (bylocation / bymlsid / byurl)
+ *   3. Zillow RapidAPI — host RAPIDAPI_HOST
+ *                      real-estate-zillow-com: /v1/search/sale|sold
+ *                      legacy scraper: /bylocation /bymlsid /byurl
  *   4. Realtor RapidAPI— host REALTOR_RAPIDAPI_HOST (when subscribed)
  *   5. Apify           — optional agent scraper
  *
@@ -29,6 +31,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
 function loadEnv() {
+  // Project .env wins over ambient shell for these keys (stale RAPIDAPI_HOST in
+  // Hermes/session env used to pin the old scraper host and burn the wrong quota).
+  const OVERRIDE_KEYS = new Set([
+    "RAPIDAPI_HOST",
+    "RAPIDAPI_KEY",
+    "SYNC_MODE",
+    "ZILLOW_SYNC_MODE",
+    "ZILLOW_BROKERAGE_FILTER",
+    "ZILLOW_LOCATIONS",
+    "ZILLOW_MAX_PAGES",
+    "ZILLOW_REZ_MAX_PAGES",
+    "REALTOR_RAPIDAPI_HOST",
+    "REALTOR_ENABLED",
+    "GAMLS_ENABLED",
+  ]);
   for (const p of [resolve(ROOT, ".env"), resolve(ROOT, ".env.local")]) {
     if (!existsSync(p)) continue;
     for (const line of readFileSync(p, "utf8").split("\n")) {
@@ -36,7 +53,7 @@ function loadEnv() {
       if (!m) continue;
       const k = m[1];
       let v = m[2].replace(/^["']|["']$/g, "");
-      if (process.env[k] === undefined) process.env[k] = v;
+      if (process.env[k] === undefined || OVERRIDE_KEYS.has(k)) process.env[k] = v;
     }
   }
 }
@@ -82,16 +99,25 @@ const REQUEST_GAP_MS = Math.max(800, num(process.env.RAPIDAPI_GAP_MS, 1200));
 
 const ZILLOW_HOST =
   process.env.RAPIDAPI_HOST ||
-  "zillow-com-live-data-scraper-api.p.rapidapi.com";
+  "real-estate-zillow-com.p.rapidapi.com";
 const REALTOR_HOST =
   process.env.REALTOR_RAPIDAPI_HOST || "realty-in-us.p.rapidapi.com";
 const KEY = process.env.RAPIDAPI_KEY || "";
+/** Flavor of Zillow RapidAPI product */
+const ZILLOW_FLAVOR = detectZillowFlavor(ZILLOW_HOST);
 
 /** Set when a provider reports hard quota / not subscribed — skip further calls */
 const providerBlock = {
   zillow: null, // string reason
   realtor: null,
 };
+
+function detectZillowFlavor(host) {
+  const h = String(host || "").toLowerCase();
+  if (h.includes("real-estate-zillow-com")) return "rez"; // /v1/search/sale
+  if (h.includes("live-data-scraper") || h.includes("bmayoub")) return "scraper";
+  return "scraper";
+}
 
 const DEFAULT_AGENT = {
   name: AGENT_NAME,
@@ -276,10 +302,20 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     };
   }
 
-  const zpid = raw.zpid || raw.zpId || raw.id;
+  const hdp = raw.hdpData?.homeInfo || raw.homeInfo || {};
+  const zpid = raw.zpid || raw.zpId || hdp.zpid || raw.id;
   const address =
     raw.address ||
     raw.streetAddress ||
+    hdp.streetAddress ||
+    [
+      raw.addressStreet || hdp.streetAddress,
+      raw.addressCity || hdp.city,
+      raw.addressState || hdp.state,
+      raw.addressZipcode || hdp.zipcode,
+    ]
+      .filter(Boolean)
+      .join(", ") ||
     raw.location?.address?.line ||
     [
       raw.location?.address?.line,
@@ -292,46 +328,63 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     "";
   const parsed = parseAddress(address);
   const city =
+    raw.addressCity ||
     raw.city ||
+    hdp.city ||
     raw.location?.address?.city ||
     parsed.city;
   const state =
+    raw.addressState ||
     raw.state ||
     raw.state_code ||
+    hdp.state ||
     raw.location?.address?.state_code ||
     parsed.state ||
     "GA";
   const zip = String(
-    raw.zipcode ||
+    raw.addressZipcode ||
+      raw.zipcode ||
       raw.zip ||
       raw.postal_code ||
+      hdp.zipcode ||
       raw.location?.address?.postal_code ||
       parsed.zip ||
       ""
   );
   const price = num(
-    raw.price ??
-      raw.unformattedPrice ??
+    raw.unformattedPrice ??
+      raw.price ??
+      hdp.price ??
       raw.listPrice ??
       raw.list_price ??
-      raw.price_raw,
+      raw.price_raw ??
+      (typeof raw.price === "string"
+        ? String(raw.price).replace(/[^0-9.]/g, "")
+        : undefined),
     0
   );
   const beds = num(
-    raw.beds ?? raw.bedrooms ?? raw.description?.beds ?? raw.bed_count,
+    raw.beds ??
+      raw.bedrooms ??
+      hdp.bedrooms ??
+      raw.description?.beds ??
+      raw.bed_count,
     0
   );
   const baths = num(
     raw.baths ??
       raw.bathrooms ??
+      hdp.bathrooms ??
       raw.description?.baths ??
       raw.bath_count ??
       raw.baths_consolidated,
     0
   );
   const sqft = num(
-    raw.sqft ??
+    raw.area ??
+      raw.sqft ??
       raw.livingArea ??
+      hdp.livingArea ??
       raw.description?.sqft ??
       raw.building_size?.size ??
       raw.lot_size?.size,
@@ -340,7 +393,14 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
   const image = firstImage(raw);
   const images = collectImages(raw, image);
   const status = mapStatus(
-    raw.status || raw.homeStatus || raw.listingStatus || raw.status_text
+    raw.status ||
+      raw.statusType ||
+      raw.rawHomeStatusCd ||
+      raw.homeStatus ||
+      hdp.homeStatus ||
+      raw.listingStatus ||
+      raw.status_text ||
+      raw.statusText
   );
   const zillowUrl =
     raw.zillowUrl ||
@@ -357,7 +417,12 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     (raw.property_id
       ? `https://www.realtor.com/realestateandhomes-detail/M${raw.property_id}`
       : undefined);
-  const title = parsed.street || address || `${city} home`;
+  const title =
+    raw.addressStreet ||
+    hdp.streetAddress ||
+    parsed.street ||
+    address ||
+    `${city} home`;
   const brokerage =
     raw.brokerage ||
     raw.brokerName ||
@@ -422,6 +487,7 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     type: mapHomeType(
       raw.property_type ||
         raw.homeType ||
+        hdp.homeType ||
         raw.propertyType ||
         raw.description?.type ||
         raw.prop_type
@@ -438,10 +504,30 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     zillowUrl,
     sourceUrl,
     sourcePortal,
-    lat: num(raw.latitude ?? raw.lat ?? raw.location?.address?.coordinate?.lat, NaN) || undefined,
-    lng: num(raw.longitude ?? raw.lng ?? raw.location?.address?.coordinate?.lon, NaN) || undefined,
+    lat: num(
+      raw.latitude ??
+        raw.lat ??
+        raw.latLong?.latitude ??
+        hdp.latitude ??
+        raw.location?.address?.coordinate?.lat,
+      NaN
+    ) || undefined,
+    lng: num(
+      raw.longitude ??
+        raw.lng ??
+        raw.latLong?.longitude ??
+        hdp.longitude ??
+        raw.location?.address?.coordinate?.lon,
+      NaN
+    ) || undefined,
     listedAt: deriveListedAt(raw),
-    daysOnMarket: num(raw.daysOnZillow ?? raw.days_on_market ?? raw.daysOnMarket, NaN) || undefined,
+    daysOnMarket: num(
+      raw.daysOnZillow ??
+        hdp.daysOnZillow ??
+        raw.days_on_market ??
+        raw.daysOnMarket,
+      NaN
+    ) || undefined,
     updatedAt: new Date().toISOString(),
     brokerage: brokerage || undefined,
     listedBy: listedBy || undefined,
@@ -574,7 +660,7 @@ async function rapidGet(host, pathAndQuery, attempt = 0) {
     body = { raw: text };
   }
 
-  const msg = String(body?.message || body?.raw || "");
+  const msg = String(body?.message || body?.description || body?.raw || "");
   const monthly =
     /monthly quota|exceeded the MONTHLY|upgrade your plan/i.test(msg);
   const notSub = /not subscribed/i.test(msg);
@@ -604,6 +690,9 @@ async function rapidGet(host, pathAndQuery, attempt = 0) {
 
 async function zillowByLocation(location, maxPages = MAX_PAGES) {
   if (providerBlock.zillow) return [];
+  if (ZILLOW_FLAVOR === "rez") {
+    return zillowRezByLocation(location, maxPages);
+  }
   const all = [];
   for (let page = 1; page <= maxPages; page++) {
     await sleep(REQUEST_GAP_MS);
@@ -628,6 +717,65 @@ async function zillowByLocation(location, maxPages = MAX_PAGES) {
     if (all.length >= MAX_LISTINGS) break;
   }
   return all;
+}
+
+/**
+ * real-estate-zillow-com.p.rapidapi.com
+ * Working paths (verified):
+ *   GET /v1/search/sale?location_or_rid=Valdosta%2C%20GA&property_types=house&sort=relevant&page=1
+ *   GET /v1/search/sold?...&doz=7
+ * Response: { status, description, data: { listings:[], count, searchMeta } }
+ * Note: brokerName is sparse — brokerage filter only keeps rows that include it.
+ */
+async function zillowRezByLocation(location, maxPages = MAX_PAGES) {
+  if (providerBlock.zillow) return [];
+  const all = [];
+  const propTypes = encodeURIComponent(
+    process.env.ZILLOW_PROPERTY_TYPES || "house"
+  );
+  const sort = encodeURIComponent(process.env.ZILLOW_SORT || "relevant");
+  // page>1 is flaky on this product ("Could not resolve location"); default 1
+  const pages = Math.min(maxPages, Math.max(1, num(process.env.ZILLOW_REZ_MAX_PAGES, 1)));
+  for (let page = 1; page <= pages; page++) {
+    await sleep(REQUEST_GAP_MS);
+    const q =
+      `/v1/search/sale?location_or_rid=${encodeURIComponent(location)}` +
+      `&property_types=${propTypes}&sort=${sort}&page=${page}`;
+    const { ok, status, body, fatal } = await rapidGet(ZILLOW_HOST, q);
+    if (fatal) {
+      providerBlock.zillow = fatal;
+      console.warn(`[zillow/rez] blocked (${fatal}):`, body?.message || body?.description || status);
+      break;
+    }
+    // Product returns HTTP 200 with body.status 204/400 for soft errors
+    const softStatus = num(body?.status, status);
+    if (!ok || softStatus === 204 || softStatus === 400) {
+      console.warn(
+        `[zillow/rez/sale] ${status}/${softStatus} ${location} p${page}`,
+        body?.description || body?.message || ""
+      );
+      break;
+    }
+    const results = extractRezListings(body);
+    console.log(
+      `[zillow/rez/sale] ${location} p${page} → ${results.length} (count≈${body?.data?.count ?? results.length})`
+    );
+    all.push(...results);
+    if (!results.length) break;
+    if (all.length >= MAX_LISTINGS) break;
+    // if API count fits in one page, stop
+    if (num(body?.data?.count, 0) && results.length >= num(body?.data?.count, 0)) break;
+  }
+  return all;
+}
+
+function extractRezListings(body) {
+  if (!body) return [];
+  if (Array.isArray(body?.data?.listings)) return body.data.listings;
+  if (Array.isArray(body?.listings)) return body.listings;
+  if (Array.isArray(body?.data?.results)) return body.data.results;
+  if (Array.isArray(body?.results)) return body.results;
+  return [];
 }
 
 async function zillowByMls(mlsid) {
@@ -1228,7 +1376,7 @@ async function main() {
   );
   console.log(` manual:  ${MANUAL_PATH}`);
   console.log(` locs:    ${LOCATIONS.join(" · ")}`);
-  console.log(` zillow:  ${ZILLOW_HOST} · key=${KEY ? "yes" : "no"}`);
+  console.log(` zillow:  ${ZILLOW_HOST} · flavor=${ZILLOW_FLAVOR} · key=${KEY ? "yes" : "no"}`);
   console.log(` realtor: ${REALTOR_HOST} · enabled=${process.env.REALTOR_ENABLED ?? "1"}`);
   console.log(` keep:    last-good=${KEEP_LAST_GOOD}`);
   console.log(` out:     ${OUT}`);

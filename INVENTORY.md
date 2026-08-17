@@ -4,13 +4,14 @@
 Publicar en https://leeyrealty.com **solo** listados de **Lock & Key Realty**
 (y/o de Leey), con logo + agente + contacto en UI.
 
-## Estado de APIs (2026-08-17)
+## Estado de APIs
 | Fuente | Estado | Notas |
 |--------|--------|-------|
-| Zillow RapidAPI (`zillow-com-live-data-scraper-api`) | **Cuota mensual BASIC agotada** | 429 hasta reset/upgrade |
-| Realtor RapidAPI | **No suscrito** | 403 not subscribed |
-| Georgia MLS público | **OK** | resuelve por MLS id sin API key |
-| Manual JSON | **OK** | filas completas que pegues |
+| Zillow RapidAPI `real-estate-zillow-com` | **Preferido** | `GET /v1/search/sale` + `/v1/search/sold`. Free hard limit alto; rate 25 req. `brokerName` sparse (~15%) |
+| Zillow RapidAPI legacy scraper | Cuota BASIC agotada | No usar salvo upgrade |
+| Realtor RapidAPI | **No suscrito** | 403 |
+| Georgia MLS público | **OK** | por MLS id |
+| Manual JSON | **OK** | seed actual: 2 Lock & Key |
 
 No hay endpoint público confiable “office=Lock & Key → todos los activos”.
 El camino correcto es **MLS ids** (o filas manuales).
@@ -21,7 +22,7 @@ El camino correcto es **MLS ids** (o filas manuales).
 |-----------|--------|--------|
 | 1 | `data/manual-listings.json` | Siempre — filas completas verificadas |
 | 2 | Georgia MLS público | `data/mls-ids.txt` → detalle en georgiamls.com |
-| 3 | Zillow RapidAPI `/bymlsid` + `/bylocation` | Si hay cuota |
+| 3 | Zillow `real-estate-zillow-com` `/v1/search/sale` | Filtra `brokerName` en mode brokerage |
 | 4 | Realtor RapidAPI | Cuando te suscribes a un producto Realtor |
 | 5 | Apify | Si hay `APIFY_TOKEN` |
 | fallback | last-good feed | Si todo falla (`KEEP_LAST_GOOD=1`) |
