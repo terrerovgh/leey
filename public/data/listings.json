@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "manual",
-  "syncedAt": "2026-08-17T13:53:22.287094+00:00",
+  "syncedAt": "2026-08-17T14:14:28.225Z",
   "agent": {
     "name": "Leyanis Hernandez",
     "zillowProfileUrl": "https://www.zillow.com/profile/leey63/",
@@ -12,14 +12,34 @@
   "meta": {
     "mode": "brokerage",
     "inventoryKind": "agent",
+    "zillowHost": "zillow-com-live-data-scraper-api.p.rapidapi.com",
+    "realtorHost": "realty-in-us.p.rapidapi.com",
+    "locations": [
+      "Valdosta, GA",
+      "Hahira, GA",
+      "Adel, GA",
+      "Moultrie, GA",
+      "Thomasville, GA",
+      "Tifton, GA",
+      "Nashville, GA",
+      "Ray City, GA",
+      "Lake Park, GA",
+      "Sparks, GA",
+      "Lenox, GA"
+    ],
+    "mlsIds": [
+      "20146849",
+      "20132531",
+      "10737712"
+    ],
+    "manualPath": "data/manual-listings.json",
+    "sourcesUsed": [],
     "brokerageFilter": [
       "lock and key",
       "lock & key",
       "lockandkey"
     ],
-    "note": "Lock and Key Realty inventory only. Market-wide Zillow results removed. Add MLS ids in data/mls-ids.txt or full rows in data/manual-listings.json.",
-    "previousMarketCount": 82,
-    "filteredAt": "2026-08-17T13:53:22.287099+00:00"
+    "note": "Lock & Key Realty inventory only (brokerage/MLS/manual filter)."
   },
   "listings": []
 }

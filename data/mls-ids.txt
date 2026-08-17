@@ -1,13 +1,14 @@
-# One MLS number per line (GAMLS / local board IDs as shown on the listing).
-# Lines starting with # are ignored.
+# Lock and Key / Leey — one GAMLS number per line
+# Resolved via public Georgia MLS (no RapidAPI needed).
+# Sold are skipped unless GAMLS_INCLUDE_SOLD=1.
 #
-# Workflow:
-# 1. Paste MLS ids here for Lock & Key (or Leey) active listings
-# 2. Optionally also add full property rows in data/manual-listings.json
-# 3. Run: npm run sync:zillow
-#    - With Zillow API quota: ids resolve via /bymlsid
-#    - Without API: put full rows in manual-listings.json (ids alone are not enough)
+# How to get IDs:
+#  1) Office flyer / CRM / GAMLS member search
+#  2) Zillow or Realtor listing page → MLS field
+#  3) Public listing URL: https://www.georgiamls.com/listing/{MLS}
 #
-# Example:
-# 147230
-# 10312024
+# Example (sold — do not leave active):
+# 20146849
+# 20132531
+#
+# Paste ACTIVE ids below:

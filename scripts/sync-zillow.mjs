@@ -4,9 +4,10 @@
  *
  * Sources (merged, first wins on id collision after normalize):
  *   1. Manual JSON     — data/manual-listings.json (or MANUAL_LISTINGS_PATH)
- *   2. Zillow RapidAPI — host RAPIDAPI_HOST (bylocation / bymlsid / byurl)
- *   3. Realtor RapidAPI— host REALTOR_RAPIDAPI_HOST (when subscribed)
- *   4. Apify           — optional agent scraper
+ *   2. Georgia MLS     — public /listing + mapping.cfc detail for MLS ids
+ *   3. Zillow RapidAPI — host RAPIDAPI_HOST (bylocation / bymlsid / byurl)
+ *   4. Realtor RapidAPI— host REALTOR_RAPIDAPI_HOST (when subscribed)
+ *   5. Apify           — optional agent scraper
  *
  * Modes (ZILLOW_SYNC_MODE / SYNC_MODE):
  *   market     — area search (Zillow locations)
@@ -929,6 +930,230 @@ async function fromApify() {
   return itemsRes.json();
 }
 
+
+// ── Georgia MLS public detail (no RapidAPI) ─────────────────────────────
+/**
+ * Resolves MLS ids via public GAMLS endpoints:
+ *  - JSON: /real-estate/map-search/mapping.cfc?method=getSingleListingDetails
+ *  - HTML: /listing/{mlsId} for status / office / agent / description
+ * Only keeps rows whose list office matches Lock & Key (brokerage modes).
+ */
+async function fromGeorgiaMls(mlsIds = MLS_IDS) {
+  if (MANUAL_ONLY) return [];
+  if (String(process.env.GAMLS_ENABLED || "1") === "0") return [];
+  const ids = [...new Set((mlsIds || []).map((s) => String(s).trim()).filter(Boolean))];
+  if (!ids.length) {
+    console.log("[gamls] no MLS ids (data/mls-ids.txt empty)");
+    return [];
+  }
+  console.log(`[gamls] resolving ${ids.length} MLS id(s)`);
+  const out = [];
+  for (const id of ids) {
+    try {
+      const row = await gamlsFetchListing(id);
+      if (row) out.push(row);
+    } catch (e) {
+      console.warn(`[gamls] ${id}`, e.message);
+    }
+    await sleep(REQUEST_GAP_MS);
+  }
+  console.log(`[gamls] ${out.length} row(s)`);
+  return out;
+}
+
+async function gamlsFetchListing(mlsId) {
+  const apiUrl =
+    "https://www.georgiamls.com/real-estate/map-search/mapping.cfc?method=getSingleListingDetails&returnformat=json";
+  const body = new URLSearchParams({ listingNumber: String(mlsId) });
+  const apiRes = await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json,text/javascript,*/*",
+      "X-Requested-With": "XMLHttpRequest",
+      Referer: "https://www.georgiamls.com/real-estate/map-search/",
+      "User-Agent":
+        "Mozilla/5.0 (compatible; LeeyRealtySync/1.0; +https://leeyrealty.com)",
+    },
+    body,
+  });
+  if (!apiRes.ok) throw new Error(`detail HTTP ${apiRes.status}`);
+  const rawText = await apiRes.text();
+  let api;
+  try {
+    api = JSON.parse(rawText);
+  } catch {
+    throw new Error(`detail not JSON: ${rawText.slice(0, 80)}`);
+  }
+  const row = Array.isArray(api) ? api[0] : api;
+  if (!row || (!row.ln && !row.price && !row.city)) {
+    console.warn(`[gamls] ${mlsId} empty detail`);
+    return null;
+  }
+
+  // HTML for status / office / agent / description (public listing page)
+  let htmlMeta = {};
+  try {
+    const htmlRes = await fetch(`https://www.georgiamls.com/listing/${encodeURIComponent(mlsId)}`, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; LeeyRealtySync/1.0; +https://leeyrealty.com)",
+        Accept: "text/html",
+      },
+    });
+    if (htmlRes.ok) {
+      const html = await htmlRes.text();
+      htmlMeta = parseGamlsListingHtml(html);
+    }
+  } catch (e) {
+    console.warn(`[gamls] html ${mlsId}`, e.message);
+  }
+
+  const streetNum = String(row.stn || "").trim();
+  const streetName = String(row.strt || "").trim();
+  const street = [streetNum, streetName].filter(Boolean).join(" ").trim();
+  const city = String(row.city || htmlMeta.city || "").trim();
+  const zip = String(row.zip || htmlMeta.zip || "").trim();
+  const state = "GA";
+  const price = num(
+    String(row.price || htmlMeta.price || "0").replace(/[^0-9.]/g, ""),
+    0
+  );
+  const beds = num(row.br ?? htmlMeta.beds, 0);
+  const baths = num(row.baf ?? htmlMeta.baths, 0) + num(row.bah, 0) * 0.5;
+  const sqft = num(row.sqft_tot ?? htmlMeta.sqft, 0);
+  const yearBuilt = num(row.yr ?? htmlMeta.yearBuilt, 0) || 0;
+  const image = row.photourl || htmlMeta.image || "";
+  const status = mapStatus(htmlMeta.status || (htmlMeta.sold ? "sold" : "for_sale"));
+  const brokerage =
+    htmlMeta.office ||
+    htmlMeta.listOffice ||
+    "Lock & Key Realty";
+  const listedBy = htmlMeta.agent || htmlMeta.listAgent || "";
+  const lotSizeSqft =
+    row.lotsize != null && Number(row.lotsize) > 0 && Number(row.lotsize) < 1000
+      ? Math.round(Number(row.lotsize) * 43560)
+      : num(row.lotsize, 0) || undefined;
+  const propType = mapHomeType(row.propertytype || row.typ || htmlMeta.propertyType);
+  const path = row.listing_url || `/${slug(street)}-${slug(city)}-ga-${zip}/${mlsId}`;
+  const sourceUrl = path.startsWith("http")
+    ? path
+    : `https://www.georgiamls.com${path.startsWith("/") ? "" : "/"}${path}`;
+
+  // In brokerage/hybrid, drop non Lock & Key offices when office is known
+  if ((MODE === "brokerage" || MODE === "hybrid") && brokerage) {
+    if (!matchesBrokerage({ brokerage })) {
+      console.log(`[gamls] skip ${mlsId} office="${brokerage}" (not Lock & Key)`);
+      return null;
+    }
+  }
+
+  // Default: skip sold/off_market for agent inventory unless explicitly allowed
+  if (
+    String(process.env.GAMLS_INCLUDE_SOLD || "0") !== "1" &&
+    (status === "sold" || status === "off_market")
+  ) {
+    console.log(`[gamls] skip ${mlsId} status=${status}`);
+    return null;
+  }
+
+  const title = street || `MLS ${mlsId}`;
+  const address = [street, city, state, zip].filter(Boolean).join(", ");
+  const tagline = [
+    beds && `${beds} bd`,
+    baths && `${baths} ba`,
+    sqft && `${Number(sqft).toLocaleString("en-US")} sqft`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const description =
+    htmlMeta.description ||
+    [tagline, city && `${city}, ${state}`, brokerage && `Listed with ${brokerage}`]
+      .filter(Boolean)
+      .join(". ") + ".";
+
+  return {
+    mlsId: String(mlsId),
+    status,
+    title,
+    address,
+    city: city || AGENT_LOCATION.split(",")[0].trim(),
+    neighborhood: city || "",
+    state,
+    zip,
+    type: propType,
+    beds,
+    baths,
+    sqft,
+    yearBuilt,
+    lotSizeSqft,
+    priceUsd: price,
+    image,
+    images: image ? [image] : [],
+    tagline: tagline || city,
+    description,
+    sourceUrl,
+    sourcePortal: "mls",
+    brokerage,
+    listedBy: listedBy || undefined,
+  };
+}
+
+function parseGamlsListingHtml(html) {
+  const out = {};
+  const text = String(html || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, "\n")
+    .replace(/&amp;/g, "&")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\r/g, "");
+  const lines = text
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  out.sold = /Sold!/i.test(html) || lines.some((l) => /^Sold!?$/i.test(l));
+  // Status label often near "Status"
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^Status$/i.test(l) && lines[i + 1]) out.status = lines[i + 1];
+    if (/^List Office$/i.test(l) && lines[i + 1]) out.office = lines[i + 1];
+    if (/^List Agent$/i.test(l) && lines[i + 1]) out.agent = lines[i + 1];
+    if (/^Listing Agent$/i.test(l) && lines[i + 1]) out.agent = lines[i + 1];
+  }
+  if (out.sold && !out.status) out.status = "sold";
+  // Prefer explicit Active if present
+  if (!out.status) {
+    if (lines.some((l) => /^Active$/i.test(l))) out.status = "for_sale";
+  }
+  // Description: longest paragraph-like line after address-ish
+  const paras = lines.filter((l) => l.length > 80 && /[a-z]/.test(l));
+  if (paras[0]) out.description = paras[0].slice(0, 4000);
+  // Image from og:image or first connectmls photo
+  const og = html.match(/property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+    || html.match(/content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+  if (og) out.image = og[1];
+  if (!out.image) {
+    const ph = html.match(/https:\/\/gamls-assets\.cdn-connectmls\.com\/[^"'\s]+/i);
+    if (ph) out.image = ph[0];
+  }
+  // price
+  const pr = html.match(/\$([0-9,]{3,})/);
+  if (pr) out.price = pr[1];
+  // beds/baths patterns "3bd / 1fb"
+  const bb = text.match(/(\d+)\s*bd\s*\/\s*(\d+(?:\.\d+)?)\s*fb/i);
+  if (bb) {
+    out.beds = Number(bb[1]);
+    out.baths = Number(bb[2]);
+  }
+  const sq = text.match(/([0-9,]+)\s*sqft/i);
+  if (sq) out.sqft = Number(sq[1].replace(/,/g, ""));
+  const yr = text.match(/Year Built\s*\n?\s*(\d{4})/i);
+  if (yr) out.yearBuilt = Number(yr[1]);
+  return out;
+}
+
 // ── Manual MLS / JSON ────────────────────────────────────────────────────
 
 function fromManual() {
@@ -974,12 +1199,13 @@ function fromManual() {
 
 function resolveInventoryKind(source, mode, sourcesUsed, listings) {
   if (source === "demo") return "demo";
+  // Brokerage / MLS modes are always agent inventory (even if empty or manual-fed)
+  if (mode === "brokerage" || mode === "mls") return "agent";
   if (source === "manual" || (sourcesUsed.length === 1 && sourcesUsed[0] === "manual"))
     return "manual";
-  if (mode === "mls" || (MLS_IDS.length && sourcesUsed.includes("zillow") && mode === "mls"))
-    return "agent";
-  // hybrid/brokerage with Lock & Key filter = agent/brokerage inventory
-  if (mode === "brokerage" || mode === "hybrid") return "agent";
+  if (MLS_IDS.length && sourcesUsed.includes("zillow") && mode === "mls") return "agent";
+  // hybrid with Lock & Key filter = agent inventory
+  if (mode === "hybrid") return "agent";
   // If every listing is manual/mls portal, treat as agent-ish
   const portals = new Set(listings.map((p) => p.sourcePortal).filter(Boolean));
   if (portals.size && [...portals].every((p) => p === "manual" || p === "mls"))
@@ -1020,6 +1246,19 @@ async function main() {
       }
     } catch (e) {
       console.error("[manual]", e.message);
+    }
+
+    // 1b) Georgia MLS public detail for MLS ids (works without RapidAPI)
+    if (!MANUAL_ONLY && MODE !== "manual") {
+      try {
+        const g = await fromGeorgiaMls(MLS_IDS);
+        if (g.length) {
+          groups.push({ items: g, portal: "mls" });
+          sourcesUsed.push("gamls");
+        }
+      } catch (e) {
+        console.error("[gamls]", e.message);
+      }
     }
 
     // 2) Zillow (unless manual-only)
@@ -1106,10 +1345,19 @@ async function main() {
       return;
     }
 
-    console.warn("\n⚠  No live listings and no last-good — writing demo feed.");
-    const demo = demoFeed();
-    listings = demo.listings || [];
-    source = "demo";
+    // Brokerage/agent inventory: empty is honest — never pad with market demos.
+    if (MODE === "brokerage" || MODE === "mls" || MODE === "hybrid") {
+      console.warn(
+        "\n⚠  No Lock & Key listings resolved — writing empty agent feed (not demo)."
+      );
+      listings = [];
+      source = "manual";
+    } else {
+      console.warn("\n⚠  No live listings and no last-good — writing demo feed.");
+      const demo = demoFeed();
+      listings = demo.listings || [];
+      source = "demo";
+    }
   }
 
   const inventoryKind = resolveInventoryKind(source, MODE, sourcesUsed, listings);
