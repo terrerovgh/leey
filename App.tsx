@@ -10,6 +10,8 @@ import { HomePage } from "./pages/Home";
 import { ListingsPage } from "./pages/Listings";
 import { PropertyDetailPage } from "./pages/PropertyDetail";
 import { AreaPage } from "./pages/Area";
+import { BlogPage } from "./pages/Blog";
+import { BlogPostPage } from "./pages/BlogPost";
 
 export function App() {
   const loc = useLocation();
@@ -53,6 +55,8 @@ export function App() {
         <Route path="/properties" element={<ListingsPage />} />
         <Route path="/properties/:id" element={<PropertyDetailPage />} />
         <Route path="/areas/:slug" element={<AreaPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
       <Footer />

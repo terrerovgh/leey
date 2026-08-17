@@ -52,6 +52,19 @@ function loadFeed() {
 const FEED = loadFeed();
 const LISTINGS = FEED.listings.filter((p) => p.status === "for_sale" || p.status === "pending");
 
+function loadBlog() {
+  try {
+    const raw = readFileSync(resolve(ROOT, "public/data/blog/posts.json"), "utf8");
+    const data = JSON.parse(raw);
+    const posts = (data?.posts || []).filter((p) => !p.draft);
+    posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    return posts;
+  } catch {
+    return [];
+  }
+}
+const BLOG_POSTS = loadBlog();
+
 /* ── Area data (mirror of lib/areas.ts) ──────────────────────────── */
 const AREAS = [
   { slug: "valdosta", city: "Valdosta", state: "GA", taglineEs: "El centro del sur de Georgia para comprar o vender con guía local.", taglineEn: "South Georgia’s hub for buying or selling with local guidance.", bodyEs: ["Valdosta es el centro económico del sur de Georgia: sede de Valdosta State University, hospital regional y corredores comerciales sobre la I-75. Sus barrios combinan ranchos de ladrillo asequibles con casas nuevas en desarrollos planificados.", "Como agente bilingüe de Lock & Key Realty, licenciada en Georgia y Florida, ayudo a familias a comprar y vender en Valdosta en español o en inglés. Te oriento en precio por zona, escuelas y qué reparaciones valen la pena antes de listar o ofertar."], bodyEn: ["Valdosta is the economic hub of South Georgia — home to Valdosta State University, a regional hospital, and I-75 commercial corridors.", "As a bilingual Lock & Key Realty agent licensed in Georgia and Florida, I help families buy and sell in Valdosta in Spanish or English."], kwEs: ["realtor Valdosta GA", "casas en venta Valdosta", "Leey Hernandez Valdosta"], kwEn: ["Valdosta realtor", "homes for sale Valdosta GA", "Leey Hernandez Valdosta"] },
@@ -190,6 +203,68 @@ function areaContent(a) {
         <h2>Contact</h2>
         <p>Phone: <a href="tel:${PHONE_TEL}">${esc(PHONE_DISPLAY)}</a> · <a href="mailto:${EMAIL}">${esc(EMAIL)}</a></p>
       </section>
+    </main>`;
+}
+
+function blogIndexContent() {
+  const cards = BLOG_POSTS.map((p) => {
+    const href = `/blog/${p.slug}`;
+    return `
+    <article class="listing-card">
+      <a href="${href}" aria-label="${esc(p.titleEs)}">
+        <div class="listing-img" style="background-image:url('${esc(p.cover?.src || "")}')"></div>
+        <div class="listing-body">
+          <div class="listing-loc">${esc(p.date)} · ${esc(p.category)}</div>
+          <h3>${esc(p.titleEs)}</h3>
+          <p>${esc(p.excerptEs || "")}</p>
+        </div>
+      </a>
+    </article>`;
+  }).join("");
+  return `
+    <main class="seo-static">
+      <section>
+        <p class="eyebrow">NOTAS DE LEEY</p>
+        <h1>Casas, pueblos y buen gusto en el sur de Georgia</h1>
+        <p class="lede">Ideas prácticas de compra, venta, remodelación y decoración.</p>
+      </section>
+      <section>
+        <div class="listing-grid">${cards}</div>
+      </section>
+    </main>`;
+}
+
+function blogPostContent(p) {
+  const paras = String(p.bodyEs || "")
+    .split(/\n{2,}/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((s) => !/^\{\{figure:\d+\}\}$/.test(s))
+    .map((s) => {
+      if (s.startsWith("**") && s.endsWith("**")) {
+        return `<h2>${esc(s.replace(/\*/g, ""))}</h2>`;
+      }
+      return `<p>${esc(s.replace(/\*\*/g, ""))}</p>`;
+    })
+    .join("\n");
+  const figs = (p.figures || [])
+    .map(
+      (f) =>
+        `<figure><img src="${esc(f.src)}" alt="${esc(f.altEs || "")}" /><figcaption>${esc(f.captionEs || "")}</figcaption></figure>`,
+    )
+    .join("");
+  return `
+    <main class="seo-static">
+      <article>
+        <div class="listing-loc">${esc(p.date)} · ${esc(p.category)}</div>
+        <h1>${esc(p.titleEs)}</h1>
+        <p class="lede">${esc(p.excerptEs || "")}</p>
+        <img src="${esc(p.cover?.src || "")}" alt="${esc(p.cover?.altEs || p.titleEs)}" />
+        ${paras}
+        ${figs}
+        <div class="listing-office">Por ${esc(AGENT)}, ${esc(BROKERAGE)}</div>
+        <p>Phone: <a href="tel:${PHONE_TEL}">${esc(PHONE_DISPLAY)}</a> · <a href="mailto:${EMAIL}">${esc(EMAIL)}</a></p>
+      </article>
     </main>`;
 }
 
@@ -370,6 +445,45 @@ for (const a of AREAS) {
     body: areaContent(a),
   });
 }
+// Blog index
+pages.push({
+  file: "blog/index.html",
+  head: buildHead({
+    title: "Blog | Notas de casas y el sur de Georgia · Leey Hernandez",
+    description: `Notas prácticas de compra, venta, remodelación y decoración en Valdosta y el sur de Georgia, por ${AGENT} de ${BROKERAGE}. ${PHONE_DISPLAY}.`,
+    path: "/blog",
+    keywords: ["blog inmobiliario sur Georgia", "Valdosta home tips", "Leey Hernandez blog"],
+    image: BLOG_POSTS[0]?.cover?.src,
+    jsonLd: [agentLd()],
+  }),
+  body: blogIndexContent(),
+});
+// Blog posts
+for (const p of BLOG_POSTS) {
+  pages.push({
+    file: `blog/${p.slug}/index.html`,
+    head: buildHead({
+      title: `${p.titleEs} | Leey Hernandez`,
+      description: p.excerptEs || p.titleEs,
+      path: `/blog/${p.slug}`,
+      image: p.cover?.src,
+      keywords: p.tags || [],
+      jsonLd: [
+        agentLd(),
+        {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: p.titleEs,
+          datePublished: p.date,
+          author: { "@type": "Person", name: AGENT },
+          image: p.cover?.src ? `${SITE_URL}${p.cover.src}` : undefined,
+          mainEntityOfPage: `${SITE_URL}/blog/${p.slug}`,
+        },
+      ],
+    }),
+    body: blogPostContent(p),
+  });
+}
 
 for (const pg of pages) {
   const out = renderPage({ routeHead: pg.head, staticBody: pg.body });
@@ -395,7 +509,9 @@ writeFileSync(resolve(DIST, "404.html"), notFound);
 const urlset = [
   { loc: "/", freq: "weekly", pri: 1.0 },
   { loc: "/properties", freq: "daily", pri: 0.9 },
+  { loc: "/blog", freq: "daily", pri: 0.85 },
   ...LISTINGS.map((p) => ({ loc: `/properties/${p.id}`, freq: "daily", pri: 0.8 })),
+  ...BLOG_POSTS.map((p) => ({ loc: `/blog/${p.slug}`, freq: "weekly", pri: 0.75 })),
   ...AREAS.map((a) => ({ loc: `/areas/${a.slug}`, freq: "monthly", pri: 0.7 })),
 ];
 const sm = `<?xml version="1.0" encoding="UTF-8"?>

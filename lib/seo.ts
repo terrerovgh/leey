@@ -8,6 +8,7 @@
  */
 import { SITE } from "./site";
 import type { Property } from "../data/types";
+import type { BlogPost } from "./blog";
 
 const U = SITE.url;
 const PHONE = SITE.agent.phoneDisplay;
@@ -414,5 +415,135 @@ export function areaLd(city: string, state: string, isFl: boolean) {
       "@type": "State",
       name: isFl ? "Florida" : "Georgia",
     },
+  };
+}
+
+export function blogIndexSeo(
+  lang: "es" | "en" = "es",
+  posts: BlogPost[] = [],
+): SeoConfig {
+  const n = posts.length;
+  if (lang === "en") {
+    return {
+      path: "/blog",
+      title: "Blog | Homes & South Georgia notes · Leey Hernandez",
+      description: clip(
+        `Practical notes on buying, selling, remodeling, and décor in Valdosta and South Georgia from Leey Hernandez, Lock & Key Realty. ${n ? `${n} notes.` : ""} ${PHONE}.`,
+      ),
+      lang: "en",
+      keywords: [
+        "South Georgia real estate blog",
+        "Valdosta home buying tips",
+        "Leey Hernandez blog",
+        "remodeling South Georgia",
+      ],
+      image: posts[0]?.cover?.src,
+      jsonLd: [
+        realEstateAgentLd(),
+        breadcrumbLd([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "Notes from Leey",
+          url: `${U}/blog`,
+          author: { "@id": `${U}/#agent` },
+          blogPost: posts.slice(0, 20).map((p) => ({
+            "@type": "BlogPosting",
+            headline: p.titleEn,
+            datePublished: p.date,
+            url: `${U}/blog/${p.slug}`,
+            image: p.cover?.src,
+          })),
+        },
+      ],
+    };
+  }
+  return {
+    path: "/blog",
+    title: "Blog | Notas de casas y el sur de Georgia · Leey Hernandez",
+    description: clip(
+      `Notas prácticas de compra, venta, remodelación y decoración en Valdosta y el sur de Georgia, por Leey Hernandez de Lock & Key Realty. ${n ? `${n} notas.` : ""} ${PHONE}.`,
+    ),
+    lang: "es",
+    keywords: [
+      "blog inmobiliario sur Georgia",
+      "comprar casa Valdosta tips",
+      "Leey Hernandez blog",
+      "remodelar casa Georgia",
+    ],
+    image: posts[0]?.cover?.src,
+    jsonLd: [
+      realEstateAgentLd(),
+      breadcrumbLd([
+        { name: "Inicio", path: "/" },
+        { name: "Blog", path: "/blog" },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        name: "Notas de Leey",
+        url: `${U}/blog`,
+        author: { "@id": `${U}/#agent` },
+        blogPost: posts.slice(0, 20).map((p) => ({
+          "@type": "BlogPosting",
+          headline: p.titleEs,
+          datePublished: p.date,
+          url: `${U}/blog/${p.slug}`,
+          image: p.cover?.src,
+        })),
+      },
+    ],
+  };
+}
+
+export function blogPostSeo(post: BlogPost, lang: "es" | "en" = "es"): SeoConfig {
+  const title =
+    lang === "en"
+      ? post.seoTitleEn || `${post.titleEn} | Leey Hernandez`
+      : post.seoTitleEs || `${post.titleEs} | Leey Hernandez`;
+  const description = clip(
+    lang === "en"
+      ? post.seoDescriptionEn || post.excerptEn
+      : post.seoDescriptionEs || post.excerptEs,
+  );
+  const path = `/blog/${post.slug}`;
+  const image = post.cover?.src;
+  return {
+    path,
+    title,
+    description,
+    lang,
+    keywords: post.tags,
+    image,
+    jsonLd: [
+      realEstateAgentLd(),
+      breadcrumbLd([
+        { name: lang === "en" ? "Home" : "Inicio", path: "/" },
+        { name: "Blog", path: "/blog" },
+        { name: lang === "en" ? post.titleEn : post.titleEs, path },
+      ]),
+      {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: lang === "en" ? post.titleEn : post.titleEs,
+        description,
+        datePublished: post.date,
+        dateModified: post.updatedAt || post.date,
+        author: {
+          "@type": "Person",
+          name: SITE.agent.displayName,
+          url: `${U}/`,
+        },
+        publisher: { "@id": `${U}/#agent` },
+        image: image ? [image.startsWith("http") ? image : `${U}${image}`] : undefined,
+        mainEntityOfPage: `${U}${path}`,
+        inLanguage: lang === "en" ? "en-US" : "es-US",
+        articleSection: post.category,
+        keywords: post.tags.join(", "),
+      },
+    ],
   };
 }

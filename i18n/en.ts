@@ -3,7 +3,8 @@ import type { Strings } from "./es";
 export const en: Strings = {
   nav: {
     home: "Home",
-    listings: "Listings",
+    listings: "Homes",
+    blog: "Blog",
     about: "About",
     services: "Services",
     areas: "Areas",
@@ -262,6 +263,27 @@ export const en: Strings = {
     office: "Brokerage",
     officeValue: "Lock & Key Realty",
     hours: "Mon–Sat · 9 am – 7 pm",
+  },
+
+  blog: {
+    eyebrow: "Notes from Leey",
+    title: "Homes, towns, and good taste in South Georgia",
+    subtitle:
+      "Practical notes on buying, selling, remodeling, and décor — the way I would tell a family at the kitchen table.",
+    featured: "Latest",
+    readMore: "Read note",
+    minRead: "min read",
+    empty: "No notes published yet.",
+    emptyHint: "Check back soon, or call if you want to talk about a home today.",
+    ctaTitle: "Does this sound like your house?",
+    ctaBody: "Message me. A short conversation beats sitting with the question.",
+    back: "All notes",
+    notFound: "I could not find that note.",
+    talkEyebrow: "Let’s talk",
+    talkTitle: "If this hit close to home",
+    talkBody:
+      "I can look at your house or your search around Valdosta — in Spanish or English.",
+    moreNotes: "More notes",
   },
 
   footer: {

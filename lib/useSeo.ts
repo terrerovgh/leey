@@ -26,7 +26,7 @@ export function useSeo(cfg: SeoConfig) {
     setMetaProp("og:title", cfg.title);
     setMetaProp("og:description", cfg.description);
     setMetaProp("og:url", canonical);
-    setMetaProp("og:type", cfg.path.startsWith("/properties/") ? "article" : "website");
+    setMetaProp("og:type", cfg.path.startsWith("/blog/") || cfg.path.startsWith("/properties/") ? "article" : "website");
     setMetaProp("og:image", imageAbs);
     setMetaProp("og:locale", cfg.lang === "es" ? "es_US" : "en_US");
     setMetaName("twitter:card", "summary_large_image");

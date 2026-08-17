@@ -7,6 +7,7 @@ export const es = {
   nav: {
     home: "Inicio",
     listings: "Propiedades",
+    blog: "Blog",
     about: "Sobre mí",
     services: "Servicios",
     areas: "Zonas",
@@ -264,6 +265,26 @@ export const es = {
     office: "Brokerage",
     officeValue: "Lock & Key Realty",
     hours: "Lun–Sáb · 9 am – 7 pm",
+  },
+
+  blog: {
+    eyebrow: "Notas de Leey",
+    title: "Casas, pueblos y buen gusto en el sur de Georgia",
+    subtitle:
+      "Ideas prácticas de compra, venta, remodelación y decoración — escritas como se las cuento a una familia en la mesa de la cocina.",
+    featured: "Lo más reciente",
+    readMore: "Leer nota",
+    minRead: "min de lectura",
+    empty: "Aún no hay notas publicadas.",
+    emptyHint: "Vuelve pronto, o llámame si quieres hablar de una casa hoy.",
+    ctaTitle: "¿Viste algo que te suena a tu casa?",
+    ctaBody: "Escríbeme. Mejor una conversación corta que quedarte con la duda.",
+    back: "Todas las notas",
+    notFound: "No encontré esa nota.",
+    talkEyebrow: "Hablemos",
+    talkTitle: "Si esto te tocó de cerca",
+    talkBody: "Puedo mirar tu casa o tu búsqueda en Valdosta y alrededores — en español o en inglés.",
+    moreNotes: "Más notas",
   },
 
   footer: {

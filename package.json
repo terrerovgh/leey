@@ -15,7 +15,9 @@
     "sync:manual": "node scripts/sync-zillow.mjs --manual-only",
     "deploy": "npm run build && npx wrangler deploy",
     "ship": "npm run check && npm run build && npx wrangler deploy",
-    "sync:daily": "bash scripts/daily-listings-update.sh"
+    "sync:daily": "bash scripts/daily-listings-update.sh",
+    "blog:daily": "bash scripts/daily-blog-publish.sh",
+    "blog:build-check": "npm run check"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

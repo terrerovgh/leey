@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Porch refresh checklist">
+  <rect width="1200" height="720" fill="#f7f1e8"/>
+  <rect x="48" y="48" width="1104" height="624" rx="28" fill="#fffdf9" stroke="#e2d4bc"/>
+  <text x="96" y="130" font-family="Georgia, serif" font-size="42" fill="#1c1612">Antes de pintar el porche</text>
+  <text x="96" y="178" font-family="system-ui,sans-serif" font-size="20" fill="#6b5a4c">Checklist de un fin de semana · Sur de Georgia</text>
+  <g font-family="system-ui,sans-serif" font-size="22" fill="#3a2f27">
+    <circle cx="118" cy="260" r="18" fill="#c45c26"/><text x="112" y="267" fill="#fffdf9" font-size="16">1</text>
+    <text x="156" y="268">Lija suave en barandas y zócalos (humedad + polen)</text>
+    <circle cx="118" cy="330" r="18" fill="#c45c26"/><text x="112" y="337" fill="#fffdf9" font-size="16">2</text>
+    <text x="156" y="338">Limpia con jabón suave; deja secar bien</text>
+    <circle cx="118" cy="400" r="18" fill="#c45c26"/><text x="112" y="407" fill="#fffdf9" font-size="16">3</text>
+    <text x="156" y="408">Primer exterior en metal y madera expuesta</text>
+    <circle cx="118" cy="470" r="18" fill="#c45c26"/><text x="112" y="477" fill="#fffdf9" font-size="16">4</text>
+    <text x="156" y="478">Color claro en techo del porche = se ve más grande</text>
+    <circle cx="118" cy="540" r="18" fill="#c45c26"/><text x="112" y="547" fill="#fffdf9" font-size="16">5</text>
+    <text x="156" y="548">Una planta en maceta &gt; cinco cosas chiquitas</text>
+  </g>
+  <text x="96" y="630" font-family="system-ui,sans-serif" font-size="16" fill="#8a7664">Leey Hernandez · Lock &amp; Key Realty · leeyrealty.com</text>
+</svg>

@@ -49,6 +49,9 @@ export function Footer() {
               <a href="/properties" className="foot-link">
                 {t.nav.listings}
               </a>
+              <a href="/blog" className="foot-link">
+                {t.nav.blog}
+              </a>
               <a href="/#contact" className="foot-link">
                 {t.nav.contact}
               </a>

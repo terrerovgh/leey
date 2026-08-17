@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-17T18:00:00.000Z",
+  "posts": [
+    {
+      "slug": "porche-sur-georgia-primeras-impresiones",
+      "date": "2026-08-15",
+      "category": "decor",
+      "readMinutes": 6,
+      "tags": ["porche", "curb appeal", "Valdosta", "vender casa"],
+      "areas": ["valdosta", "hahira", "adel"],
+      "cover": {
+        "src": "/assets/blog/porch-refresh.svg",
+        "altEs": "Checklist para refrescar el porche antes de vender o recibir visitas",
+        "altEn": "Checklist to refresh a South Georgia porch before showings",
+        "kind": "infographic",
+        "captionEs": "Cinco pasos que caben en un fin de semana.",
+        "captionEn": "Five steps that fit in a weekend."
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/porch-refresh.svg",
+          "altEs": "Infografía: antes de pintar el porche",
+          "altEn": "Infographic: before you paint the porch",
+          "kind": "infographic"
+        }
+      ],
+      "titleEs": "El porche del sur de Georgia: lo primero que mira la gente (y no es el color de la puerta)",
+      "titleEn": "The South Georgia porch: what people notice first (and it is not just the door color)",
+      "excerptEs": "En Valdosta, Hahira o Adel, el porche cuenta una historia antes de que abras la puerta. Aquí va lo que yo miro en las visitas — y lo que arreglaría primero si estuviera listando.",
+      "excerptEn": "In Valdosta, Hahira, or Adel, the porch tells a story before you open the door. Here is what I watch on showings — and what I would fix first if I were listing.",
+      "bodyEs": "Cuando llego a una casa en el sur de Georgia, casi siempre me quedo un segundo en el porche. No por teatro. Porque ahí se ve si la casa se ha querido o se ha ido dejando.\n\nNo estoy hablando de un porche de revista en Charleston. Hablo del de ladrillo o de madera que tienes en Valdosta, Hahira, Adel o un pueblo chico de Cook o Lowndes. El que se llena de polen en primavera y de hojas en otoño.\n\n**Lo que nota la gente sin decirlo**\n\nBarandas flojas. Bombillos quemados. Una manguera enredada. Una silla de plástico que ya no se usa. Ninguna de esas cosas “rompe” una venta sola. Juntas, sí bajan la temperatura de la visita.\n\nYo vengo del mundo de la remodelación. Sé lo que cuesta una baranda nueva y lo que cuesta solo lijar y pintar la que ya tienes. La segunda opción salva más listados de los que crees.\n\n{{figure:0}}\n\n**Un fin de semana alcanza**\n\nSi estás pensando en vender — o solo quieres que la casa se sienta mejor cuando lleguen visitas — empieza por limpieza seria, no por comprar decoración. Quita lo que no se usa. Deja una planta o dos, no cinco. El techo del porche en un tono claro hace que se vea más alto; lo he visto funcionar en ranchos de los 90 y en casas nuevas.\n\nY si hay humedad en la base de las columnas, no lo tapes con pintura gruesa y a rezar. Ese es el tipo de detalle que un inspector (o un comprador con buen ojo) va a señalar.\n\n**Cuando listamos**\n\nEn Lock & Key no inventamos magia de staging cara. Preferimos lo honesto: casa limpia, porche usable, fotos con luz de mañana. Si quieres que mire la tuya en Valdosta o cerca, escríbeme. Te digo en cinco minutos qué vale la pena tocar y qué no.\n\n— Leey",
+      "bodyEn": "When I pull up to a house in South Georgia, I almost always pause on the porch. Not for show. That is where you can tell if a home has been cared for or slowly neglected.\n\nI am not talking about a magazine porch in Charleston. I mean the brick or wood porch you actually have in Valdosta, Hahira, Adel, or a smaller Cook or Lowndes town. The one that fills with pollen in spring and leaves in fall.\n\n**What people notice without saying it**\n\nLoose railings. Burned-out bulbs. A hose in a knot. A plastic chair nobody sits in. None of those alone “kills” a sale. Together, they cool the showing.\n\nI come from remodeling work. I know what a new railing costs, and I know what sanding and painting the one you already have costs. The second option saves more listings than people expect.\n\n{{figure:0}}\n\n**A weekend is enough**\n\nIf you are thinking about selling — or you just want the house to feel better when company comes — start with a real clean, not shopping for décor. Remove what you do not use. Keep one or two plants, not five. A light porch ceiling color makes the space feel taller; I have seen it work on 1990s ranches and newer builds.\n\nAnd if there is moisture at the base of a column, do not bury it under thick paint and hope. That is the kind of detail an inspector (or a sharp buyer) will flag.\n\n**When we list**\n\nAt Lock & Key we do not invent expensive staging magic. We prefer honest: clean house, usable porch, morning light photos. If you want me to walk yours in Valdosta or nearby, message me. I can tell you in five minutes what is worth touching and what is not.\n\n— Leey"
+    },
+    {
+      "slug": "oferta-sin-prisa-valdosta",
+      "date": "2026-08-16",
+      "category": "buying",
+      "readMinutes": 7,
+      "tags": ["oferta", "comprar casa", "Valdosta", "inspección"],
+      "areas": ["valdosta", "hahira", "tifton"],
+      "cover": {
+        "src": "/assets/blog/offer-steps.svg",
+        "altEs": "Cuatro pasos para armar una oferta con calma",
+        "altEn": "Four calm steps to build an offer",
+        "kind": "infographic"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/offer-steps.svg",
+          "altEs": "Infografía de pasos de oferta",
+          "altEn": "Offer steps infographic",
+          "kind": "infographic"
+        }
+      ],
+      "titleEs": "Cómo armo una oferta sin prisa (aunque el mercado diga lo contrario)",
+      "titleEn": "How I build an offer without rushing (even when the market feels loud)",
+      "excerptEs": "No hay una fórmula mágica. Hay números, casas parecidas que ya se vendieron, y una conversación clara sobre qué puedes vivir y qué no.",
+      "excerptEn": "There is no magic formula. There are numbers, similar homes that already sold, and a clear talk about what you can live with and what you cannot.",
+      "bodyEs": "Me escriben a veces con miedo de “perder la casa” si no ofrecen hoy mismo. Entiendo la ansiedad. También he visto ofertas hechas con el estómago que después duelen meses.\n\nEn el sur de Georgia el ritmo no es el de Atlanta. Hay competencia, sí. También hay casas que se sientan en el mercado porque el precio no cuadra o porque el techo ya habló.\n\n**Primero los números, no el romance**\n\nAntes de enamorar de la cocina, quiero saber: pago cómodo, cierre posible, y cuánto margen queda si la inspección saca un HVAC cansado. Si esos tres no caben, no hay oferta “inteligente” que lo arregle.\n\n{{figure:0}}\n\n**Comparables de verdad**\n\nNo miro solo lo que está listado ahora. Miro lo que se vendió cerca, en un tamaño parecido, en los últimos meses. Una casa a $20k menos en la misma calle a veces explica más que diez fotos bonitas.\n\n**Inspección sin drama**\n\nPedirlo todo es tan malo como no pedir nada. Yo separo: seguridad y sistemas grandes (techo, eléctricos, plomería, HVAC, termitas en esta zona) vs. cosmético que puedes hacer después con calma. Vengo de remodelar casas: sé qué se ve feo y qué está caro de verdad.\n\n**El tono de la oferta**\n\nUna oferta limpia, con fechas realistas y sin humo, se lee diferente. No es ser blando. Es ser claro. Si quieres pelear por cada lámpara, dilo. Si prefieres cerrar y ya, también.\n\nSi estás mirando en Valdosta, Hahira, Tifton o cerca, hablemos con el MLS abierto y el café todavía caliente. Mejor una hora de conversación que tres noches de duda.\n\n— Leey",
+      "bodyEn": "People message me sometimes afraid they will “lose the house” if they do not offer today. I get the anxiety. I have also seen gut-driven offers that hurt for months afterward.\n\nSouth Georgia is not Atlanta’s pace. There is competition, yes. There are also homes that sit because the price does not fit or the roof already told on itself.\n\n**Numbers first, not romance**\n\nBefore falling for the kitchen, I want to know: a payment you can carry, a closing you can make, and room left if inspection finds a tired HVAC. If those three do not fit, no “clever” offer fixes it.\n\n{{figure:0}}\n\n**Real comparables**\n\nI do not only look at what is listed right now. I look at what sold nearby, similar size, recent months. A house $20k less on the same street sometimes explains more than ten pretty photos.\n\n**Inspection without drama**\n\nAsking for everything is as bad as asking for nothing. I separate: safety and big systems (roof, electrical, plumbing, HVAC, termites in this area) vs. cosmetic work you can do later with a clear head. I come from remodeling homes: I know what looks ugly and what is actually expensive.\n\n**The tone of the offer**\n\nA clean offer, with realistic dates and no smoke, reads differently. That is not soft. That is clear. If you want to fight over every light fixture, say so. If you want to close and move on, say that too.\n\nIf you are looking in Valdosta, Hahira, Tifton, or nearby, let’s talk with the MLS open and the coffee still warm. Better one honest hour than three nights of second-guessing.\n\n— Leey"
+    },
+    {
+      "slug": "valdosta-hahira-adel-donde-empezar",
+      "date": "2026-08-17",
+      "category": "neighborhoods",
+      "readMinutes": 8,
+      "tags": ["Valdosta", "Hahira", "Adel", "zonas", "primera casa"],
+      "areas": ["valdosta", "hahira", "adel", "sparks"],
+      "cover": {
+        "src": "/assets/blog/valdosta-areas.svg",
+        "altEs": "Pueblos del sur de Georgia donde trabajo",
+        "altEn": "South Georgia towns where I work",
+        "kind": "infographic"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/valdosta-areas.svg",
+          "altEs": "Mapa editorial de zonas",
+          "altEn": "Editorial area map",
+          "kind": "infographic"
+        }
+      ],
+      "titleEs": "Valdosta, Hahira o Adel: por dónde empezar si no conoces la zona",
+      "titleEn": "Valdosta, Hahira, or Adel: where to start if you do not know the area yet",
+      "excerptEs": "No te voy a vender “el mejor pueblo”. Te voy a decir qué siento en cada uno cuando acompaño a una familia a mirar casas.",
+      "excerptEn": "I will not sell you “the best town.” I will tell you what each one feels like when I walk homes with a family.",
+      "bodyEs": "Llegan familias de Florida, de otros condados de Georgia, a veces de más lejos. La pregunta casi siempre es la misma: ¿dónde empezamos?\n\nNo hay una respuesta de brochure. Hay hábitos, trayectos y el tipo de patio que quieres ver por la ventana un martes cualquiera.\n\n{{figure:0}}\n\n**Valdosta**\n\nEs el centro. Hospital, universidad, I-75, más opciones de empleo y de casa. También más tráfico en ciertas horas. Si necesitas servicios cerca y no te asusta un poco de movimiento, suele ser el primer mapa que abrimos.\n\n**Hahira**\n\nMás quieta. Lotes que se sienten generosos. Gente que quiere escuela y calma sin irse a “la nada”. El trayecto a Valdosta es parte del trato; a muchas familias les parece bien. A otras, no. Eso se decide en el carro, no en un anuncio.\n\n**Adel y Sparks**\n\nMás casa por el dinero, a veces. Ritmo de condado de Cook. Ideal si tu trabajo o tu familia ya tiran para ese lado, o si quieres dejar de pelear por metros en un barrio apretado.\n\n**Tifton, Moultrie, Thomasville, Nashville…**\n\nCada una tiene su carácter. Thomasville tira a histórico. Tifton tiene energía de campus y comercio. Moultrie y Nashville se sienten más pueblo con terreno. No las mezclo en una sola frase bonita porque no se viven igual.\n\n**Cómo elijo contigo**\n\nPregunto por trabajo, escuela (si aplica), presupuesto real, y si prefieres patio grande o menos césped que cortar. Luego armamos un fin de semana de visitas con tres o cuatro casas, no quince. Ver mucho cansa y confunde.\n\nSi estás aterrizando en el sur de Georgia y quieres una opinión directa — en español o en inglés — llámame. Mejor una ruta clara que veinte tabs abiertos en el teléfono.\n\n— Leey",
+      "bodyEn": "Families show up from Florida, from other Georgia counties, sometimes from farther away. The question is almost always the same: where do we start?\n\nThere is no brochure answer. There are habits, drives, and the kind of yard you want to see out the window on a random Tuesday.\n\n{{figure:0}}\n\n**Valdosta**\n\nThe hub. Hospital, university, I-75, more jobs and more house choices. Also more traffic at certain hours. If you want services close and you can live with a little motion, it is often the first map we open.\n\n**Hahira**\n\nQuieter. Lots that feel generous. People who want school and calm without moving to “nowhere.” The drive into Valdosta is part of the deal; many families are fine with it. Some are not. That decision happens in the car, not in an ad.\n\n**Adel and Sparks**\n\nSometimes more house for the money. Cook County pace. Good if work or family already pulls that way, or if you want to stop fighting for square footage in a tight neighborhood.\n\n**Tifton, Moultrie, Thomasville, Nashville…**\n\nEach has its own feel. Thomasville leans historic. Tifton has campus and retail energy. Moultrie and Nashville feel more small-town with land. I will not mash them into one pretty sentence because they do not live the same.\n\n**How I choose with you**\n\nI ask about work, school (if it applies), real budget, and whether you want a big yard or less grass to cut. Then we build a weekend of three or four homes, not fifteen. Seeing too many tires people out and muddies the choice.\n\nIf you are landing in South Georgia and want a straight take — in Spanish or English — call me. Better one clear route than twenty tabs open on your phone.\n\n— Leey"
+    },
+    {
+      "slug": "cocina-sin-tirar-paredes",
+      "date": "2026-08-14",
+      "category": "remodel",
+      "readMinutes": 7,
+      "tags": ["cocina", "remodelación", "presupuesto", "vender"],
+      "areas": ["valdosta", "moultrie", "thomasville"],
+      "cover": {
+        "src": "/assets/blog/kitchen-budget.svg",
+        "altEs": "Gráfico de presupuesto aproximado de cocina",
+        "altEn": "Approximate kitchen budget chart",
+        "kind": "chart"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/kitchen-budget.svg",
+          "altEs": "Dónde se va el dinero en una cocina",
+          "altEn": "Where kitchen money goes",
+          "kind": "chart",
+          "captionEs": "Porcentajes orientativos. Cada casa miente un poco.",
+          "captionEn": "Rough shares. Every house lies a little."
+        }
+      ],
+      "titleEs": "Remodelar la cocina sin tirar paredes (y sin pelearte con el presupuesto)",
+      "titleEn": "Remodeling the kitchen without knocking walls (or fighting your budget)",
+      "excerptEs": "A veces el mejor upgrade no es abrir la planta. Es luz, cubiertas y un piso que no grite los 90.",
+      "excerptEn": "Sometimes the best upgrade is not an open plan. It is light, counters, and a floor that does not scream the 1990s.",
+      "bodyEs": "He entrado a cocinas donde el dueño quería “tirar todo”. A los diez minutos estábamos hablando de lo mismo: no hay presupuesto infinito, y la casa tampoco lo pide.\n\nEn muchas casas del sur de Georgia — ranchos, craftsman sencillos, construcciones de los 90 y 2000 — la cocina ya funciona. Lo que falla es la luz, el color, el piso cansado o unas cubiertas que ya no se limpian bien.\n\n**Lo que suele pagar la pena**\n\nPintura en gabinetes si la madera está sana. Tiradores nuevos. Una cubierta decente. Backsplash simple. Luz bajo gabinete. Piso continuo hacia el living si el truco visual ayuda. Ninguna de esas cosas necesita un arquitecto.\n\n{{figure:0}}\n\n**Lo que yo pienso dos veces**\n\nMover plomería “porque se ve lindo en Pinterest”. Abrir un muro de carga sin ingeniero. Electrodomésticos de showroom en una casa cuyo techo pide atención primero. El orden importa: agua, techo, eléctricos, después el mármol de la fantasía.\n\n**Si vas a vender**\n\nLos compradores en Valdosta y alrededores no siempre pagan un dollar-for-dollar tu cocina de revista. Pagan una cocina limpia, clara, que no huela a humedad y que se sienta usable mañana. Prefiero $8–15k bien puestos que $40k que no se recuperan.\n\nTrabajo con remodelación en la familia y con listados en Lock & Key. Si quieres una mirada honesta antes de firmar con un contratista — o antes de listar — dime. Mejor un no a tiempo que un sí caro.\n\n— Leey",
+      "bodyEn": "I have walked into kitchens where the owner wanted to “tear it all out.” Ten minutes later we were saying the same thing: there is no infinite budget, and the house is not asking for one.\n\nIn a lot of South Georgia homes — ranches, simple craftsmen, 1990s and 2000s builds — the kitchen already works. What fails is light, color, a tired floor, or counters that will not clean well anymore.\n\n**What usually pays**\n\nCabinet paint if the boxes are sound. New pulls. A decent counter. Simple backsplash. Under-cabinet light. Continuous flooring into the living area if the visual trick helps. None of that needs an architect.\n\n{{figure:0}}\n\n**What I think twice about**\n\nMoving plumbing “because Pinterest.” Opening a load-bearing wall without an engineer. Showroom appliances in a house whose roof needs attention first. Order matters: water, roof, electrical, then fantasy stone.\n\n**If you are selling**\n\nBuyers around Valdosta do not always pay dollar-for-dollar for a magazine kitchen. They pay for a clean, bright kitchen that does not smell like moisture and feels usable tomorrow. I would rather see $8–15k spent well than $40k that never comes back.\n\nI work with remodeling in the family and listings at Lock & Key. If you want an honest look before you sign a contractor — or before you list — tell me. Better a timely no than an expensive yes.\n\n— Leey"
+    }
+  ]
+}
