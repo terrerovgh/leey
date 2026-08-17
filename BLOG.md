@@ -40,3 +40,8 @@ Models: `free-then-local` → `free` → `local` → `background` (order flips o
 - No invented metrics
 - Real Commons/Openverse photos + attribution captions when available
 - SEO titles/meta + anti-AI scrub
+
+## Media policy
+- Prefer real Commons/Openverse photos.
+- No decorative Spanish SVG covers.
+- Charts/infographics only if needed, **English labels only**.
