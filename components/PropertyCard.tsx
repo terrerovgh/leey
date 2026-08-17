@@ -124,6 +124,7 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
               <div className="mt-1 truncate text-[11px] text-ink-400">
                 {isEs ? "Listado" : "Listed"}
                 {listingAgent ? `: ${listingAgent}` : ""}
+                {property.listedByPhone ? ` · ${property.listedByPhone}` : ""}
                 {listingOffice ? ` · ${listingOffice}` : ""}
               </div>
             )}

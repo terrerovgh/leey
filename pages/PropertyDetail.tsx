@@ -172,7 +172,7 @@ export function PropertyDetailPage() {
               />
             </div>
             <div className="grid grid-cols-3 gap-3 lg:grid-cols-1 lg:grid-rows-3">
-              {property.images.slice(0, 3).map((img, i) => (
+              {property.images.slice(0, 6).map((img, i) => (
                 <button
                   key={img + i}
                   onClick={() => setActive(i)}
@@ -232,7 +232,9 @@ export function PropertyDetailPage() {
                   (property.brokerage || SITE.brokerage.name) &&
                     `${isEs ? "Oficina" : "Office"}: ${property.brokerage || SITE.brokerage.name}`,
                   property.listedBy
-                    ? `${isEs ? "Listado por" : "Listed by"}: ${property.listedBy}`
+                    ? `${isEs ? "Listado por" : "Listed by"}: ${property.listedBy}${
+                        property.listedByPhone ? ` · ${property.listedByPhone}` : ""
+                      }`
                     : null,
                 ]
                   .filter(Boolean)
@@ -317,6 +319,24 @@ export function PropertyDetailPage() {
                     )}
                     {property.brokerage}
                   </p>
+                )}
+                {property.listedByPhone && (
+                  <a
+                    href={`tel:${property.listedByPhone.replace(/[^\d+]/g, "")}`}
+                    className="block pt-1 text-xs text-ink-500 transition hover:text-clay-600"
+                  >
+                    {isEs ? "Tel. listado" : "Listing agent"}: {property.listedByPhone}
+                  </a>
+                )}
+                {property.listedByProfileUrl && (
+                  <a
+                    href={property.listedByProfileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block pt-1 text-xs text-ink-500 transition hover:text-clay-600"
+                  >
+                    {isEs ? "Perfil del list agent (GAMLS)" : "Listing agent profile (GAMLS)"}
+                  </a>
                 )}
                 <p className="pt-2 text-xs leading-relaxed text-ink-400">
                   {isEs

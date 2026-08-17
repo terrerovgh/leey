@@ -58,6 +58,12 @@ export interface Property {
   brokerage?: string;
   /** Listing agent name from feed when known */
   listedBy?: string;
+  /** Listing agent direct phone (public MLS) when known */
+  listedByPhone?: string;
+  /** Public GAMLS / portal profile for the listing agent */
+  listedByProfileUrl?: string;
+  /** Listing office phone when known */
+  officePhone?: string;
 }
 
 export interface ListingsFeedMeta {

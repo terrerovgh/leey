@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sitio web de Leyanis “Leey” Hernandez — Lock & Key Realty",
+  "description": "Sitio web de Leyanis \u201cLeey\u201d Hernandez \u2014 Lock & Key Realty",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -14,7 +14,8 @@
     "sync:zillow:demo": "node scripts/sync-zillow.mjs --force-demo",
     "sync:manual": "node scripts/sync-zillow.mjs --manual-only",
     "deploy": "npm run build && npx wrangler deploy",
-    "ship": "npm run check && npm run build && npx wrangler deploy"
+    "ship": "npm run check && npm run build && npx wrangler deploy",
+    "sync:daily": "bash scripts/daily-listings-update.sh"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

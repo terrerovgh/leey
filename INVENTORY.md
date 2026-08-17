@@ -98,13 +98,59 @@ npm run sync:zillow          # multi-source (manual + GAMLS + zillow + realtor)
 npm run sync:manual          # solo data/manual-listings.json
 npm run sync:zillow -- --dry-run
 GAMLS_INCLUDE_SOLD=1 npm run sync:zillow -- --dry-run   # debug sold
+npm run sync:daily           # free daily: roster LKEY01 → sync → validate → commit → ship
 ```
+
+## Validación de un listing (qué debe traer el feed)
+
+Cada fila activa de Lock & Key debería incluir:
+
+| Campo | Fuente free | UI |
+|-------|-------------|-----|
+| `listedBy` | GAMLS HTML list agent | card + ficha |
+| `listedByPhone` | `tel:` en ficha o Direct del agente | ficha + card |
+| `listedByProfileUrl` | `/real-estate-agents/{CODE}` | ficha |
+| `officePhone` | office LKEY01 / HTML | feed |
+| `images[]` (multi) | CDN `gamls-assets…/pics/` | galería (hasta 6 thumbs) |
+| `description` | párrafo largo GAMLS | ficha |
+| `brokerage` | List Office = Lock and Key Realty | card + ficha |
+| `priceUsd`, beds/baths/sqft | `getSingleListingDetails` | card + ficha |
+
+Contacto comercial del sitio sigue siendo **Leey** (tel/email del feed `agent`). El list agent se muestra como “Listed by” + teléfono público MLS.
+
+## Automatización diaria (Hermes, free / sin LLM)
+
+Script: `scripts/daily-listings-update.sh`  
+Symlink Hermes: `~/.hermes/scripts/leey-daily-listings-update.sh`
+
+Hace, sin RapidAPI:
+
+1. Scrape roster oficina `LKEY01` → ids Active en `data/mls-ids.txt`
+2. `SYNC_MODE=brokerage npm run sync:zillow` (GAMLS público)
+3. Valida agente / teléfono / multi-foto / precio / solo Lock & Key
+4. Si cambió el inventario: commit + push + `npm run ship`
+5. Si no cambió: no-op silencioso (stdout mínimo)
+
+Cron Hermes (no-agent = 0 tokens LLM):
+
+```bash
+hermes cron create "0 7 * * *" \
+  --name leey-daily-listings \
+  --script leey-daily-listings-update.sh \
+  --no-agent \
+  --deliver local \
+  --workdir /home/terrerov/Projects/leey
+```
+
+Modelo free/local solo haría falta si quieres un job con razonamiento
+(`--provider custom:omniroute --model free-then-local`). El path diario
+recomendado es **script no-agent** porque el scrape/sync ya es determinista.
 
 ## Schema mínimo de una fila manual
 Ver `data/manual-listings.example.json` y `data/types.ts` (`Property`).
 
 ## UI
-Cards: contacto Leey + Lock & Key; listing agent/office solo si viene del feed.
+Cards: contacto Leey + Lock & Key; listing agent/office/phone del feed cuando existen.
 En mode agent vacío → mensaje honesto (no demos de mercado).
 
 ## D) RapidAPI `zillow-real-estate-data-api` (market only — free)
@@ -119,7 +165,7 @@ curl --request POST \
   --url 'https://zillow-real-estate-data-api.p.rapidapi.com/zillow/v1/market_trends' \
   --header 'Content-Type: application/json' \
   --header 'x-rapidapi-host: zillow-real-estate-data-api.p.rapidapi.com' \
-  --header 'x-rapidapi-key: $RAPIDAPI_KEY' \
+  --header 'x-rapidapi-key: ***' \
   --data '{"location":"Valdosta, GA"}'
 ```
 

@@ -298,6 +298,9 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
       updatedAt: raw.updatedAt || new Date().toISOString(),
       brokerage: raw.brokerage || DEFAULT_AGENT.brokerage,
       listedBy: raw.listedBy || DEFAULT_AGENT.name,
+      listedByPhone: raw.listedByPhone || undefined,
+      listedByProfileUrl: raw.listedByProfileUrl || undefined,
+      officePhone: raw.officePhone || undefined,
       badge: raw.badge,
     };
   }
@@ -533,6 +536,18 @@ function normalizeListing(raw, i = 0, sourcePortal = "other") {
     updatedAt: new Date().toISOString(),
     brokerage: brokerage || undefined,
     listedBy: listedBy || undefined,
+    listedByPhone:
+      raw.listedByPhone ||
+      raw.agentPhone ||
+      raw.list_agent?.phone ||
+      raw.agents?.[0]?.phone ||
+      undefined,
+    listedByProfileUrl:
+      raw.listedByProfileUrl ||
+      raw.agentProfileUrl ||
+      raw.list_agent?.web_url ||
+      undefined,
+    officePhone: raw.officePhone || raw.list_office?.phone || undefined,
   };
   const badge = badgeFrom({
     status: p.status,
@@ -647,6 +662,9 @@ function mergeInto(prev, p) {
   if (p.sourcePortal === "mls") {
     if (p.brokerage) prev.brokerage = p.brokerage;
     if (p.listedBy) prev.listedBy = p.listedBy;
+    if (p.listedByPhone) prev.listedByPhone = p.listedByPhone;
+    if (p.listedByProfileUrl) prev.listedByProfileUrl = p.listedByProfileUrl;
+    if (p.officePhone) prev.officePhone = p.officePhone;
     if (p.mlsId) prev.mlsId = p.mlsId;
     if (p.sourceUrl) prev.sourceUrl = p.sourceUrl;
     if (p.description && String(p.description).length > String(prev.description || "").length) {
@@ -657,6 +675,11 @@ function mergeInto(prev, p) {
     }
     if (p.address && String(p.address).length > String(prev.address || "").length) {
       prev.address = p.address;
+    }
+    // Prefer richer photo galleries from GAMLS HTML
+    if ((p.images?.length || 0) > (prev.images?.length || 0)) {
+      prev.images = p.images;
+      prev.image = p.image || p.images[0];
     }
   }
   if (p.zpid && !prev.zpid) prev.zpid = p.zpid;
@@ -1263,13 +1286,33 @@ async function gamlsFetchListing(mlsId) {
   const baths = num(row.baf ?? htmlMeta.baths, 0) + num(row.bah, 0) * 0.5;
   const sqft = num(row.sqft_tot ?? htmlMeta.sqft, 0);
   const yearBuilt = num(row.yr ?? htmlMeta.yearBuilt, 0) || 0;
-  const image = row.photourl || htmlMeta.image || "";
+  const photos = Array.isArray(htmlMeta.images) ? htmlMeta.images.filter(Boolean) : [];
+  const image = row.photourl || htmlMeta.image || photos[0] || "";
+  const images = uniqueUrls([image, ...photos]).slice(0, 24);
   const status = mapStatus(htmlMeta.status || (htmlMeta.sold ? "sold" : "for_sale"));
   const brokerage =
     htmlMeta.office ||
     htmlMeta.listOffice ||
     "Lock & Key Realty";
   const listedBy = htmlMeta.agent || htmlMeta.listAgent || "";
+  // Prefer list-agent direct phone from listing page; fall back to agent directory page.
+  let listedByPhone = htmlMeta.agentPhone || "";
+  let listedByProfileUrl = htmlMeta.agentProfileUrl || "";
+  if (htmlMeta.agentCode) {
+    listedByProfileUrl =
+      listedByProfileUrl ||
+      `https://www.georgiamls.com/real-estate-agents/${htmlMeta.agentCode}`;
+    if (!listedByPhone) {
+      try {
+        const agentContact = await gamlsFetchAgentContact(htmlMeta.agentCode);
+        if (agentContact.phone) listedByPhone = agentContact.phone;
+        if (agentContact.profileUrl) listedByProfileUrl = agentContact.profileUrl;
+      } catch (e) {
+        console.warn(`[gamls] agent ${htmlMeta.agentCode}`, e.message);
+      }
+    }
+  }
+  const officePhone = htmlMeta.officePhone || "229-890-8062";
   const lotSizeSqft =
     row.lotsize != null && Number(row.lotsize) > 0 && Number(row.lotsize) < 1000
       ? Math.round(Number(row.lotsize) * 43560)
@@ -1328,15 +1371,80 @@ async function gamlsFetchListing(mlsId) {
     yearBuilt,
     lotSizeSqft,
     priceUsd: price,
-    image,
-    images: image ? [image] : [],
+    image: images[0] || image,
+    images,
     tagline: tagline || city,
     description,
     sourceUrl,
     sourcePortal: "mls",
     brokerage,
     listedBy: listedBy || undefined,
+    listedByPhone: listedByPhone || undefined,
+    listedByProfileUrl: listedByProfileUrl || undefined,
+    officePhone: officePhone || undefined,
   };
+}
+
+function uniqueUrls(urls) {
+  const out = [];
+  const seen = new Set();
+  for (const u of urls) {
+    const s = String(u || "").trim();
+    if (!s || !/^https?:\/\//i.test(s)) continue;
+    // Drop logos / non-listing assets
+    if (/gamls_logo|favicon|icon/i.test(s)) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out;
+}
+
+const _agentContactCache = new Map();
+async function gamlsFetchAgentContact(agentCode) {
+  const code = String(agentCode || "").trim();
+  if (!code) return {};
+  if (_agentContactCache.has(code)) return _agentContactCache.get(code);
+  const url = `https://www.georgiamls.com/real-estate-agents/${encodeURIComponent(code)}`;
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; LeeyRealtySync/1.0; +https://leeyrealty.com)",
+      Accept: "text/html",
+    },
+  });
+  if (!res.ok) {
+    const empty = {};
+    _agentContactCache.set(code, empty);
+    return empty;
+  }
+  const html = await res.text();
+  const text = String(html || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, "\n")
+    .replace(/&nbsp;/g, " ");
+  const lines = text
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  let phone = "";
+  for (let i = 0; i < lines.length; i++) {
+    if (/^Direct:?$/i.test(lines[i]) && lines[i + 1] && /[0-9]{3}/.test(lines[i + 1])) {
+      phone = lines[i + 1].replace(/[^\d+\-() ]/g, "").trim();
+      break;
+    }
+  }
+  if (!phone) {
+    const tel = html.match(/tel:([0-9+\-(). ]{7,})/i);
+    if (tel) phone = tel[1].trim();
+  }
+  const out = {
+    phone: phone || undefined,
+    profileUrl: url,
+  };
+  _agentContactCache.set(code, out);
+  return out;
 }
 
 function parseGamlsListingHtml(html) {
@@ -1362,6 +1470,24 @@ function parseGamlsListingHtml(html) {
     if (/^List Agent$/i.test(l) && lines[i + 1]) out.agent = lines[i + 1];
     if (/^Listing Agent$/i.test(l) && lines[i + 1]) out.agent = lines[i + 1];
   }
+  // Agent directory slug: /real-estate-agents/BOATRIGHTTYL
+  const agentHref = html.match(/\/real-estate-agents\/([A-Z0-9]+)/i);
+  if (agentHref) {
+    out.agentCode = agentHref[1];
+    out.agentProfileUrl = `https://www.georgiamls.com/real-estate-agents/${agentHref[1]}`;
+  }
+  // Listing page often exposes list-agent direct phone as tel:
+  const tels = [...html.matchAll(/tel:([0-9+\-(). ]{7,})/gi)].map((m) =>
+    m[1].replace(/\s+/g, "").trim()
+  );
+  if (tels[0]) out.agentPhone = tels[0];
+  // Office phone fallback from "Office:" label if present
+  for (let i = 0; i < lines.length; i++) {
+    if (/^Office:?$/i.test(lines[i]) && lines[i + 1] && /[0-9]{3}/.test(lines[i + 1])) {
+      out.officePhone = lines[i + 1].replace(/[^\d+\-() ]/g, "").trim();
+      break;
+    }
+  }
   if (out.sold && !out.status) out.status = "sold";
   // Prefer explicit Active if present
   if (!out.status) {
@@ -1370,10 +1496,16 @@ function parseGamlsListingHtml(html) {
   // Description: longest paragraph-like line after address-ish
   const paras = lines.filter((l) => l.length > 80 && /[a-z]/.test(l));
   if (paras[0]) out.description = paras[0].slice(0, 4000);
+  // Multi-photo gallery from connectmls CDN
+  const photoHits = [
+    ...html.matchAll(/https:\/\/gamls-assets\.cdn-connectmls\.com\/pics\/[^"'\\\s<>]+/gi),
+  ].map((m) => m[0]);
+  out.images = uniqueUrls(photoHits).slice(0, 24);
   // Image from og:image or first connectmls photo
   const og = html.match(/property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
     || html.match(/content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
   if (og) out.image = og[1];
+  if (!out.image && out.images[0]) out.image = out.images[0];
   if (!out.image) {
     const ph = html.match(/https:\/\/gamls-assets\.cdn-connectmls\.com\/[^"'\s]+/i);
     if (ph) out.image = ph[0];
