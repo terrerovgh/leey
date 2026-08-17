@@ -16,8 +16,11 @@
     "deploy": "npm run build && npx wrangler deploy",
     "ship": "npm run check && npm run build && npx wrangler deploy",
     "sync:daily": "bash scripts/daily-listings-update.sh",
-    "blog:daily": "bash scripts/daily-blog-publish.sh",
-    "blog:build-check": "npm run check"
+    "blog:daily": "bash scripts/blog-publish-morning.sh",
+    "blog:build-check": "npm run check",
+    "blog:prep": "bash scripts/blog-prep.sh",
+    "blog:publish": "bash scripts/blog-publish-morning.sh",
+    "blog:pipeline": "python3 scripts/blog_pipeline/run.py"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

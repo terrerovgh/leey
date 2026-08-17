@@ -10,3 +10,4 @@ public/data/listings.market.bak.json
 .swo
 *.swp
 .vite/
+data/blog/pipeline/

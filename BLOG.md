@@ -1,33 +1,46 @@
-# Blog — Notas de Leey
+# Blog — Notas de Leey (multi-agent)
 
 ## Live
 - Index: https://leeyrealty.com/blog/
 - Feed: https://leeyrealty.com/data/blog/posts.json
 
-## Content rules
-- Realtor voice (Leey), bilingual ES/EN, South Georgia towns only.
-- No invented metrics. No AI-marketing clichés.
-- Every post needs a cover figure (SVG infographic/chart or photo).
-- Body can embed `{{figure:0}}` for mid-article art.
+## Multi-agent pipeline (Hermes + free/local)
 
-## Daily publish
+Code: `scripts/blog_pipeline/run.py`
+
+| Stage | Agent job | Output |
+|-------|-----------|--------|
+| 1 research | Season, inventory cities, free web snippets, optional LLM synth | `data/blog/pipeline/DATE/research.json` |
+| 2 topic | Pick angle from bank + research | `topic.json` |
+| 3 assets | Wikimedia Commons + Openverse free images (CC) | `assets.json` + `public/assets/blog/YYYYMMDD/*` |
+| 4 write | Bilingual draft (free LLM or human template) | `draft.json` |
+| 5 polish | SEO + anti-AI humanizer | `final.json` + `READY.json` |
+| 6 publish | Merge posts.json → git commit → `npm run ship` | live `/blog` |
+
+### Commands
 ```bash
-npm run blog:daily
-# or Hermes cron 62a97214ec22 @ 07:15 America/New_York
-# script: ~/.hermes/scripts/leey-daily-blog-publish.sh
-# → scripts/daily-blog-publish.sh
+npm run blog:prep                 # stages 1–5 (overnight)
+npm run blog:publish              # stage 6 (07:00) or full if no prep
+python3 scripts/blog_pipeline/run.py --stage all
+python3 scripts/blog_pipeline/run.py --date 2026-08-18 --stage prep
 ```
 
-Pipeline:
-1. Skip if a post already exists for today.
-2. Pick least-used angle from `data/blog/topics.json`.
-3. Try free LLM via `hermes chat --model free-then-local` (optional).
-4. Fallback: deterministic human-voice template + unique SVG cover.
-5. Anti-slop scrub → append to `public/data/blog/posts.json`.
-6. Commit + push + `npm run ship` only when changed.
+### Hermes crons
+| Name | Schedule (ET) | Script |
+|------|---------------|--------|
+| `leey-blog-prep` | `0 22 * * *` (10pm) | prep for **tomorrow** |
+| `leey-blog-morning` | `0 7 * * *` (7:00am) | publish ready post |
 
-## Manual new post
-Edit `public/data/blog/posts.json` (schema in `data/blog/types.ts`), add assets under `public/assets/blog/`, then:
+Models: `free-then-local` → `free` → `local` → `background`. If all fail, human-voice template still publishes.
+
+### Content rules
+- Realtor voice (Leey), ES+EN, South Georgia towns only
+- No invented metrics
+- Real web images with attribution captions when from Commons/Openverse
+- SEO titles/meta + humanizer scrub (no delve/seamless/etc.)
+
+### Manual post
+Edit `public/data/blog/posts.json` + assets, then:
 ```bash
 env -u CLOUDFLARE_API_TOKEN npm run ship
 ```
