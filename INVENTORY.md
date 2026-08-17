@@ -106,3 +106,28 @@ Ver `data/manual-listings.example.json` y `data/types.ts` (`Property`).
 ## UI
 Cards: contacto Leey + Lock & Key; listing agent/office solo si viene del feed.
 En mode agent vacío → mensaje honesto (no demos de mercado).
+
+## D) RapidAPI `zillow-real-estate-data-api` (market only — free)
+
+Host: `zillow-real-estate-data-api.p.rapidapi.com`  
+Free: **100 req/month** (`x-ratelimit-requests-limit: 100`) + hard 500k.
+
+Verified with **1** live call (do not probe endpoints casually):
+
+```bash
+curl --request POST \
+  --url 'https://zillow-real-estate-data-api.p.rapidapi.com/zillow/v1/market_trends' \
+  --header 'Content-Type: application/json' \
+  --header 'x-rapidapi-host: zillow-real-estate-data-api.p.rapidapi.com' \
+  --header 'x-rapidapi-key: $RAPIDAPI_KEY' \
+  --data '{"location":"Valdosta, GA"}'
+```
+
+Returns **market aggregates** (ZHVI, median list/sale, inventory, days to pending) — **not** property listings, **not** brokerage filter.
+
+`POST /zillow/v1/property_search` → **404** (does not exist).
+
+**Do not use this product for Lock & Key inventory.** Keep for optional SEO market widgets only, ≤1–2 calls per deploy.
+
+---
+
