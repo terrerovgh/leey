@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-17T23:29:58.000Z",
+  "updatedAt": "2026-08-17T23:33:31.000Z",
   "posts": [
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
       "date": "2026-08-17",
-      "updatedAt": "2026-08-17T23:29:58.000Z",
+      "updatedAt": "2026-08-17T23:33:31.000Z",
       "category": "neighborhoods",
       "readMinutes": 6,
       "tags": [
@@ -24,37 +24,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260817/hahira-drive-1.jpg",
-        "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-        "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779"
+        "altEs": "Valdosta · Downtown Social, Valdosta.jpg",
+        "altEn": "Valdosta · Downtown Social, Valdosta.jpg"
       },
       "figures": [
         {
           "src": "/assets/blog/20260817/hahira-drive-1.jpg",
-          "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "captionEs": "Foto listing · Will Wright · Pelham",
-          "captionEn": "Listing photo · Will Wright · Pelham"
+          "altEs": "Valdosta · Downtown Social, Valdosta.jpg",
+          "altEn": "Valdosta · Downtown Social, Valdosta.jpg",
+          "captionEs": "Valdosta · Foto: Mjrmtg · CC BY 4.0",
+          "captionEn": "Valdosta · Photo: Mjrmtg · CC BY 4.0"
         },
         {
           "src": "/assets/blog/20260817/hahira-drive-2.jpg",
-          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
-          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
-          "captionEs": "Foto listing · Madison Hewett · Nashville",
-          "captionEn": "Listing photo · Madison Hewett · Nashville"
+          "altEs": "Valdosta · Georgia I75nb Exit 16 Downtown Valdosta Historic District da",
+          "altEn": "Valdosta · Georgia I75nb Exit 16 Downtown Valdosta Historic District da",
+          "captionEs": "Valdosta · Foto: Michael Rivera · CC BY 4.0",
+          "captionEn": "Valdosta · Photo: Michael Rivera · CC BY 4.0"
         },
         {
           "src": "/assets/blog/20260817/hahira-drive-3.jpg",
-          "altEs": "Casa en inventario · 3411 Bob Bowen Road, Blackshear, GA, 31516",
-          "altEn": "Inventory home · 3411 Bob Bowen Road, Blackshear, GA, 31516",
-          "captionEs": "Foto listing · Tyler Boatright · Blackshear",
-          "captionEn": "Listing photo · Tyler Boatright · Blackshear"
+          "altEs": "Hahira · Hahira Caboose, NE corner.jpg",
+          "altEn": "Hahira · Hahira Caboose, NE corner.jpg",
+          "captionEs": "Hahira · Foto: Michael Rivera · CC BY-SA 4.0",
+          "captionEn": "Hahira · Photo: Michael Rivera · CC BY-SA 4.0"
         },
         {
           "src": "/assets/blog/20260817/hahira-drive-4.jpg",
-          "altEs": "Casa en inventario · 5246 Owens Road, Blackshear, GA, 31516",
-          "altEn": "Inventory home · 5246 Owens Road, Blackshear, GA, 31516",
-          "captionEs": "Foto listing · Tyler Boatright · Blackshear",
-          "captionEn": "Listing photo · Tyler Boatright · Blackshear"
+          "altEs": "Adel · Cook County Courthouse, Adel, GA, US.jpg",
+          "altEn": "Adel · Cook County Courthouse, Adel, GA, US.jpg",
+          "captionEs": "Adel · Foto: Bubba73 · CC BY-SA 3.0",
+          "captionEn": "Adel · Photo: Bubba73 · CC BY-SA 3.0"
         }
       ],
       "titleEs": "Valdosta, Hahira o Adel: por dónde empezar si no conoces la zona",

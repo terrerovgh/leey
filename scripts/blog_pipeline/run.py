@@ -779,6 +779,12 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
     want_interior = any(k in angle or k in cat for k in ("kitchen", "cocina", "interior", "remodel", "decor"))
     want_porch = any(k in angle for k in ("porch", "porche", "curb"))
     want_exterior = cat in ("buying", "selling", "neighborhoods", "market", "first_home") or not want_interior
+    # Neighborhood / place posts: only use listings that match topic areas.
+    # Never fill with random South GA cities when the post names specific towns.
+    require_area_match = bool(areas) and (
+        cat == "neighborhoods"
+        or any(k in angle for k in ("valdosta", "hahira", "adel", "sparks", "tifton", "thomasville", "donde", "where to start", "zona", "area"))
+    )
 
     scored: list[tuple[float, dict]] = []
     seen_urls: set[str] = set()
@@ -791,11 +797,16 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
         if not isinstance(imgs, list):
             continue
         area_boost = 0.0
+        area_hit = False
         for a in areas:
             if a and (a in city or a in addr.lower()):
-                area_boost += 6.0
-        if not area_boost and areas:
-            area_boost = 1.0
+                area_boost += 8.0
+                area_hit = True
+        if areas and not area_hit:
+            if require_area_match:
+                continue  # wrong city for this topic
+            # generic posts may still use inventory elsewhere, but weakly
+            area_boost = 0.5
 
         ordered = list(imgs)
         if want_interior and len(ordered) > 2:
@@ -888,14 +899,27 @@ def relevance_score(candidate: dict, topic: dict) -> float:
         if g in title:
             score += 2.0
 
+    place_hit = False
     for a in topic.get("areas") or []:
         token = str(a).replace("-", " ").lower()
         if token and token in title:
-            score += 4.0
+            score += 6.0
+            place_hit = True
         if token and token in str(candidate.get("city") or "").lower():
-            score += 5.0
+            score += 8.0
+            place_hit = True
+        if token and token in str(candidate.get("address") or "").lower():
+            score += 8.0
+            place_hit = True
+        if token and token in str(candidate.get("description") or "").lower():
+            score += 3.0
+            place_hit = True
 
     cat = (topic.get("category") or "").lower()
+    # For neighborhood/place posts, web photos without place tokens are near-useless
+    if cat == "neighborhoods" and candidate.get("source") != "listing" and not place_hit:
+        score -= 20.0
+
     if cat in ("buying", "selling") and any(
         w in title for w in ("for sale", "house", "home", "yard sign", "real estate", "listing")
     ):
@@ -960,6 +984,18 @@ def build_image_queries(topic: dict) -> list[str]:
 
 def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> list[dict]:
     queries = queries or build_image_queries(topic)
+    # For place posts, force area-named queries first
+    areas = [str(a).replace("-", " ").title() for a in (topic.get("areas") or [])]
+    if (topic.get("category") or "").lower() == "neighborhoods" and areas:
+        place_q = []
+        for a in areas:
+            place_q.extend([
+                f"{a} Georgia",
+                f"{a} Georgia downtown",
+                f"{a} Georgia street",
+                f"downtown {a} Georgia",
+            ])
+        queries = list(dict.fromkeys(place_q + queries))[:16]
     candidates: list[dict] = []
     for q in queries:
         for attempt in range(1, 3):

@@ -2,10 +2,17 @@
   {
     "id": "porch-seasonal",
     "category": "decor",
-    "areas": ["valdosta", "hahira"],
+    "areas": [
+      "valdosta",
+      "hahira"
+    ],
     "angleEs": "El porche del sur de Georgia: lo primero que mira la gente y lo que sí vale arreglar.",
     "angleEn": "The South Georgia porch: what people notice first and what is worth fixing.",
-    "mustInclude": ["porche", "sur de Georgia", "visita"],
+    "mustInclude": [
+      "porche",
+      "sur de Georgia",
+      "visita"
+    ],
     "image_queries": [
       "southern front porch house",
       "american front porch rocking chair",
@@ -20,10 +27,19 @@
   {
     "id": "first-offer-nerves",
     "category": "buying",
-    "areas": ["valdosta", "tifton", "hahira"],
+    "areas": [
+      "valdosta",
+      "tifton",
+      "hahira"
+    ],
     "angleEs": "Cómo armo una oferta sin prisa en Valdosta (aunque el mercado diga lo contrario).",
     "angleEn": "How I build an offer without rushing in Valdosta (even when the market says otherwise).",
-    "mustInclude": ["oferta", "inspección", "presupuesto", "Valdosta"],
+    "mustInclude": [
+      "oferta",
+      "inspección",
+      "presupuesto",
+      "Valdosta"
+    ],
     "image_queries": [
       "house for sale yard sign United States",
       "real estate for sale sign front yard",
@@ -38,107 +54,195 @@
   {
     "id": "list-before-paint",
     "category": "selling",
-    "areas": ["moultrie", "thomasville"],
+    "areas": [
+      "moultrie",
+      "thomasville"
+    ],
     "angleEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado.",
     "angleEn": "Before painting the whole house to sell: three things that actually move a listing.",
-    "mustInclude": ["listar", "fotos", "precio"]
+    "mustInclude": [
+      "listar",
+      "fotos",
+      "precio"
+    ]
   },
   {
     "id": "hahira-drive",
     "category": "neighborhoods",
-    "areas": ["hahira", "valdosta", "adel", "sparks"],
+    "areas": [
+      "valdosta",
+      "hahira",
+      "adel",
+      "sparks"
+    ],
     "angleEs": "Valdosta, Hahira o Adel: por dónde empezar si no conoces la zona — trayecto, patio y ritmo real.",
     "angleEn": "Valdosta, Hahira, or Adel: where to start if you do not know the area — real drive, yard, and pace.",
-    "mustInclude": ["Valdosta", "Hahira", "Adel", "trayecto"],
+    "mustInclude": [
+      "Valdosta",
+      "Hahira",
+      "Adel",
+      "trayecto"
+    ],
     "image_queries": [
       "Valdosta Georgia downtown",
       "Valdosta Georgia street",
+      "Valdosta Georgia city",
       "Hahira Georgia",
+      "Hahira Georgia downtown",
+      "Adel Georgia",
       "Adel Georgia courthouse",
       "Adel Cook County Georgia",
-      "South Georgia pine residential street",
       "Lowndes County Georgia",
-      "small town Georgia main street houses"
+      "Valdosta State University",
+      "South Georgia Valdosta neighborhood",
+      "Main Street Adel Georgia"
     ]
   },
   {
     "id": "kitchen-light",
     "category": "remodel",
-    "areas": ["valdosta"],
+    "areas": [
+      "valdosta"
+    ],
     "angleEs": "Más luz en la cocina sin abrir muros: lo que suelo recomendar primero.",
     "angleEn": "More kitchen light without opening walls: what I usually recommend first.",
-    "mustInclude": ["cocina", "luz", "presupuesto"]
+    "mustInclude": [
+      "cocina",
+      "luz",
+      "presupuesto"
+    ]
   },
   {
     "id": "adel-value",
     "category": "neighborhoods",
-    "areas": ["adel", "sparks"],
+    "areas": [
+      "adel",
+      "sparks"
+    ],
     "angleEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote.",
     "angleEn": "Adel and Sparks when you want more house for the money — and what to watch on the lot.",
-    "mustInclude": ["Adel", "lote", "valor"]
+    "mustInclude": [
+      "Adel",
+      "lote",
+      "valor"
+    ]
   },
   {
     "id": "termite-south-ga",
     "category": "buying",
-    "areas": ["valdosta", "thomasville"],
+    "areas": [
+      "valdosta",
+      "thomasville"
+    ],
     "angleEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué.",
     "angleEn": "Termites and moisture in South Georgia: what I ask for at inspection and why.",
-    "mustInclude": ["inspección", "termitas", "humedad"]
+    "mustInclude": [
+      "inspección",
+      "termitas",
+      "humedad"
+    ]
   },
   {
     "id": "staging-honest",
     "category": "selling",
-    "areas": ["tifton", "nashville"],
+    "areas": [
+      "tifton",
+      "nashville"
+    ],
     "angleEs": "Staging barato y honesto: menos cosas, mejor luz, sin fingir una casa que no es.",
     "angleEn": "Cheap honest staging: fewer things, better light, without faking a house it is not.",
-    "mustInclude": ["staging", "fotos", "luz"]
+    "mustInclude": [
+      "staging",
+      "fotos",
+      "luz"
+    ]
   },
   {
     "id": "florida-line",
     "category": "market",
-    "areas": ["north-florida", "valdosta"],
+    "areas": [
+      "north-florida",
+      "valdosta"
+    ],
     "angleEs": "Cruzar la línea a Florida: una sola agente, dos licencias, menos fricción.",
     "angleEn": "Crossing into Florida: one agent, two licenses, less friction.",
-    "mustInclude": ["Florida", "licencia", "mudanza"]
+    "mustInclude": [
+      "Florida",
+      "licencia",
+      "mudanza"
+    ]
   },
   {
     "id": "first-home-es",
     "category": "first_home",
-    "areas": ["valdosta", "hahira"],
+    "areas": [
+      "valdosta",
+      "hahira"
+    ],
     "angleEs": "Primera casa en español: papeles, inspección y el momento de decir no.",
     "angleEn": "First home in plain language: paperwork, inspection, and when to say no.",
-    "mustInclude": ["primera casa", "financiamiento", "calma"]
+    "mustInclude": [
+      "primera casa",
+      "financiamiento",
+      "calma"
+    ]
   },
   {
     "id": "yard-weekend",
     "category": "decor",
-    "areas": ["ray-city", "nashville"],
+    "areas": [
+      "ray-city",
+      "nashville"
+    ],
     "angleEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista.",
     "angleEn": "Small-town big yard: one weekend of order beats a magazine garden.",
-    "mustInclude": ["patio", "curb appeal", "fin de semana"]
+    "mustInclude": [
+      "patio",
+      "curb appeal",
+      "fin de semana"
+    ]
   },
   {
     "id": "bath-refresh",
     "category": "remodel",
-    "areas": ["thomasville", "moultrie"],
+    "areas": [
+      "thomasville",
+      "moultrie"
+    ],
     "angleEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente.",
     "angleEn": "Primary bath without a full gut: caulk, faucet, light, and a decent mirror.",
-    "mustInclude": ["baño", "presupuesto", "vender"]
+    "mustInclude": [
+      "baño",
+      "presupuesto",
+      "vender"
+    ]
   },
   {
     "id": "price-drop-talk",
     "category": "selling",
-    "areas": ["valdosta"],
+    "areas": [
+      "valdosta"
+    ],
     "angleEs": "Cuándo bajar el precio y cómo decirlo sin drama.",
     "angleEn": "When to drop price and how to say it without drama.",
-    "mustInclude": ["precio", "mercado", "días en mercado"]
+    "mustInclude": [
+      "precio",
+      "mercado",
+      "días en mercado"
+    ]
   },
   {
     "id": "thomasville-charm",
     "category": "neighborhoods",
-    "areas": ["thomasville"],
+    "areas": [
+      "thomasville"
+    ],
     "angleEs": "Thomasville y el encanto histórico: qué se paga y qué es solo foto bonita.",
     "angleEn": "Thomasville historic charm: what you pay for and what is just a pretty photo.",
-    "mustInclude": ["Thomasville", "histórico", "mantenimiento"]
+    "mustInclude": [
+      "Thomasville",
+      "histórico",
+      "mantenimiento"
+    ]
   }
 ]
