@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-18T00:41:38.000Z",
+  "updatedAt": "2026-08-18T00:42:26.000Z",
   "posts": [
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
@@ -200,7 +200,7 @@
     {
       "slug": "cocina-sin-tirar-paredes",
       "date": "2026-08-14",
-      "updatedAt": "2026-08-18T00:41:38.000Z",
+      "updatedAt": "2026-08-18T00:42:26.000Z",
       "category": "remodel",
       "readMinutes": 6,
       "tags": [
@@ -213,34 +213,34 @@
         "valdosta"
       ],
       "cover": {
-        "src": "/assets/blog/20260814/kitchen-light-1.jpg",
+        "src": "/assets/blog/20260814/kitchen-light-v2-1.jpg",
         "altEs": "Cocina · This cozy kitchen showcases modern design elements comb",
         "altEn": "Kitchen · This cozy kitchen showcases modern design elements comb"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260814/kitchen-light-1.jpg",
+          "src": "/assets/blog/20260814/kitchen-light-v2-1.jpg",
           "altEs": "Cocina · This cozy kitchen showcases modern design elements comb",
           "altEn": "Kitchen · This cozy kitchen showcases modern design elements comb",
           "captionEs": "Cocina · Foto: nenad53 · by",
           "captionEn": "Kitchen · Photo: nenad53 · by"
         },
         {
-          "src": "/assets/blog/20260814/kitchen-light-2.jpg",
+          "src": "/assets/blog/20260814/kitchen-light-v2-2.jpg",
           "altEs": "Cocina · Modern kitchen interior design featuring light colors a",
           "altEn": "Kitchen · Modern kitchen interior design featuring light colors a",
           "captionEs": "Cocina · Foto: nenadstojkovicart · by",
           "captionEn": "Kitchen · Photo: nenadstojkovicart · by"
         },
         {
-          "src": "/assets/blog/20260814/kitchen-light-3.jpg",
+          "src": "/assets/blog/20260814/kitchen-light-v2-3.jpg",
           "altEs": "Cocina · Kitchen Interior",
           "altEn": "Kitchen · Kitchen Interior",
           "captionEs": "Cocina · Foto: Matt Bango · cc0",
           "captionEn": "Kitchen · Photo: Matt Bango · cc0"
         },
         {
-          "src": "/assets/blog/20260814/kitchen-light-4.jpg",
+          "src": "/assets/blog/20260814/kitchen-light-v2-4.jpg",
           "altEs": "Cocina · aesthetic kitchen ideas",
           "altEn": "Kitchen · aesthetic kitchen ideas",
           "captionEs": "Cocina · Foto: Piersey · by",
