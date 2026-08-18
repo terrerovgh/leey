@@ -12,9 +12,11 @@ import { PropertyDetailPage } from "./pages/PropertyDetail";
 import { AreaPage } from "./pages/Area";
 import { BlogPage } from "./pages/Blog";
 import { BlogPostPage } from "./pages/BlogPost";
+import { StudioApp } from "./pages/Studio";
 
 export function App() {
   const loc = useLocation();
+  const isStudio = loc.pathname.startsWith("/studio");
 
   // Safety net: si tras 3.5s el usuario NO ha hecho scroll (típico de un
   // crawler / renderizador headless / fullPage screenshot), forzamos
@@ -42,10 +44,18 @@ export function App() {
       if (el) {
         setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 60);
       }
-    } else {
+    } else if (!isStudio) {
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
-  }, [loc.pathname, loc.hash]);
+  }, [loc.pathname, loc.hash, isStudio]);
+
+  if (isStudio) {
+    return (
+      <Routes>
+        <Route path="/studio/*" element={<StudioApp />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-ivory-50 text-ink-900">

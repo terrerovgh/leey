@@ -46,3 +46,10 @@ npm run blog:publish
 ## Skill
 Hermes skill: `leey-blog-pipeline`  
 Code: `scripts/blog_pipeline/run.py` stages `image-search` / `image-download` / `assets`
+
+## Blog Studio (edición humana)
+- URL: https://leeyrealty.com/studio
+- Login: magic link por email (allowlist)
+- Docs: `docs/BLOG-STUDIO.md`
+- Feed live en runtime: Worker KV (además del `posts.json` del repo)
+- Tras publish, el pipeline hace upsert a `/api/blog/agent/upsert` si `LEEY_BLOG_AGENT_TOKEN` está en `.env`

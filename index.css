@@ -272,3 +272,55 @@ body {
 .brokerage-mark:focus-visible .brokerage-mark__img {
   transform: scale(1.04);
 }
+
+/* ── Blog Studio (human CMS) ───────────────────────────────────────── */
+.field {
+  display: block;
+  width: 100%;
+  border: 1px solid color-mix(in oklab, var(--color-ink-900) 15%, transparent);
+  background: var(--color-ivory-50);
+  padding: 0.65rem 0.75rem;
+  color: var(--color-ink-900);
+  outline: none;
+}
+.field:focus {
+  border-color: var(--color-clay-500);
+}
+.btn-studio {
+  border: 1px solid color-mix(in oklab, var(--color-ink-900) 15%, transparent);
+  background: var(--color-surface-elevated);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--color-ink-800, var(--color-ink-900));
+}
+.btn-studio:hover {
+  border-color: var(--color-clay-500);
+}
+.btn-studio-ghost {
+  border: 1px solid transparent;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--color-ink-500);
+}
+.btn-studio-ghost:hover {
+  color: var(--color-ink-900);
+}
+.btn-studio-primary {
+  background: var(--color-ink-900);
+  padding: 0.45rem 0.95rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ivory-50);
+}
+.btn-studio-primary:disabled,
+.btn-studio-ghost:disabled,
+.btn-studio:disabled,
+.btn-studio-danger:disabled {
+  opacity: 0.5;
+}
+.btn-studio-danger {
+  border: 1px solid color-mix(in oklab, var(--color-clay-600) 40%, transparent);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--color-clay-700);
+}

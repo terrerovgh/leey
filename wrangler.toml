@@ -1,13 +1,35 @@
-# Cloudflare Workers Static Assets — leeyrealty.com
+# Cloudflare Workers Static Assets + Blog CMS API — leeyrealty.com
 # Live: worker service `leey` bound to leeyrealty.com + www
 name = "leey"
+main = "worker/index.js"
 compatibility_date = "2026-07-01"
 workers_dev = true
 
-# Static pre-rendered pages: every route has a real .html file in dist/
-# (home, /properties, /properties/:id, /areas/:slug). Serve those
-# directly; force trailing slash so /areas/valdosta -> /areas/valdosta/index.html
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 html_handling = "force-trailing-slash"
-not_found_handling = "404-page"
+# Studio SPA routes (/studio/*) need the client shell when no prerender exists.
+not_found_handling = "single-page-application"
+# API + dynamic blog feed go through the Worker before static assets.
+run_worker_first = [
+  "/api/*",
+  "/data/blog/posts.json",
+  "/media/blog/*",
+]
+
+[[kv_namespaces]]
+binding = "BLOG_KV"
+id = "63a8fcfd7176482f8ca474dad6b880ac"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "leey-blog-media"
+
+[vars]
+SITE_URL = "https://leeyrealty.com"
+# Comma-separated allowlist for magic-link login
+ALLOWED_EMAILS = "leey@lockandkeyrealty.com,terrerov@gmail.com"
+FROM_EMAIL = "Leey Blog Studio <onboarding@resend.dev>"
+SESSION_TTL_SECONDS = "604800"
+MAGIC_TTL_SECONDS = "900"

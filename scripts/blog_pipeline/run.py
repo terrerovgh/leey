@@ -1831,6 +1831,52 @@ Post actual:
     return final
 
 
+# ── CMS live feed (Cloudflare Worker KV) ───────────────────────────────────
+
+def push_post_to_cms(post: dict, replace_by_date: bool = True) -> bool:
+    """Upsert a published post into Blog Studio KV via agent API.
+
+    Requires LEEY_BLOG_AGENT_TOKEN (and optional LEEY_BLOG_CMS_URL).
+    Soft-skip when token missing so local/dev publish still works.
+    """
+    token = (
+        os.environ.get("LEEY_BLOG_AGENT_TOKEN")
+        or os.environ.get("BLOG_AGENT_TOKEN")
+        or ""
+    ).strip()
+    if not token:
+        log("[cms] skip: LEEY_BLOG_AGENT_TOKEN not set")
+        return False
+    base = (
+        os.environ.get("LEEY_BLOG_CMS_URL")
+        or os.environ.get("LEEY_SITE_URL")
+        or "https://leeyrealty.com"
+    ).rstrip("/")
+    url = f"{base}/api/blog/agent/upsert"
+    payload = json.dumps(
+        {"post": post, "replaceByDate": bool(replace_by_date)},
+        ensure_ascii=False,
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        method="POST",
+        headers={
+            "content-type": "application/json",
+            "x-agent-token": token,
+            "user-agent": UA,
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            log(f"[cms] upsert HTTP {resp.status}: {body[:200]}")
+            return 200 <= int(resp.status) < 300
+    except Exception as e:
+        log(f"[cms] upsert failed: {e}")
+        return False
+
+
 # ── Stage 6: Publish ───────────────────────────────────────────────────────
 
 def stage_publish(
@@ -1930,6 +1976,16 @@ def stage_publish(
 
     save_json(POSTS_PATH, posts_data)
     log(f"[publish] wrote posts.json (+{slug})")
+
+    # Push live CMS (Cloudflare KV) so /data/blog/posts.json serves the new post
+    # without waiting for the next human seed. Soft-fail: git/ship still proceed.
+    try:
+        cms_ok = push_post_to_cms(post, replace_by_date=True)
+        log(f"[publish] cms_upsert={'ok' if cms_ok else 'skipped_or_fail'}")
+        append_log(wd, "publish.cms_upsert", {"ok": cms_ok, "slug": slug})
+    except Exception as e:
+        log(f"[publish] cms_upsert error: {e}")
+        append_log(wd, "publish.cms_upsert_error", {"error": str(e)[:300]})
 
     if no_ship:
         log("[publish] no-ship: feed updated, skip git/ship")
