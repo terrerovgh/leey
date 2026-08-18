@@ -11,3 +11,7 @@ public/data/listings.market.bak.json
 *.swp
 .vite/
 data/blog/pipeline/
+
+# daily listings bot runtime logs
+data/listings-bot/
+

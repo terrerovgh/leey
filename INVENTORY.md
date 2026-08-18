@@ -118,18 +118,36 @@ Cada fila activa de Lock & Key debería incluir:
 
 Contacto comercial del sitio sigue siendo **Leey** (tel/email del feed `agent`). El list agent se muestra como “Listed by” + teléfono público MLS.
 
-## Automatización diaria (Hermes, free / sin LLM)
+## Automatización diaria — bot (Hermes, free / sin LLM)
 
-Script: `scripts/daily-listings-update.sh`  
-Symlink Hermes: `~/.hermes/scripts/leey-daily-listings-update.sh`
+Script: `scripts/daily-listings-update.sh` (`npm run sync:daily`)  
+Wrapper Hermes (archivo real, no symlink): `~/.hermes/scripts/leey-daily-listings-update.sh`  
+Logs runtime: `data/listings-bot/` (gitignored)
 
 Hace, sin RapidAPI:
 
-1. Scrape roster oficina `LKEY01` → ids Active en `data/mls-ids.txt`
-2. `SYNC_MODE=brokerage npm run sync:zillow` (GAMLS público)
-3. Valida agente / teléfono / multi-foto / precio / solo Lock & Key
-4. Si cambió el inventario: commit + push + `npm run ship`
-5. Si no cambió: no-op silencioso (stdout mínimo)
+1. Scrape roster oficina `LKEY01` → ids Active en `data/mls-ids.txt` + delta JSON
+2. `SYNC_MODE=brokerage ZILLOW_ENABLED=0 REALTOR_ENABLED=0 APIFY_ENABLED=0 npm run sync:zillow`
+3. Valida hard: n>0, todos con precio+imagen, solo Lock & Key, **n ≥ 50% del roster** (anti-colapso)
+4. Hash de contenido (ignora `syncedAt`) → commit + push + `npm run ship` solo si cambió
+5. Verify apex best-effort; no-op silencioso si no hay delta
+
+### Env del bot (defaults free)
+
+| Var | Default daily | Notas |
+|-----|---------------|-------|
+| `SYNC_MODE` | `brokerage` | solo L&K |
+| `ZILLOW_ENABLED` | `0` | apaga RapidAPI Zillow |
+| `REALTOR_ENABLED` | `0` | apaga Realtor |
+| `APIFY_ENABLED` | `0` | apaga Apify |
+| `ZILLOW_MAX_LISTINGS` | unset → 80 | **nunca** pongas `0` (antes colapsaba a 1 fila) |
+| `GAMLS_ENABLED` | `1` | path free |
+
+### Bug histórico (2026-08-18)
+
+El daily exportaba `ZILLOW_MAX_LISTINGS=0` “para no quemar APIs”. El sync hacía
+`Math.max(1, 0) = 1` y publicó **1/25** listings. Arreglado: flags
+`ZILLOW_ENABLED` / `APIFY_ENABLED` + cap `≤0` → default 80.
 
 Cron Hermes (no-agent = 0 tokens LLM):
 
@@ -142,9 +160,15 @@ hermes cron create "0 7 * * *" \
   --workdir /home/terrerov/Projects/leey
 ```
 
-Modelo free/local solo haría falta si quieres un job con razonamiento
-(`--provider custom:omniroute --model free-then-local`). El path diario
-recomendado es **script no-agent** porque el scrape/sync ya es determinista.
+Manual:
+
+```bash
+npm run sync:daily
+# logs: data/listings-bot/latest.log
+```
+
+Modelo free/local solo haría falta para un digest humano post-sync.
+El path diario recomendado es **script no-agent**.
 
 ## Schema mínimo de una fila manual
 Ver `data/manual-listings.example.json` y `data/types.ts` (`Property`).

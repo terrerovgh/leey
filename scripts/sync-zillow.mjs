@@ -41,7 +41,10 @@ function loadEnv() {
     "ZILLOW_BROKERAGE_FILTER",
     "ZILLOW_LOCATIONS",
     "ZILLOW_MAX_PAGES",
+    "ZILLOW_MAX_LISTINGS",
     "ZILLOW_REZ_MAX_PAGES",
+    "ZILLOW_ENABLED",
+    "APIFY_ENABLED",
     "REALTOR_RAPIDAPI_HOST",
     "REALTOR_ENABLED",
     "GAMLS_ENABLED",
@@ -93,7 +96,16 @@ const MANUAL_PATH =
 const KEEP_LAST_GOOD = String(process.env.KEEP_LAST_GOOD ?? "1") !== "0";
 
 const MAX_PAGES = Math.max(1, num(process.env.ZILLOW_MAX_PAGES, 2));
-const MAX_LISTINGS = Math.max(1, num(process.env.ZILLOW_MAX_LISTINGS, 80));
+// Cap of published rows. 0 / empty / negative → default 80.
+// NEVER use Math.max(1, 0): daily free bots used to pass 0 meaning "skip paid
+// APIs" and silently collapsed the whole feed to 1 listing.
+const MAX_LISTINGS = (() => {
+  const raw = process.env.ZILLOW_MAX_LISTINGS;
+  if (raw === undefined || raw === "") return 80;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return 80;
+  return Math.floor(n);
+})();
 const ENRICH_LIMIT = Math.max(0, num(process.env.ZILLOW_ENRICH_LIMIT, 0));
 const REQUEST_GAP_MS = Math.max(800, num(process.env.RAPIDAPI_GAP_MS, 1200));
 
@@ -103,6 +115,9 @@ const ZILLOW_HOST =
 const REALTOR_HOST =
   process.env.REALTOR_RAPIDAPI_HOST || "realty-in-us.p.rapidapi.com";
 const KEY = process.env.RAPIDAPI_KEY || "";
+// Explicit off switch for free daily runs (do NOT overload MAX_LISTINGS=0).
+const ZILLOW_ENABLED = String(process.env.ZILLOW_ENABLED ?? "1") !== "0";
+const APIFY_ENABLED = String(process.env.APIFY_ENABLED ?? "1") !== "0";
 /** Flavor of Zillow RapidAPI product */
 const ZILLOW_FLAVOR = detectZillowFlavor(ZILLOW_HOST);
 
@@ -961,6 +976,10 @@ async function enrichListings(rawItems) {
 }
 
 async function fromZillow() {
+  if (!ZILLOW_ENABLED) {
+    console.log("[zillow] skipped (ZILLOW_ENABLED=0)");
+    return [];
+  }
   if (!KEY || MANUAL_ONLY) return [];
   console.log(`[zillow] host=${ZILLOW_HOST} mode=${MODE}`);
   let raw = [];
@@ -1148,6 +1167,10 @@ function extractRealtorResults(body) {
 // ── Apify ────────────────────────────────────────────────────────────────
 
 async function fromApify() {
+  if (!APIFY_ENABLED) {
+    console.log("[apify] skipped (APIFY_ENABLED=0)");
+    return [];
+  }
   const token = process.env.APIFY_TOKEN;
   if (!token || MANUAL_ONLY) return [];
   const actor = process.env.APIFY_ACTOR_ID || "maxcopell/zillow-agent-scraper";
@@ -1600,8 +1623,12 @@ async function main() {
   );
   console.log(` manual:  ${MANUAL_PATH}`);
   console.log(` locs:    ${LOCATIONS.join(" · ")}`);
-  console.log(` zillow:  ${ZILLOW_HOST} · flavor=${ZILLOW_FLAVOR} · key=${KEY ? "yes" : "no"}`);
+  console.log(
+    ` zillow:  ${ZILLOW_HOST} · flavor=${ZILLOW_FLAVOR} · enabled=${ZILLOW_ENABLED ? "1" : "0"} · key=${KEY ? "yes" : "no"}`
+  );
   console.log(` realtor: ${REALTOR_HOST} · enabled=${process.env.REALTOR_ENABLED ?? "1"}`);
+  console.log(` apify:   enabled=${APIFY_ENABLED ? "1" : "0"}`);
+  console.log(` max:     ${MAX_LISTINGS} listings`);
   console.log(` keep:    last-good=${KEEP_LAST_GOOD}`);
   console.log(` out:     ${OUT}`);
 
