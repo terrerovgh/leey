@@ -1,7 +1,76 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-18T00:43:32.000Z",
+  "updatedAt": "2026-08-18T11:01:41.000Z",
   "posts": [
+    {
+      "slug": "list-before-paint-2026-08-18",
+      "date": "2026-08-18",
+      "updatedAt": "2026-08-18T11:01:41.000Z",
+      "category": "buying|selling|remodel|decor|neighborhoods|market|first_home",
+      "readMinutes": 6,
+      "tags": [
+        "buying|selling|remodel|decor|neighborhoods|market|first_home",
+        "Moultrie",
+        "South Georgia",
+        "Leey"
+      ],
+      "areas": [
+        "moultrie",
+        "thomasville"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260818/list-before-paint-1.jpg",
+        "altEs": "one concrete angle for tomorrow's blog — imagen 1",
+        "altEn": "one concrete angle for tomorrow's blog — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260818/list-before-paint-1.jpg",
+          "altEs": "one concrete angle for tomorrow's blog — imagen 1",
+          "altEn": "one concrete angle for tomorrow's blog — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260818/list-before-paint-2.jpg",
+          "altEs": "one concrete angle for tomorrow's blog — imagen 2",
+          "altEn": "one concrete angle for tomorrow's blog — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260818/list-before-paint-3.jpg",
+          "altEs": "one concrete angle for tomorrow's blog — imagen 3",
+          "altEn": "one concrete angle for tomorrow's blog — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260818/list-before-paint-4.jpg",
+          "altEs": "one concrete angle for tomorrow's blog — imagen 4",
+          "altEn": "one concrete angle for tomorrow's blog — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "one concrete angle for tomorrow's blog",
+      "titleEn": "Before painting the whole house to sell",
+      "seoTitleEs": "one concrete angle for tomorrow's blog | Leey",
+      "seoTitleEn": "Before painting the whole house to sell | Leey",
+      "seoDescriptionEs": "Consejos de realtor en Moultrie y el sur de Georgia: one concrete angle for tomorrow's blog",
+      "seoDescriptionEn": "Realtor notes in Moultrie and South Georgia: Before painting the whole house to sell: three things that actually move a listi",
+      "excerptEs": "one concrete angle for tomorrow's blog Notas claras desde Moultrie.",
+      "excerptEn": "Before painting the whole house to sell: three things that actually move a listing. Clear notes from Moultrie.",
+      "bodyEs": "Hoy me quedé pensando en Moultrie y en cómo se siente comprar o arreglar casa en esta temporada (hot humid summer and afternoon storms).\n\none concrete angle for tomorrow's blog\n\n**Lo que miro primero**\n\nNo empiezo por la foto de Pinterest. Empiezo por el trayecto, la humedad, el patio y si la casa va a pelear contigo el primer año.\n\n{{figure:0}}\n\n**Qué haría yo**\n\nUna lista corta y honesta. Si es cosmético, lo digo. Si es caro de verdad (techo, HVAC, termitas), también.\n\nSi te suena a tu búsqueda, escríbeme. Mejor cinco minutos claros que una semana de duda.\n\n - Leey",
+      "bodyEn": "I kept thinking about Moultrie and what it feels like to buy or fix up a home in this season (hot humid summer and afternoon storms).\n\nBefore painting the whole house to sell: three things that actually move a listing.\n\n**What I look at first**\n\nI do not start with the Pinterest photo. I start with the drive, the moisture, the yard, and whether the house will fight you in year one.\n\n{{figure:0}}\n\n**What I would do**\n\nA short honest list. If it is cosmetic, I say so. If it is truly expensive (roof, HVAC, termites), I say that too.\n\nIf this sounds like your search, message me. Better five clear minutes than a week of second-guessing.\n\n - Leey"
+    },
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
       "date": "2026-08-17",
