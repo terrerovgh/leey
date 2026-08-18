@@ -2,7 +2,7 @@
 # Resolved via public Georgia MLS (no RapidAPI needed).
 # Sold are skipped unless GAMLS_INCLUDE_SOLD=1.
 #
-# Source: GAMLS office LKEY01 agent pages (Active only), scraped 2026-08-17.
+# Source: GAMLS office LKEY01 agent pages (Active only), auto-refreshed.
 # Verify: https://www.georgiamls.com/listing/{MLS}
 #
 # Paste ACTIVE ids below:
@@ -13,11 +13,11 @@
 10765680
 10765687
 10721807
+10722410
 10672911
 10822717
 10817521
 10688253
-10722410
 10719932
 10762401
 10762402
