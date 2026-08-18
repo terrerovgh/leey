@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-17T23:34:21.000Z",
+  "updatedAt": "2026-08-18T00:31:53.000Z",
   "posts": [
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
@@ -136,7 +136,7 @@
     {
       "slug": "porche-sur-georgia-primeras-impresiones",
       "date": "2026-08-15",
-      "updatedAt": "2026-08-17T23:29:58.000Z",
+      "updatedAt": "2026-08-18T00:31:53.000Z",
       "category": "decor",
       "readMinutes": 6,
       "tags": [
@@ -153,37 +153,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260815/porch-seasonal-1.jpg",
-        "altEs": "Casa en inventario · 64 Church Street, Camilla, GA, 31730",
-        "altEn": "Inventory home · 64 Church Street, Camilla, GA, 31730"
+        "altEs": "Porche residencial · Rocking chairs on porch as staging for house for sale.j",
+        "altEn": "Residential porch · Rocking chairs on porch as staging for house for sale.j"
       },
       "figures": [
         {
           "src": "/assets/blog/20260815/porch-seasonal-1.jpg",
-          "altEs": "Casa en inventario · 64 Church Street, Camilla, GA, 31730",
-          "altEn": "Inventory home · 64 Church Street, Camilla, GA, 31730",
-          "captionEs": "Foto listing · Will Wright · Camilla",
-          "captionEn": "Listing photo · Will Wright · Camilla"
+          "altEs": "Porche residencial · Rocking chairs on porch as staging for house for sale.j",
+          "altEn": "Residential porch · Rocking chairs on porch as staging for house for sale.j",
+          "captionEs": "Porche · Foto: Daniel Case · CC BY-SA 4.0",
+          "captionEn": "Porch · Photo: Daniel Case · CC BY-SA 4.0"
         },
         {
           "src": "/assets/blog/20260815/porch-seasonal-2.jpg",
-          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
-          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
-          "captionEs": "Foto listing · Madison Hewett · Nashville",
-          "captionEn": "Listing photo · Madison Hewett · Nashville"
+          "altEs": "Porche residencial · Front porch - James Bell House (34314947584).jpg",
+          "altEn": "Residential porch · Front porch - James Bell House (34314947584).jpg",
+          "captionEs": "Porche · Foto: Tim Evanson  from Cleveland Heights, Ohio, USA · CC BY-SA 2.0",
+          "captionEn": "Porch · Photo: Tim Evanson  from Cleveland Heights, Ohio, USA · CC BY-SA 2.0"
         },
         {
           "src": "/assets/blog/20260815/porch-seasonal-3.jpg",
-          "altEs": "Casa en inventario · 3411 Bob Bowen Road, Blackshear, GA, 31516",
-          "altEn": "Inventory home · 3411 Bob Bowen Road, Blackshear, GA, 31516",
-          "captionEs": "Foto listing · Tyler Boatright · Blackshear",
-          "captionEn": "Listing photo · Tyler Boatright · Blackshear"
+          "altEs": "Porche residencial · Porch Home for the Aged (5165f23d-77f1-4b5d-99c9-ccbbea",
+          "altEn": "Residential porch · Porch Home for the Aged (5165f23d-77f1-4b5d-99c9-ccbbea",
+          "captionEs": "Porche · Foto: NPS Photo · Public domain",
+          "captionEn": "Porch · Photo: NPS Photo · Public domain"
         },
         {
           "src": "/assets/blog/20260815/porch-seasonal-4.jpg",
-          "altEs": "Casa en inventario · 5246 Owens Road, Blackshear, GA, 31516",
-          "altEn": "Inventory home · 5246 Owens Road, Blackshear, GA, 31516",
-          "captionEs": "Foto listing · Tyler Boatright · Blackshear",
-          "captionEn": "Listing photo · Tyler Boatright · Blackshear"
+          "altEs": "Porche residencial · Front porch of Lanhydrock House, Cornwall - geograph.or",
+          "altEn": "Residential porch · Front porch of Lanhydrock House, Cornwall - geograph.or",
+          "captionEs": "Porche · Foto: Derek Voller · CC BY-SA 2.0",
+          "captionEn": "Porch · Photo: Derek Voller · CC BY-SA 2.0"
         }
       ],
       "titleEs": "El porche del sur de Georgia: lo primero que mira la gente (y lo que sí vale arreglar)",

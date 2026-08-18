@@ -27,6 +27,7 @@ Umbrella manual: `blog_agents/03-assets.sh` runs search+download (`--stage asset
 - Reject archival/HABS/HAER/vintage/postcard and pre-2015 year hints.
 - No decorative Spanish SVGs. English chart SVG only if zero photos.
 - Dedupe by SHA1 across posts (do not reuse the same file on another post).
+- **Examine before accept:** vision QA (`hermes chat --image`) per topic; porch/kitchen require porch/kitchen cues if vision is down.
 
 ## Manual
 ```bash

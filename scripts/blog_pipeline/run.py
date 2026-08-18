@@ -579,6 +579,128 @@ def compress_image_file(path: Path, *, max_edge: int = 1600, max_bytes: int = 1_
         log(f"[assets] compress skip {path.name}: {e}")
 
 
+
+def topic_visual_brief(topic: dict) -> dict:
+    """What the photo must show for this topic (used by vision gate)."""
+    tid = (topic.get("id") or "").lower()
+    cat = (topic.get("category") or "").lower()
+    angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {tid}".lower()
+    areas = [str(a).replace("-", " ") for a in (topic.get("areas") or [])]
+
+    if "porch" in tid or "porche" in angle or "porch" in angle:
+        return {
+            "label": "porch",
+            "must_show": "a residential front porch, stoop, veranda, or covered entry with steps/railings/chairs",
+            "reject_if": "only a blank exterior wall, pure yard with no porch, kitchen interior, car, document, or unrelated object",
+            "keywords": ["porch", "stoop", "veranda", "portico", "front steps", "rocking chair", "entry"],
+        }
+    if "kitchen" in tid or "cocina" in angle or "kitchen" in angle:
+        return {
+            "label": "kitchen",
+            "must_show": "a home kitchen interior (cabinets, counters, sink, appliances, or kitchen window light)",
+            "reject_if": "exterior-only house shot with no kitchen, bathroom, empty room, or unrelated object",
+            "keywords": ["kitchen", "cabinets", "counter", "sink", "stove", "refrigerator"],
+        }
+    if cat == "neighborhoods" or any(k in angle for k in ("valdosta", "hahira", "adel", "zona", "where to start")):
+        place = ", ".join(areas) if areas else "the named South Georgia towns"
+        return {
+            "label": "place",
+            "must_show": f"a real outdoor scene clearly associated with {place} (street, downtown, landmark, neighborhood homes)",
+            "reject_if": "unrelated city, interior-only, document, car lot, or generic stock with no place cues",
+            "keywords": areas + ["downtown", "street", "courthouse", "georgia"],
+        }
+    if cat in ("buying", "selling") or "offer" in tid or "oferta" in angle:
+        return {
+            "label": "home_sale",
+            "must_show": "a residential house exterior and/or a for-sale context suitable for a home offer article",
+            "reject_if": "unrelated commercial building only, document, car dealership, or non-home scene",
+            "keywords": ["house", "home", "for sale", "yard", "exterior", "listing"],
+        }
+    return {
+        "label": "home",
+        "must_show": "a residential home scene relevant to South Georgia real estate (house exterior, yard, or interior living space)",
+        "reject_if": "documents, cars, maps, logos, pure text, or unrelated objects",
+        "keywords": ["house", "home", "residential"],
+    }
+
+
+def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = None) -> tuple[bool, str]:
+    """Vision gate: examine the image before accepting it for the topic."""
+    brief = topic_visual_brief(topic)
+    title = f"{(candidate or {}).get('title') or ''} {(candidate or {}).get('description') or ''}".lower()
+    kws = [k.lower() for k in brief.get("keywords") or []]
+    meta_hit = any(k in title for k in kws if len(k) >= 4)
+
+    # Strong metadata reject for strict topics
+    if brief["label"] == "porch" and any(
+        k in title for k in ("kitchen", "bathroom", "floor plan", "map of", "logo", "dealership")
+    ) and "porch" not in title and "stoop" not in title and "veranda" not in title:
+        return False, "metadata non-porch"
+
+    prompt = (
+        "Photo QA for real-estate blog. "
+        f"Topic={brief['label']}. MUST show: {brief['must_show']}. "
+        f"Reject if: {brief['reject_if']}. "
+        f"Title: {(candidate or {}).get('title') or 'unknown'}. "
+        'Reply ONLY JSON: {"match":true|false,"what_you_see":"...","reason":"..."}'
+    )
+
+    # One fast vision attempt, then one fallback. Short timeouts.
+    models = ["free-then-local", "vision"]
+    for model in models:
+        try:
+            r = subprocess.run(
+                [
+                    "hermes", "chat", "-q", prompt,
+                    "--image", str(path),
+                    "--model", model,
+                    "-Q",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=55,
+                cwd=str(ROOT),
+            )
+            out = ((r.stdout or "") + "\n" + (r.stderr or "")).strip()
+            # Prefer stdout body if present
+            body = (r.stdout or "").strip() or out
+            if r.returncode != 0 or len(body) < 8:
+                log(f"[vision] weak model={model} code={r.returncode} chars={len(body)} err={(r.stderr or '')[:120]}")
+                continue
+            out = body
+            obj = extract_json_obj(out)
+            if not obj:
+                m = re.search(r"\{[\s\S]*\}", out)
+                if m:
+                    try:
+                        obj = json.loads(m.group(0))
+                    except Exception:
+                        obj = None
+            if not obj:
+                log(f"[vision] unparsed model={model}: {out[:140]}")
+                continue
+            match = obj.get("match") is True or str(obj.get("match")).lower() == "true"
+            reason = str(obj.get("reason") or obj.get("what_you_see") or out[:120])
+            log(f"[vision] model={model} match={match} {reason[:100]}")
+            return bool(match), reason
+        except subprocess.TimeoutExpired:
+            log(f"[vision] timeout model={model}")
+            continue
+        except Exception as e:
+            log(f"[vision] fail model={model}: {e}")
+            continue
+
+    # Fallback when vision stack is down
+    if brief["label"] in ("porch", "kitchen"):
+        if meta_hit:
+            return True, "vision unavailable; metadata keywords ok"
+        return False, "vision unavailable; strict topic needs porch/kitchen cues"
+    if meta_hit:
+        return True, "vision unavailable; metadata ok"
+    return True, "vision unavailable; soft allow"
+
+
+
 def looks_archival_or_old(candidate: dict) -> bool:
     """Reject historical/archival/HABS/old scans and B&W labelled media."""
     title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''} {candidate.get('description') or ''}".lower()
@@ -816,8 +938,8 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
             hero = ordered[:2]
             ordered = interior + hero
         elif want_porch and len(ordered) > 1:
-            # porch/curb: keep exterior-first but allow a couple more angles
-            ordered = ordered[:8]
+            # porch/curb: exterior-first angles; vision gate will keep true porches
+            ordered = ordered[:10]
         elif want_exterior:
             ordered = ordered[:6]
 
@@ -1109,12 +1231,33 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
     pool = list(pool_doc.get("candidates") or [])
     queries = list(pool_doc.get("queries") or build_image_queries(topic))
 
-    pool.sort(
-        key=lambda c: (
+    brief = topic_visual_brief(topic)
+    strict = brief.get("label") in ("porch", "kitchen", "place")
+
+    def _pool_key(c: dict):
+        title = f"{c.get('title') or ''} {c.get('description') or ''}".lower()
+        kws = [k.lower() for k in brief.get("keywords") or []]
+        meta_hit = any(k in title for k in kws if len(str(k)) >= 4)
+        # For porch/kitchen: prefer web/metadata hits that name the subject over random listing heroes
+        if strict and brief.get("label") in ("porch", "kitchen"):
+            return (
+                0 if meta_hit else 1,
+                0 if c.get("source") != "listing" and meta_hit else 1,
+                0 if c.get("source") == "listing" and meta_hit else 1,
+                -(float(c.get("_score") or 0)),
+            )
+        if strict and brief.get("label") == "place":
+            return (
+                0 if meta_hit else 1,
+                0 if c.get("source") == "listing" else 1,
+                -(float(c.get("_score") or 0)),
+            )
+        return (
             0 if c.get("source") == "listing" else 1,
             -(float(c.get("_score") or 0)),
         )
-    )
+
+    pool.sort(key=_pool_key)
 
     img_dir = wd / "images"
     img_dir.mkdir(parents=True, exist_ok=True)
@@ -1155,6 +1298,16 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
             ok = download_image(full, dest_work, seen_hashes=seen_hashes, require_color=True)
         if not ok:
             return False
+        # Examine pixels/content before accepting
+        vision_ok, vision_reason = examine_image_for_topic(dest_work, topic, c)
+        if not vision_ok:
+            log(f"[vision] reject {dest_work.name}: {vision_reason[:120]}")
+            try:
+                dest_work.unlink(missing_ok=True)
+            except Exception:
+                pass
+            # allow hash reuse later for other topics? remove hash if we added
+            return False
         shutil.copy2(dest_work, dest_pub)
         compress_image_file(dest_pub)
         # if compress rewrote png/webp to jpg, keep names consistent when possible
@@ -1176,16 +1329,22 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         )
         return True
 
-    for c in [x for x in pool if x.get("source") == "listing"]:
-        try_save(c, f"{topic.get('id') or 'img'}")
-        if len(saved) >= 4:
-            break
-
-    if len(saved) < 4:
-        for c in [x for x in pool if x.get("source") != "listing"]:
+    # For porch/kitchen, walk full sorted pool (metadata-first). Else listings first.
+    if strict and brief.get("label") in ("porch", "kitchen"):
+        for c in pool:
             try_save(c, f"{topic.get('id') or 'img'}")
             if len(saved) >= 4:
                 break
+    else:
+        for c in [x for x in pool if x.get("source") == "listing"]:
+            try_save(c, f"{topic.get('id') or 'img'}")
+            if len(saved) >= 4:
+                break
+        if len(saved) < 4:
+            for c in [x for x in pool if x.get("source") != "listing"]:
+                try_save(c, f"{topic.get('id') or 'img'}")
+                if len(saved) >= 4:
+                    break
 
     if len(saved) < 2:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
