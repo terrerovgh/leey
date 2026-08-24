@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-24T18:38:59.000Z",
+  "updatedAt": "2026-08-24T18:53:49.000Z",
   "posts": [
     {
       "slug": "list-before-paint-2026-08-25",
       "date": "2026-08-25",
-      "updatedAt": "2026-08-24T18:38:59.000Z",
-      "category": "first_home",
+      "updatedAt": "2026-08-24T18:53:49.000Z",
+      "category": "moving_guide",
       "readMinutes": 6,
       "tags": [
-        "first_home",
+        "moving_guide",
         "Valdosta",
         "South Georgia",
         "Leey"
@@ -20,56 +20,56 @@
       ],
       "cover": {
         "src": "/assets/blog/20260825/list-before-paint-1.jpg",
-        "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 1",
-        "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 1",
+        "altEs": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — imagen 1",
+        "altEn": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — image 1",
         "kind": "photo",
-        "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
           "src": "/assets/blog/20260825/list-before-paint-1.jpg",
-          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 1",
-          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 1",
+          "altEs": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — imagen 1",
+          "altEn": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — image 1",
           "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
           "src": "/assets/blog/20260825/list-before-paint-2.jpg",
-          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 2",
-          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 2",
+          "altEs": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — imagen 2",
+          "altEn": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — image 2",
           "kind": "photo",
           "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
           "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
           "src": "/assets/blog/20260825/list-before-paint-3.jpg",
-          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 3",
-          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
-        },
-        {
-          "src": "/assets/blog/20260825/list-before-paint-4.jpg",
-          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 4",
-          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 4",
+          "altEs": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — imagen 3",
+          "altEn": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — image 3",
           "kind": "photo",
           "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
           "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260825/list-before-paint-4.jpg",
+          "altEs": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — imagen 4",
+          "altEn": "Mudarse de Florida al sur de Georgia: descubre cuánto ahorrarás realmente en impuestos y seguros de hogar — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
-      "titleEs": "Mudarse a South Georgia en Verano: Adaptarse al Clima Húmedo y Tormentas",
-      "titleEn": "Moving to South Georgia in Summer: Adapting to Humid Weather and Storms",
-      "seoTitleEs": "Mudarse a South Georgia en Verano: Guía del Clima Húmedo | Leey",
-      "seoTitleEn": "Summer Move South Georgia: Humid Climate Guide | Leey",
-      "seoDescriptionEs": "Consejos para afrontar el calor y las tormentas vespertinas en South Georgia. Elige el hogar adecuado y vive cómodo este verano.",
-      "seoDescriptionEn": "Tips to handle heat and afternoon storms in South Georgia. Choose the right home and live comfortably this summer.",
-      "excerptEs": "El verano en South Georgia trae calor y humedad. Esta guía te prepara para adaptarte y elegir bien tu hogar.",
-      "excerptEn": "Summer in South Georgia means heat and humidity. This guide helps you adapt and pick the right home.",
-      "bodyEs": "Mudarse a South Georgia durante el verano es una decisión que muchos toman atraídos por la belleza natural y el estilo de vida relajado de la región. Sin embargo, el calor intenso y la alta humedad son factores importantes a considerar. Además, las tormentas vespertinas, habituales en localidades como Moultrie y Thomasville, influyen en la vida diaria.\n\n### Entendiendo el clima húmedo de South Georgia\nEste verano combina altas temperaturas con humedad constante, afectando desde la ropa hasta el mantenimiento del hogar. Es fundamental planificar el inmueble con buena ventilación y sistemas de aire acondicionado eficientes para el confort de toda la familia.\n\n{{figure:0}}\n\n### Prepararse para las tormentas vespertinas\nLas tormentas de la tarde son frecuentes y aunque breves, pueden ser intensas, causando cortes eléctricos o daños menores. Invertir en paneles solares o un sistema eléctrico de respaldo es recomendable. También considera estructuras resistentes y drenajes adecuados para evitar acumulación de agua.\n\n{{figure:1}}\n\n### Consejos prácticos para buscar casa en verano\nAl buscar hogar en zonas como Moultrie o Thomasville, observa la orientación, aislamiento térmico y el estado de las ventanas. Fotos actualizadas y listados claros te ayudarán a comparar. Verifica sistemas de climatización y techos preparados para tormentas.\n\n{{figure:2}}\n\nConocer y adaptarse al clima de South Georgia es clave para disfrutar tu nuevo hogar sin imprevistos. Si tienes dudas o necesitas ayuda en la búsqueda, estoy aquí para guiarte en cada paso.\n\n - Leey",
-      "bodyEn": "Moving to South Georgia in summer is a choice many make, drawn by the area's natural beauty and relaxed lifestyle. However, intense heat and high humidity are key factors to consider. Additionally, afternoon storms common in places like Moultrie and Thomasville impact daily life.\n\n### Understanding South Georgia's Humid Climate\nThe summer combines high temperatures with constant humidity, affecting everything from clothing to home maintenance. Planning your home with good ventilation and efficient air conditioning systems is essential for your family's comfort.\n\n{{figure:0}}\n\n### Preparing for Afternoon Storms\nAfternoon storms are frequent and, though brief, can be intense, causing power outages or minor damage. Investing in solar panels or a backup power system is advisable. Also, look for sturdy structures and proper drainage to avoid water buildup.\n\n{{figure:1}}\n\n### Practical Tips for Home Buying in Summer\nWhen searching in areas like Moultrie or Thomasville, pay attention to home orientation, thermal insulation, and window condition. Updated photos and clear listings help with comparisons. Check HVAC systems and roofs designed to withstand storms.\n\n{{figure:2}}\n\nKnowing and adapting to South Georgia’s climate is key to enjoying your new home without surprises. If you have questions or need help, I’m here to guide you every step.\n\n - Leey"
+      "titleEs": "Mudarse de Florida al Sur de Georgia: Ahorra en impuestos y seguros de hogar",
+      "titleEn": "Moving from Florida to South Georgia: Save on Property Taxes and Home Insurance",
+      "seoTitleEs": "Ahorra en impuestos y seguros mudándote a Sur de Georgia | Leey",
+      "seoTitleEn": "Save on Taxes and Insurance Moving to South Georgia | Leey",
+      "seoDescriptionEs": "Descubre cuánto puedes ahorrar en impuestos y seguros de hogar mudándote de Florida al Sur de Georgia. Consejos prácticos para familias.",
+      "seoDescriptionEn": "Discover how much you can save on property taxes and home insurance moving from Florida to South Georgia. Practical tips for families.",
+      "excerptEs": "Descubre los ahorros reales en impuestos y seguros al mudarte de Florida a zonas del Sur de Georgia como Moultrie y Thomasville.",
+      "excerptEn": "Discover how much you can really save on taxes and home insurance by moving from Florida to Moultrie and Thomasville, South Georgia.",
+      "bodyEs": "Mudarse de Florida al Sur de Georgia es una opción cada vez más atractiva para familias que buscan un estilo de vida más tranquilo y asequible. Con el calor intenso y las tormentas veraniegas típicas de esta región, es esencial entender cómo los costos de impuestos y seguros de hogar afectan tu presupuesto familiar.\n\n### Entendiendo los impuestos a la propiedad en el Sur de Georgia\nAl comparar Florida con áreas como Moultrie y Thomasville, notarás diferencias significativas en las tasas de impuestos a la propiedad. En Georgia, exenciones como la Homestead Exemption pueden reducir considerablemente tus impuestos si cumples ciertos requisitos, algo que no siempre es posible en Florida por su estructura fiscal distinta. Este ahorro puede representar cientos o incluso miles de dólares al año, ayudando a equilibrar otros gastos importantes.\n\n{{figure:0}}\n\n### Seguros de hogar: ¿por qué son más accesibles en el Sur de Georgia?\nEl seguro de hogar en el Sur de Georgia suele ser más económico que en Florida, principalmente debido a menores riesgos asociados a huracanes y fenómenos climáticos severos. Aunque el clima es caluroso y húmedo, las tormentas tienden a ser menos intensas que en la costa de Florida, lo que se traduce en primas más bajas para asegurar tu vivienda y propiedad.\n\n{{figure:1}}\n\n### Consejos prácticos para una transición sin sobresaltos\nAdemás de los beneficios fiscales y de seguros, es fundamental planificar la mudanza con anticipación. Publica tu casa en Florida con fotos que resalten sus mejores atributos y con un precio competitivo para atraer compradores rápidamente. Considera contratar un agente inmobiliario local con experiencia en estas zonas para asegurar un proceso fluido y minimizar el estrés.\n\n{{figure:2}}\n\nMudarse al Sur de Georgia no solo es un cambio de lugar, sino una oportunidad para mejorar tu calidad de vida y el control de tus finanzas personales. Si necesitas más información o ayuda para listar tu propiedad, estoy aquí para apoyarte.\n\n - Leey",
+      "bodyEn": "Moving from Florida to South Georgia is an increasingly attractive choice for families seeking a quieter, more affordable lifestyle. With the intense heat and typical summer storms of this region, understanding how property taxes and home insurance costs impact your family budget is essential.\n\n### Understanding Property Taxes in South Georgia\nWhen comparing Florida with areas like Moultrie and Thomasville, you'll notice significant differences in property tax rates. In Georgia, exemptions such as the Homestead Exemption can dramatically reduce your taxes if you meet certain criteria, something not always possible in Florida due to a different tax structure. These savings can amount to hundreds or even thousands of dollars annually, helping to balance other important expenses.\n\n{{figure:0}}\n\n### Home Insurance: Why It’s More Affordable in South Georgia\nHome insurance in South Georgia tends to be less expensive than in Florida, mainly due to lower risks from hurricanes and severe weather events. Although the climate is hot and humid, storms tend to be less severe than on Florida’s coast, resulting in lower premiums to protect your home and property.\n\n{{figure:1}}\n\n### Practical Tips for a Smooth Transition\nBesides tax and insurance benefits, planning your move in advance is vital. List your Florida home with photos showcasing its best features and set a competitive price to attract buyers quickly. Hiring a local real estate agent experienced in these areas can ensure a smooth process and reduce stress.\n\n{{figure:2}}\n\nMoving to South Georgia is more than a geographic change - it’s an opportunity to improve your quality of life and take control of your personal finances. If you want to learn more or need help listing your property, I’m here to support you.\n\n - Leey"
     },
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
