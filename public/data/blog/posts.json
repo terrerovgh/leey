@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-24T18:11:42.000Z",
+  "updatedAt": "2026-08-24T18:38:59.000Z",
   "posts": [
     {
-      "slug": "list-before-paint-2026-08-24",
-      "date": "2026-08-24",
-      "updatedAt": "2026-08-24T18:11:42.000Z",
-      "category": "buying|selling|remodel",
+      "slug": "list-before-paint-2026-08-25",
+      "date": "2026-08-25",
+      "updatedAt": "2026-08-24T18:38:59.000Z",
+      "category": "first_home",
       "readMinutes": 6,
       "tags": [
-        "buying|selling|remodel",
-        "Moultrie",
+        "first_home",
+        "Valdosta",
         "South Georgia",
         "Leey"
       ],
@@ -19,57 +19,57 @@
         "thomasville"
       ],
       "cover": {
-        "src": "/assets/blog/20260824/list-before-paint-1.jpg",
-        "altEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — imagen 1",
-        "altEn": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — image 1",
+        "src": "/assets/blog/20260825/list-before-paint-1.jpg",
+        "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 1",
+        "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 1",
         "kind": "photo",
-        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260824/list-before-paint-1.jpg",
-          "altEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — imagen 1",
-          "altEn": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
-        },
-        {
-          "src": "/assets/blog/20260824/list-before-paint-2.jpg",
-          "altEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — imagen 2",
-          "altEn": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — image 2",
+          "src": "/assets/blog/20260825/list-before-paint-1.jpg",
+          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 1",
+          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 1",
           "kind": "photo",
           "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
           "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260824/list-before-paint-3.jpg",
-          "altEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — imagen 3",
-          "altEn": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — image 3",
+          "src": "/assets/blog/20260825/list-before-paint-2.jpg",
+          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 2",
+          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 2",
           "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260824/list-before-paint-4.jpg",
-          "altEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — imagen 4",
-          "altEn": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores — image 4",
+          "src": "/assets/blog/20260825/list-before-paint-3.jpg",
+          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 3",
+          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 3",
           "kind": "photo",
-          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)"
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260825/list-before-paint-4.jpg",
+          "altEs": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — imagen 4",
+          "altEn": "Mudarse a South Georgia en Verano: Guía para Sobrevivir al Clima Húmedo y Tormentas de la Tarde — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
-      "titleEs": "Control de la humedad y termitas en casas de Valdosta este verano",
-      "titleEn": "Moisture and termite control in Valdosta homes this summer",
-      "seoTitleEs": "Control de la humedad y termitas en casas de | Leey Hernandez",
-      "seoTitleEn": "Moisture and termite control in Valdosta home | Leey Hernandez",
-      "seoDescriptionEs": "Consejos de inspección y compra de vivienda en Moultrie y el sur de Georgia con Leyanis 'Leey' Hernandez: Control de la humedad y termitas en casas de…",
-      "seoDescriptionEn": "Home inspection and buying guidance in Moultrie and South Georgia with Leyanis 'Leey' Hernandez: Moisture and termite control in Valdosta homes this summer:…",
-      "excerptEs": "Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores. Consejos prácticos de inspección y compra desde Moultrie con Leey Hernandez.",
-      "excerptEn": "Moisture and termite control in Valdosta homes this summer: key tips for buyers and sellers. Practical inspection and buying advice from Moultrie with Leey Hernandez.",
-      "bodyEs": "Cuando acompaño a familias en Moultrie y el sur de Georgia durante esta temporada (hot humid summer and afternoon storms), sé que la emoción de encontrar casa debe ir siempre acompañada de una revisión técnica rigurosa.\n\n**Control de la humedad y termitas en casas de Valdosta este verano: claves para compradores y vendedores**\n\n### 1. La estructura y el suelo que no se ven a simple vista\n\nNo empiezo por el color de las paredes ni por los acabados de moda. Empiezo por los cimientos, la ventilación, la humedad del terreno y cómo responderá la vivienda a las lluvias intensas de nuestra zona.\n\n{{figure:0}}\n\n### 2. Lo que exigimos antes de retirar contingencias\n\nUna revisión honesta y sin prisas: si hay detalles cosméticos menores, los evaluamos con calma; pero si encontramos humedad en vigas, problemas de aislamiento o indicios de plagas, negociamos reparaciones o créditos antes de la firma final.\n\nSi estás evaluando propiedades en el área y quieres revisar cada paso con criterio claro, escríbeme. Siempre es mejor una conversación clara antes de tomar una decisión importante.\n\n - Leey",
-      "bodyEn": "When walking through properties with families in Moultrie and across South Georgia during this season (hot humid summer and afternoon storms), I always ensure that excitement is backed by thorough technical due diligence.\n\n**Moisture and termite control in Valdosta homes this summer: key tips for buyers and sellers**\n\n### 1. Structural integrity and subfloor conditions\n\nI do not begin with paint colors or modern cosmetic touches. I begin with foundation vents, subfloor moisture, drainage, and how the property withstands heavy South Georgia rainfall.\n\n{{figure:0}}\n\n### 2. Essential checkpoints before removing contingencies\n\nA calm, straightforward evaluation: minor cosmetic items can be handled easily, but any structural moisture, failing insulation, or pest evidence must be negotiated for seller repairs or credits before closing.\n\nIf you are searching for a home in the area and want clear, honest guidance at every step, reach out to me anytime.\n\n - Leey"
+      "titleEs": "Mudarse a South Georgia en Verano: Adaptarse al Clima Húmedo y Tormentas",
+      "titleEn": "Moving to South Georgia in Summer: Adapting to Humid Weather and Storms",
+      "seoTitleEs": "Mudarse a South Georgia en Verano: Guía del Clima Húmedo | Leey",
+      "seoTitleEn": "Summer Move South Georgia: Humid Climate Guide | Leey",
+      "seoDescriptionEs": "Consejos para afrontar el calor y las tormentas vespertinas en South Georgia. Elige el hogar adecuado y vive cómodo este verano.",
+      "seoDescriptionEn": "Tips to handle heat and afternoon storms in South Georgia. Choose the right home and live comfortably this summer.",
+      "excerptEs": "El verano en South Georgia trae calor y humedad. Esta guía te prepara para adaptarte y elegir bien tu hogar.",
+      "excerptEn": "Summer in South Georgia means heat and humidity. This guide helps you adapt and pick the right home.",
+      "bodyEs": "Mudarse a South Georgia durante el verano es una decisión que muchos toman atraídos por la belleza natural y el estilo de vida relajado de la región. Sin embargo, el calor intenso y la alta humedad son factores importantes a considerar. Además, las tormentas vespertinas, habituales en localidades como Moultrie y Thomasville, influyen en la vida diaria.\n\n### Entendiendo el clima húmedo de South Georgia\nEste verano combina altas temperaturas con humedad constante, afectando desde la ropa hasta el mantenimiento del hogar. Es fundamental planificar el inmueble con buena ventilación y sistemas de aire acondicionado eficientes para el confort de toda la familia.\n\n{{figure:0}}\n\n### Prepararse para las tormentas vespertinas\nLas tormentas de la tarde son frecuentes y aunque breves, pueden ser intensas, causando cortes eléctricos o daños menores. Invertir en paneles solares o un sistema eléctrico de respaldo es recomendable. También considera estructuras resistentes y drenajes adecuados para evitar acumulación de agua.\n\n{{figure:1}}\n\n### Consejos prácticos para buscar casa en verano\nAl buscar hogar en zonas como Moultrie o Thomasville, observa la orientación, aislamiento térmico y el estado de las ventanas. Fotos actualizadas y listados claros te ayudarán a comparar. Verifica sistemas de climatización y techos preparados para tormentas.\n\n{{figure:2}}\n\nConocer y adaptarse al clima de South Georgia es clave para disfrutar tu nuevo hogar sin imprevistos. Si tienes dudas o necesitas ayuda en la búsqueda, estoy aquí para guiarte en cada paso.\n\n - Leey",
+      "bodyEn": "Moving to South Georgia in summer is a choice many make, drawn by the area's natural beauty and relaxed lifestyle. However, intense heat and high humidity are key factors to consider. Additionally, afternoon storms common in places like Moultrie and Thomasville impact daily life.\n\n### Understanding South Georgia's Humid Climate\nThe summer combines high temperatures with constant humidity, affecting everything from clothing to home maintenance. Planning your home with good ventilation and efficient air conditioning systems is essential for your family's comfort.\n\n{{figure:0}}\n\n### Preparing for Afternoon Storms\nAfternoon storms are frequent and, though brief, can be intense, causing power outages or minor damage. Investing in solar panels or a backup power system is advisable. Also, look for sturdy structures and proper drainage to avoid water buildup.\n\n{{figure:1}}\n\n### Practical Tips for Home Buying in Summer\nWhen searching in areas like Moultrie or Thomasville, pay attention to home orientation, thermal insulation, and window condition. Updated photos and clear listings help with comparisons. Check HVAC systems and roofs designed to withstand storms.\n\n{{figure:2}}\n\nKnowing and adapting to South Georgia’s climate is key to enjoying your new home without surprises. If you have questions or need help, I’m here to guide you every step.\n\n - Leey"
     },
     {
       "slug": "valdosta-hahira-adel-donde-empezar",
