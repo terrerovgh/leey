@@ -1,7 +1,57 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-24T19:19:16.000Z",
+  "updatedAt": "2026-08-27T14:41:38.000Z",
   "posts": [
+    {
+      "slug": "termite-south-ga-2026-08-26",
+      "date": "2026-08-26",
+      "updatedAt": "2026-08-27T14:41:38.000Z",
+      "category": "market",
+      "readMinutes": 5,
+      "tags": [
+        "first_home",
+        "Valdosta",
+        "South Georgia",
+        "Leey"
+      ],
+      "areas": [],
+      "cover": {
+        "src": "/assets/blog/20260826/termite-south-ga-1.jpg",
+        "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 1",
+        "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260826/termite-south-ga-1.jpg",
+          "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 1",
+          "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260826/termite-south-ga-2.jpg",
+          "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 2",
+          "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA",
+      "titleEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans",
+      "seoTitleEs": "Comprar Casa South Georgia: Georgia Dream + USDA | Leey",
+      "seoTitleEn": "Buy Home South Georgia: Georgia Dream + USDA Loans | Leey",
+      "seoDescriptionEs": "Georgia Dream cubre $10,000 y préstamos USDA financian 100% en Valdosta, Thomasville y Lowndes. Inventario moviéndose rápido este verano.",
+      "seoDescriptionEn": "Georgia Dream covers $10,000 and USDA loans finance 100% in Valdosta, Thomasville, Lowndes. Inventory moving fast this summer.",
+      "excerptEs": "Programas de ayuda de pago inicial y préstamos USDA al 100% hacen posible ser propietario en pueblos rurales de South Georgia como Valdosta y Thomasville.",
+      "excerptEn": "Down payment assistance and 100% USDA loans make homeownership possible in rural South Georgia towns like Valdosta and Thomasville.",
+      "bodyEs": "**La oportunidad que muchos desconocen**\n\nEl verano está moviendo inventario rápido en Valdosta, Thomasville, Camilla y Blackshear. Lo que la mayoría ignora: Georgia Dream cubre hasta $10,000 del pago inicial y los préstamos USDA financian el 100% en áreas rurales calificadas de South Georgia. {{figure:0}}\n\n**Inspección, termitas y humedad: lo que no se ve**\n\nEn el sur de Georgia, la **inspección** no es opcional. La humedad y las termitas convierten lo invisible en costoso si no tienes a alguien que sepa dónde mirar. {{figure:1}}\n\n**Lock & Key Realty: tu llave en la mano**\n\nTrabajar con quien conoce el terreno —literalmente— ahorra meses de vueltas. El camino de campamento a propietario existe; solo hace falta quien te abra la puerta.\n\n— Leey",
+      "bodyEn": "**The opportunity most buyers miss**\n\nSummer heat is moving inventory fast in Valdosta, Thomasville, Camilla, and Blackshear. What most don't know: Georgia Dream covers up to $10,000 of your down payment and USDA loans finance 100% in eligible rural areas of South Georgia. {{figure:0}}\n\n**Inspection, termites, and humidity: what you can't see**\n\nIn South Georgia, **inspection** isn't optional. Humidity and termites turn the invisible into expensive repairs if you don't have someone who knows where to look. {{figure:1}}\n\n**Lock & Key Realty: your key in hand**\n\nWorking with someone who knows the terrain — literally — saves months of runaround. The path from trailer park to homeowner exists; you just need someone to it.\n\n— Leey"
+    },
     {
       "slug": "mudarse-florida-sur-georgia-ahorro-impuestos-seguros-2026-08-25",
       "date": "2026-08-25",
