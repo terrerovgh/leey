@@ -56,12 +56,8 @@ ok() {
 # 1) Hermes crons present and active
 EXPECTED_CRONS=(
   leey-daily-listings
-  leey-blog-research
-  leey-blog-topic
-  leey-blog-image-search
-  leey-blog-image-download
-  leey-blog-writer
-  leey-blog-editor
+  leey-blog-pool
+  leey-blog-review
   leey-blog-publish
   leey-blog-health
 )
@@ -106,6 +102,35 @@ if [[ -n "$LATEST_POST_DATE" ]]; then
   else
     fail "pipeline PUBLISHED.json missing for $LATEST_POST_DATE"
   fi
+fi
+
+# 3b) Ready-post pool has reviewed posts available
+POOL_JSON=$(python3 - <<'PY'
+import json
+from pathlib import Path
+try:
+    q = json.loads(Path("data/blog/queue.json").read_text(encoding="utf-8"))
+    reviewed = len([p for p in q.get("posts", []) if p.get("status") == "reviewed"])
+    ready = len([p for p in q.get("posts", []) if p.get("status") == "ready"])
+    target = q.get("target", 10)
+    print(f"{reviewed}|{ready}|{target}")
+except Exception:
+    print("0|0|10")
+PY
+)
+REVIEWED_COUNT=${POOL_JSON%%|*}
+REST=${POOL_JSON#*|}
+READY_COUNT=${REST%%|*}
+TARGET=${REST#*|}
+if [[ "$REVIEWED_COUNT" -ge 1 ]]; then
+  ok "pool has $REVIEWED_COUNT reviewed post(s) ready to publish"
+else
+  warn "pool has no reviewed posts ($READY_COUNT ready, target $TARGET)"
+fi
+if [[ "$((REVIEWED_COUNT + READY_COUNT))" -ge "$((TARGET / 2))" ]]; then
+  ok "pool size $((REVIEWED_COUNT + READY_COUNT)) >= half target ($TARGET)"
+else
+  fail "pool size $((REVIEWED_COUNT + READY_COUNT)) below half target ($TARGET)"
 fi
 
 # 4) Listings feed fresh (< 48h)

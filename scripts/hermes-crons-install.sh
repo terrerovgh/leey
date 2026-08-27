@@ -20,12 +20,8 @@ HERMES_SCRIPTS="${HOME}/.hermes/scripts"
 
 # Hermes cron schedule is interpreted in the host's local timezone (ET on this machine).
 # Keep the ET hours documented in BLOG.md.
-SCHED_RESEARCH="0 21 * * *"
-SCHED_TOPIC="20 21 * * *"
-SCHED_IMG_SEARCH="30 21 * * *"
-SCHED_IMG_DOWNLOAD="45 21 * * *"
-SCHED_WRITE="10 22 * * *"
-SCHED_EDITOR="40 22 * * *"
+SCHED_POOL="0 21 * * *"
+SCHED_REVIEW="0 23 * * *"
 SCHED_PUBLISH="0 7 * * *"
 SCHED_LISTINGS="0 7 * * *"
 SCHED_HEALTH="30 7 * * *"
@@ -104,47 +100,24 @@ create_noagent_cron \
   "leey-daily-listings-update.sh"
 
 # Blog phase agents
+# Pool + review maintain a rolling queue of >=10 ready/reviewed posts.
 create_agent_cron \
-  "leey-blog-research" \
-  "$SCHED_RESEARCH" \
-  "leey-blog-01-research.sh" \
-  "You are the leey-blog-research specialized bot. Run only the research phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
+  "leey-blog-pool" \
+  "$SCHED_POOL" \
+  "leey-blog-08-pool.sh" \
+  "You are the leey-blog-pool specialized bot. Generate up to 3 new blog posts to keep the Leey Realty ready-post pool near 10 items. Do not publish. Report STATUS OK/FAIL and the final pool count."
 
 create_agent_cron \
-  "leey-blog-topic" \
-  "$SCHED_TOPIC" \
-  "leey-blog-02-topic.sh" \
-  "You are the leey-blog-topic specialized bot. Run only the topic selection phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
-
-create_agent_cron \
-  "leey-blog-image-search" \
-  "$SCHED_IMG_SEARCH" \
-  "leey-blog-03a-image-search.sh" \
-  "You are the leey-blog-image-search specialized bot. Run only the image-search phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
-
-create_agent_cron \
-  "leey-blog-image-download" \
-  "$SCHED_IMG_DOWNLOAD" \
-  "leey-blog-03b-image-download.sh" \
-  "You are the leey-blog-image-download specialized bot. Run only the image-download phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
-
-create_agent_cron \
-  "leey-blog-writer" \
-  "$SCHED_WRITE" \
-  "leey-blog-04-write.sh" \
-  "You are the leey-blog-writer specialized bot. Run only the write phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
-
-create_agent_cron \
-  "leey-blog-editor" \
-  "$SCHED_EDITOR" \
-  "leey-blog-05-editor.sh" \
-  "You are the leey-blog-editor specialized bot. Run only the editor/polish phase for tomorrow's Leey Realty blog post. Do not cascade into other phases. Report STATUS OK/FAIL."
+  "leey-blog-review" \
+  "$SCHED_REVIEW" \
+  "leey-blog-07-review.sh" \
+  "You are the leey-blog-review specialized bot. Review all ready posts in the Leey Realty blog queue. Approve quality posts (REVIEWED.json) and discard posts that do not meet Leey's standards. Report STATUS OK/FAIL."
 
 create_agent_cron \
   "leey-blog-publish" \
   "$SCHED_PUBLISH" \
   "leey-blog-06-publish.sh" \
-  "You are the leey-blog-publish specialized bot. Publish today's ready Leey Realty blog post. If READY.json is missing you may run catch-up, otherwise publish only. Report STATUS OK/FAIL."
+  "You are the leey-blog-publish specialized bot. Publish the oldest reviewed post from the Leey Realty blog queue. If the queue is empty you may run catch-up, otherwise publish only. Report STATUS OK/FAIL."
 
 # Daily health report (no LLM)
 create_noagent_cron \

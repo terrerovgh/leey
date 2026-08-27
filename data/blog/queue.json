@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-27T16:29:14.613146+00:00",
+  "target": 10,
+  "posts": [
+    {
+      "slug": "yard-weekend-2026-08-27",
+      "date": "2026-08-27",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991798+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "termite-south-ga-2026-08-26",
+      "date": "2026-08-26",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991808+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "mudarse-florida-sur-georgia-ahorro-impuestos-seguros-2026-08-25",
+      "date": "2026-08-25",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991810+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "valdosta-hahira-adel-donde-empezar",
+      "date": "2026-08-17",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991812+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "oferta-sin-prisa-valdosta",
+      "date": "2026-08-16",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991814+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "porche-sur-georgia-primeras-impresiones",
+      "date": "2026-08-15",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991816+00:00",
+      "reviewedAt": null
+    },
+    {
+      "slug": "cocina-sin-tirar-paredes",
+      "date": "2026-08-14",
+      "topicId": null,
+      "status": "published",
+      "score": null,
+      "path": null,
+      "addedAt": "2026-08-27T15:41:42.991817+00:00",
+      "reviewedAt": null
+    }
+  ]
+}

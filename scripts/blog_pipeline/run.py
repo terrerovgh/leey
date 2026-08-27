@@ -40,9 +40,16 @@ from typing import Any
 ROOT = Path(os.environ.get("LEEY_ROOT", Path(__file__).resolve().parents[2]))
 POSTS_PATH = ROOT / "public/data/blog/posts.json"
 TOPICS_PATH = ROOT / "data/blog/topics.json"
+QUEUE_PATH = ROOT / "data/blog/queue.json"
 WORK_ROOT = ROOT / "data/blog/pipeline"
 ASSETS_PUB = ROOT / "public/assets/blog"
 UA = "LeeyBlogPipeline/2.0 (+https://leeyrealty.com; free-edu-use)"
+
+# Omni-route model tiers. Decision agents get strong models first; creative/vision
+# fall back to free/local so the pipeline never fully blocks.
+MODELS_DECISION = ["openrouter/claude-sonnet-4", "openrouter/gpt-4o", "openrouter/free"]
+MODELS_CREATIVE = ["openrouter/gpt-4o-mini", "openrouter/gemma-2-9b-it", "openrouter/free"]
+MODELS_VISION = ["openrouter/gpt-4o-mini", "openrouter/claude-sonnet-4", "openrouter/free"]
 
 SOUTH_GA = [
     "Valdosta",
@@ -100,6 +107,125 @@ def load_json(path: Path, default: Any = None) -> Any:
     if not path.exists():
         return default
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+class QueueManager:
+    """Central ready-post pool for the blog pipeline.
+
+    Keeps >=TARGET reviewed posts ready for the morning publish agent.
+    Posts move through: drafting -> ready -> reviewed -> published|discarded.
+    """
+
+    def __init__(self, path: Path = QUEUE_PATH, target: int = 10):
+        self.path = path
+        self.target = target
+        self.data = self._load()
+
+    def _load(self) -> dict:
+        default = {
+            "version": 1,
+            "updatedAt": utc_now(),
+            "target": self.target,
+            "posts": [],
+        }
+        data = load_json(self.path, default)
+        data.setdefault("posts", [])
+        data.setdefault("target", self.target)
+        return data
+
+    def save(self) -> None:
+        self.data["updatedAt"] = utc_now()
+        save_json(self.path, self.data)
+
+    def list_posts(self, status: str | None = None) -> list[dict]:
+        posts = self.data.get("posts", [])
+        if status:
+            return [p for p in posts if p.get("status") == status]
+        return posts
+
+    def topics_in_use(self) -> set[str]:
+        """Topics currently in the active pool or recently published."""
+        used: set[str] = set()
+        for p in self.data.get("posts", []):
+            tid = p.get("topicId")
+            if tid:
+                used.add(tid)
+        # Also consider the last 14 days of published posts from the public feed
+        for post in load_json(POSTS_PATH, {"posts": []}).get("posts", [])[:30]:
+            tid = (post.get("pipeline") or {}).get("topicId")
+            if tid:
+                used.add(tid)
+        return used
+
+    def slugs_in_use(self) -> set[str]:
+        return {p.get("slug") for p in self.data.get("posts", []) if p.get("slug")}
+
+    def add(self, post: dict, topic_id: str, workdir_path: Path, status: str = "ready") -> dict:
+        entry = {
+            "slug": post.get("slug"),
+            "date": post.get("date"),
+            "topicId": topic_id,
+            "status": status,
+            "score": post.get("review", {}).get("score") if status == "reviewed" else None,
+            "path": str(workdir_path.relative_to(ROOT)),
+            "addedAt": utc_now(),
+            "reviewedAt": post.get("review", {}).get("at") if status == "reviewed" else None,
+        }
+        self.data["posts"].append(entry)
+        self.save()
+        return entry
+
+    def find(self, slug: str) -> dict | None:
+        for p in self.data.get("posts", []):
+            if p.get("slug") == slug:
+                return p
+        return None
+
+    def update(self, slug: str, updates: dict) -> dict | None:
+        post = self.find(slug)
+        if not post:
+            return None
+        post.update(updates)
+        self.save()
+        return post
+
+    def pop_for_publish(self) -> dict | None:
+        """Return the oldest reviewed post and remove it from the active pool."""
+        reviewed = [p for p in self.data.get("posts", []) if p.get("status") == "reviewed"]
+        if not reviewed:
+            return None
+        reviewed.sort(key=lambda p: p.get("reviewedAt") or p.get("addedAt") or "")
+        chosen = reviewed[0]
+        self.data["posts"] = [p for p in self.data.get("posts", []) if p.get("slug") != chosen.get("slug")]
+        self.save()
+        return chosen
+
+    def mark_reviewed(self, slug: str, review: dict) -> dict | None:
+        return self.update(
+            slug,
+            {
+                "status": "reviewed",
+                "score": review.get("score"),
+                "review": review,
+                "reviewedAt": utc_now(),
+            },
+        )
+
+    def mark_discarded(self, slug: str, reason: str) -> dict | None:
+        return self.update(
+            slug,
+            {
+                "status": "discarded",
+                "discardReason": reason,
+                "discardedAt": utc_now(),
+            },
+        )
+
+    def reviewed_count(self) -> int:
+        return len(self.list_posts("reviewed"))
+
+    def active_count(self) -> int:
+        return len([p for p in self.data.get("posts", []) if p.get("status") in ("ready", "reviewed")])
 
 
 def http_get(url: str, timeout: int = 40, retries: int = 3) -> bytes:
@@ -208,7 +334,13 @@ def extract_json_obj(text: str) -> dict | None:
             try:
                 obj = json.loads(attempt)
                 if isinstance(obj, dict) and (
-                    "bodyEs" in obj or "titleEs" in obj or "headline_angle" in obj or "title" in obj
+                    "bodyEs" in obj
+                    or "titleEs" in obj
+                    or "headline_angle" in obj
+                    or "title" in obj
+                    or "approve" in obj
+                    or "match" in obj
+                    or "score" in obj
                 ):
                     return obj
             except Exception:
@@ -297,7 +429,7 @@ def validate_post(final: dict) -> dict[str, bool]:
 
 # ── Stage 1: Research ─────────────────────────────────────────────────────
 
-def stage_research(day: str, force: bool = False) -> dict:
+def stage_research(day: str, force: bool = False, models: list[str] | None = None) -> dict:
     wd = workdir(day)
     out_path = wd / "research.json"
     if out_path.exists() and not force:
@@ -394,6 +526,7 @@ Output ONLY a valid JSON object without markdown fences:
         max_rounds=3,
         wd=wd,
         tag="research",
+        models=models or MODELS_DECISION,
     ) or {}
     if not synth:
         append_log(wd, "research.synth_fallback", True)
@@ -436,6 +569,7 @@ def stage_topic(
     research: dict,
     force: bool = False,
     topic_id: str | None = None,
+    queue: QueueManager | None = None,
 ) -> dict:
     wd = workdir(day)
     out_path = wd / "topic.json"
@@ -445,7 +579,8 @@ def stage_topic(
 
     topics = load_json(TOPICS_PATH, [])
     posts = load_json(POSTS_PATH, {"posts": []}).get("posts") or []
-    used = " ".join(json.dumps(p, ensure_ascii=False) for p in posts).lower()
+    used_text = " ".join(json.dumps(p, ensure_ascii=False) for p in posts).lower()
+    queue_used = (queue or QueueManager()).topics_in_use()
 
     base = None
     if topic_id:
@@ -459,10 +594,14 @@ def stage_topic(
     else:
         scored = []
         for t in topics:
-            score = sum(1 for p in posts if t["id"] in json.dumps(p, ensure_ascii=False))
+            tid = t["id"]
+            score = sum(1 for p in posts if tid in json.dumps(p, ensure_ascii=False))
             key = t["angleEs"].split(":")[0].lower()
-            if key in used:
+            if key in used_text:
                 score += 2
+            # strongly avoid topics already in the ready pool
+            if tid in queue_used:
+                score += 10
             # season boost
             season = (research.get("season") or "").lower()
             blob = (t["angleEs"] + t["angleEn"] + t["category"]).lower()
@@ -474,6 +613,8 @@ def stage_topic(
                 score -= 1
             scored.append((score, t))
         scored.sort(key=lambda x: (x[0], x[1]["id"]))
+        if not scored:
+            raise SystemExit("[topic] no topics available")
         base = scored[0][1]
 
     synth = research.get("synth") or {}
@@ -688,15 +829,16 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
         return False, "metadata non-porch"
 
     prompt = (
-        "Photo QA for real-estate blog. "
-        f"Topic={brief['label']}. MUST show: {brief['must_show']}. "
-        f"Reject if: {brief['reject_if']}. "
-        f"Title: {(candidate or {}).get('title') or 'unknown'}. "
-        'Reply ONLY JSON: {"match":true|false,"what_you_see":"...","reason":"..."}'
+        "Eres un QA visual para fotos de un blog inmobiliario en South Georgia. "
+        f"Tema='{brief['label']}'. DEBE mostrar: {brief['must_show']}. "
+        f"Rechazar si: {brief['reject_if']}. "
+        f"Título de la foto: {(candidate or {}).get('title') or 'unknown'}. "
+        "Responde EXACTAMENTE este JSON compacto y nada más: "
+        '{"match":true,"reason":"una frase corta"} o {"match":false,"reason":"una frase corta"}'
     )
 
-    # One fast vision attempt, then one fallback. Short timeouts.
-    models = ["openrouter/free"]
+    # Vision models: strong first for gate decisions, then free fallback.
+    models = list(MODELS_VISION)
     for model in models:
         try:
             r = subprocess.run(
@@ -708,17 +850,15 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
                 ],
                 capture_output=True,
                 text=True,
-                timeout=55,
+                timeout=35,
                 cwd=str(ROOT),
             )
             out = ((r.stdout or "") + "\n" + (r.stderr or "")).strip()
-            # Prefer stdout body if present
             body = (r.stdout or "").strip() or out
             if r.returncode != 0 or len(body) < 8:
-                log(f"[vision] weak model={model} code={r.returncode} chars={len(body)} err={(r.stderr or '')[:120]}")
+                log(f"[vision] weak model={model} code={r.returncode} chars={len(body)}")
                 continue
             out = body
-            # Strip cli headers/warnings
             cleaned_out = re.sub(r"Warning:[^\n]*\n", "", out)
             cleaned_out = re.sub(r"session_id:[^\n]*\n", "", cleaned_out).strip()
             obj = extract_json_obj(cleaned_out) or extract_json_obj(out)
@@ -729,6 +869,13 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
                         obj = json.loads(m.group(0))
                     except Exception:
                         obj = None
+            # Allow Spanish approval/rejection keywords as fallback
+            if not obj:
+                text_l = cleaned_out.lower()
+                if any(k in text_l for k in ("rechazada", "rechazado", "no apta", "no es adecuada", "no adecuada")):
+                    obj = {"match": False, "reason": cleaned_out[:120]}
+                elif any(k in text_l for k in ("aprobada", "aprobado", "apta", "adecuada", "perfecta")):
+                    obj = {"match": True, "reason": cleaned_out[:120]}
             if not obj:
                 log(f"[vision] unparsed model={model}: {out[:140]}")
                 continue
@@ -943,6 +1090,113 @@ def openverse_search(query: str, limit: int = 5) -> list[dict]:
             "page": r.get("foreign_landing_url") or r.get("detail_url") or "",
             "date": str(r.get("created_on") or r.get("date") or ""),
             "description": f"{r.get('description') or ''} {tags}"[:240],
+        }
+        if looks_archival_or_old(cand):
+            continue
+        out.append(cand)
+    return out
+
+
+def _image_search_key(query: str) -> str:
+    return hashlib.sha1(query.lower().strip().encode()).hexdigest()[:16]
+
+
+def _image_search_cache() -> dict:
+    path = WORK_ROOT / ".image_cache.json"
+    data = load_json(path, {"version": 1, "entries": {}})
+    return data if isinstance(data, dict) else {"version": 1, "entries": {}}
+
+
+def _image_search_cache_save(data: dict) -> None:
+    path = WORK_ROOT / ".image_cache.json"
+    data["updatedAt"] = utc_now()
+    save_json(path, data)
+
+
+def _image_cache_get(query: str, ttl_days: int = 7) -> list[dict] | None:
+    cache = _image_search_cache()
+    key = _image_search_key(query)
+    entry = cache.get("entries", {}).get(key)
+    if not entry:
+        return None
+    try:
+        cached_at = datetime.fromisoformat(entry.get("at", "1970-01-01")).replace(tzinfo=timezone.utc)
+        if (datetime.now(timezone.utc) - cached_at).days > ttl_days:
+            return None
+    except Exception:
+        return None
+    return entry.get("candidates")
+
+
+def _image_cache_set(query: str, candidates: list[dict]) -> None:
+    cache = _image_search_cache()
+    cache.setdefault("entries", {})
+    cache["entries"][_image_search_key(query)] = {"at": utc_now(), "candidates": candidates}
+    _image_search_cache_save(cache)
+
+
+def pexels_search(query: str, limit: int = 5) -> list[dict]:
+    key = os.environ.get("PEXELS_API_KEY", "").strip()
+    if not key:
+        return []
+    url = "https://api.pexels.com/v1/search?" + urllib.parse.urlencode(
+        {"query": query, "per_page": str(limit), "orientation": "all"}
+    )
+    try:
+        req = urllib.request.Request(url, headers={"Authorization": key, "User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.loads(r.read().decode("utf-8", "replace"))
+    except Exception as e:
+        log(f"[assets] pexels fail: {e}")
+        return []
+    out = []
+    for photo in data.get("photos") or []:
+        src = photo.get("src") or {}
+        cand = {
+            "url": src.get("large") or src.get("medium") or src.get("original"),
+            "full": src.get("original"),
+            "title": photo.get("alt") or query,
+            "license": "Pexels License (free use)",
+            "artist": (photo.get("photographer") or "Pexels")[:120],
+            "source": "pexels",
+            "page": photo.get("url") or "",
+            "date": "",
+            "description": photo.get("alt") or query,
+        }
+        if looks_archival_or_old(cand):
+            continue
+        out.append(cand)
+    return out
+
+
+def unsplash_search(query: str, limit: int = 5) -> list[dict]:
+    key = os.environ.get("UNSPLASH_ACCESS_KEY", "").strip()
+    if not key:
+        return []
+    url = "https://api.unsplash.com/search/photos?" + urllib.parse.urlencode(
+        {"query": query, "per_page": str(limit)}
+    )
+    try:
+        req = urllib.request.Request(url, headers={"Authorization": f"Client-ID {key}", "User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.loads(r.read().decode("utf-8", "replace"))
+    except Exception as e:
+        log(f"[assets] unsplash fail: {e}")
+        return []
+    out = []
+    for r in data.get("results") or []:
+        urls = r.get("urls") or {}
+        user = r.get("user") or {}
+        cand = {
+            "url": urls.get("regular") or urls.get("small") or urls.get("raw"),
+            "full": urls.get("raw") or urls.get("full"),
+            "title": r.get("alt_description") or r.get("description") or query,
+            "license": "Unsplash License (free use)",
+            "artist": (user.get("name") or "Unsplash")[:120],
+            "source": "unsplash",
+            "page": r.get("links", {}).get("html") or "",
+            "date": "",
+            "description": r.get("alt_description") or r.get("description") or query,
         }
         if looks_archival_or_old(cand):
             continue
@@ -1212,25 +1466,50 @@ def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> lis
                 f"downtown {a} Georgia",
             ])
         queries = list(dict.fromkeys(place_q + queries))[:16]
+
     candidates: list[dict] = []
-    # Query Openverse first (high quality modern CC photos), then Wikimedia
+    use_pexels = bool(os.environ.get("PEXELS_API_KEY", "").strip())
+    use_unsplash = bool(os.environ.get("UNSPLASH_ACCESS_KEY", "").strip())
+
     for q in queries:
+        cached = _image_cache_get(q)
+        if cached is not None:
+            log(f"[assets] image cache hit {q[:40]}")
+            candidates.extend(cached)
+            if len(candidates) >= 100:
+                break
+            continue
+
+        batch: list[dict] = []
         for attempt in range(1, 3):
             try:
-                candidates.extend(openverse_search(q, limit=8))
+                batch.extend(openverse_search(q, limit=8))
                 break
             except Exception as e:
                 log(f"[assets] openverse fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
         for attempt in range(1, 3):
             try:
-                candidates.extend(wikimedia_search(q, limit=6))
+                batch.extend(wikimedia_search(q, limit=6))
                 break
             except Exception as e:
                 log(f"[assets] wiki fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
+        if use_pexels:
+            try:
+                batch.extend(pexels_search(q, limit=5))
+            except Exception as e:
+                log(f"[assets] pexels fail {q}: {e}")
+        if use_unsplash:
+            try:
+                batch.extend(unsplash_search(q, limit=5))
+            except Exception as e:
+                log(f"[assets] unsplash fail {q}: {e}")
+
+        _image_cache_set(q, batch)
+        candidates.extend(batch)
         time.sleep(0.2)
-        if len(candidates) >= 50:
+        if len(candidates) >= 100:
             break
     return candidates
 
@@ -1244,7 +1523,7 @@ def stage_image_search(day: str, topic: dict, force: bool = False) -> dict:
         return load_json(out_path)
 
     queries = build_image_queries(topic)
-    listing = listing_image_candidates(topic, limit=30)
+    listing = listing_image_candidates(topic, limit=40)
     web = collect_web_candidates(topic, queries)
 
     scored: list[tuple[float, dict]] = []
@@ -1263,7 +1542,7 @@ def stage_image_search(day: str, topic: dict, force: bool = False) -> dict:
             continue
         seen.add(u)
         pool.append(c)
-        if len(pool) >= 40:
+        if len(pool) >= 60:
             break
 
     payload = {
@@ -1393,15 +1672,20 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
             ok = download_image(full, dest_work, seen_hashes=seen_hashes, require_color=True)
         if not ok:
             return False
-        # Examine pixels/content before accepting
+            # Examine pixels/content before accepting
         vision_ok, vision_reason = examine_image_for_topic(dest_work, topic, c)
         if not vision_ok:
             log(f"[vision] reject {dest_work.name}: {vision_reason[:120]}")
+            # Remove hash so a rejected image can be reconsidered for another topic
+            try:
+                h = hashlib.sha1(dest_work.read_bytes()).hexdigest()
+                seen_hashes.discard(h)
+            except Exception:
+                pass
             try:
                 dest_work.unlink(missing_ok=True)
             except Exception:
                 pass
-            # allow hash reuse later for other topics? remove hash if we added
             return False
         shutil.copy2(dest_work, dest_pub)
         compress_image_file(dest_pub)
@@ -1424,24 +1708,28 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         )
         return True
 
+    TARGET_MIN = 3
+    TARGET_IDEAL = 5
+    TARGET_MAX = 6
+
     # For porch/kitchen, walk full sorted pool (metadata-first). Else listings first.
     if strict and brief.get("label") in ("porch", "kitchen"):
         for c in pool:
             try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= 2:
+            if len(saved) >= TARGET_IDEAL:
                 break
     else:
         for c in [x for x in pool if x.get("source") == "listing"]:
             try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= 2:
+            if len(saved) >= TARGET_IDEAL:
                 break
-        if len(saved) < 2:
+        if len(saved) < TARGET_MIN:
             for c in [x for x in pool if x.get("source") != "listing"]:
                 try_save(c, f"{topic.get('id') or 'img'}")
-                if len(saved) >= 2:
+                if len(saved) >= TARGET_MAX:
                     break
 
-    if len(saved) < 2:
+    if len(saved) < TARGET_MIN:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
         for q in [
             "modern suburban house exterior United States color",
@@ -1462,18 +1750,18 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
                         continue
                     c = {**c, "_score": s}
                     try_save(c, f"{topic.get('id') or 'img'}-b")
-                    if len(saved) >= 4:
+                    if len(saved) >= TARGET_MAX:
                         break
             except Exception as e:
                 log(f"[assets] broad fail {q}: {e}")
-            if len(saved) >= 4:
+            if len(saved) >= TARGET_MAX:
                 break
 
-    if len(saved) < 1:
+    if len(saved) < TARGET_MIN:
         for c in listing_image_candidates(topic, limit=40):
             c = {**c, "_score": relevance_score(c, topic)}
             try_save(c, f"{topic.get('id') or 'img'}-L")
-            if len(saved) >= 3:
+            if len(saved) >= TARGET_IDEAL:
                 break
 
     chart_rel = None
@@ -1610,6 +1898,7 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```js
         max_rounds=3,
         wd=wd,
         tag="write",
+        models=MODELS_CREATIVE,
     )
     used_fallback = False
     if not core:
@@ -1680,6 +1969,7 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```js
             for im in imgs
         ],
         "pipeline": {
+            "topicId": topic.get("id"),
             "research": True,
             "assets": len(imgs),
             "model": "template" if used_fallback else "free-then-local",
@@ -1850,6 +2140,7 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto con la misma estructura (sin blo
         max_rounds=2,
         wd=wd,
         tag="polish",
+        models=MODELS_CREATIVE,
     )
     if polished:
         for k in (
@@ -1948,7 +2239,7 @@ Post actual:
             max_rounds=2,
             wd=wd,
             tag=f"repair{repair}",
-            models=["openrouter/free", "hermes-orchestrator"],
+            models=MODELS_CREATIVE,
         )
         if fixed:
             for k in (
@@ -2016,6 +2307,128 @@ Post actual:
     return final
 
 
+# ── Stage 5.5: Pre-publish review/decision agent ───────────────────────────
+
+REVIEW_MIN_SCORE = 60
+
+
+def stage_review(day: str, force: bool = False, queue: QueueManager | None = None) -> dict | None:
+    """Decision agent: approve, request fixes, or discard a polished post.
+
+    Writes REVIEWED.json on approve, DISCARDED.json on discard.
+    """
+    wd = workdir(day)
+    reviewed_path = wd / "REVIEWED.json"
+    discarded_path = wd / "DISCARDED.json"
+    if not force and reviewed_path.exists():
+        log("[review] reuse existing REVIEWED")
+        return load_json(reviewed_path)
+    if not force and discarded_path.exists():
+        log("[review] already discarded")
+        return None
+
+    final = load_json(wd / "final.json")
+    if not final:
+        log("[review] no final.json")
+        return None
+
+    checks = final.get("validation") or validate_post(final)
+    hard_ok = all(checks.get(k) for k in [
+        "has_cover", "has_body_es", "has_body_en", "has_title_es",
+        "has_title_en", "figures_match_markers",
+    ])
+    if not hard_ok:
+        save_json(discarded_path, {
+            "date": day,
+            "slug": final.get("slug"),
+            "approved": False,
+            "score": 0,
+            "reason": f"hard validation failed: {[k for k, ok in checks.items() if not ok]}",
+            "at": utc_now(),
+        })
+        log(f"[review] DISCARD hard validation fail: {checks}")
+        if queue:
+            queue.mark_discarded(final.get("slug"), "hard validation failed")
+        return None
+
+    prompt = f"""Eres el editor final de calidad del blog de Leyanis "Leey" Hernandez, agente de bienes raíces en South Georgia.
+Revisa el siguiente post bilingüe y decide si está listo para publicar mañana.
+
+Criterios (sé exigente):
+1. Voz: ¿suena a Leey, cercano, sin clichés de IA, sin frases genéricas?
+2. Local: ¿menciona lugares reales de South Georgia (Valdosta, Lowndes County, Hahira, Adel, etc.)?
+3. Utilidad: ¿el lector aprende algo concreto que lo ayude a comprar/vender/mudarse?
+4. SEO: título < 55 caracteres, meta descripción 120-150 caracteres, tags relevantes.
+5. Estructura: bodyEs y bodyEn > 400 caracteres, tienen marcador {{figure:0}} y firma "— Leey".
+6. Imágenes: cover y figures presentes, atribución clara.
+7. Originalidad: no repite el mismo ángulo de posts recientes.
+
+Devuelve ÚNICAMENTE un objeto JSON compacto sin bloques markdown:
+{{
+  "approve": true,
+  "score": 87,
+  "concerns": ["breve preocupación si aplica"],
+  "fixes": ["acción concreta si aplica, o lista vacía"],
+  "reason": "una oración justificando la decisión"
+}}
+
+approve=true solo si score >= 70 y no hay concerns bloqueadores.
+
+Post a revisar:
+{json.dumps({k: final.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','category','areas']}, ensure_ascii=False)[:8000]}
+"""
+    review = llm_json(
+        prompt,
+        required_any=["approve", "score"],
+        max_rounds=2,
+        wd=wd,
+        tag="review",
+        models=MODELS_DECISION,
+    ) or {"approve": False, "score": 0, "reason": "review LLM unavailable"}
+
+    score = int(review.get("score") or 0)
+    approve = bool(review.get("approve")) and score >= REVIEW_MIN_SCORE
+    concerns = review.get("concerns") or []
+    fixes = review.get("fixes") or []
+
+    if approve:
+        reviewed = {
+            "date": day,
+            "slug": final.get("slug"),
+            "approved": True,
+            "score": score,
+            "concerns": concerns,
+            "fixes": fixes,
+            "reason": review.get("reason", ""),
+            "at": utc_now(),
+        }
+        save_json(reviewed_path, reviewed)
+        final.setdefault("review", reviewed)
+        save_json(wd / "final.json", final)
+        if queue:
+            queue.mark_reviewed(final.get("slug"), reviewed)
+        log(f"[review] APPROVED {final.get('slug')} score={score}")
+        append_log(wd, "review.approved", reviewed)
+        return reviewed
+
+    discarded = {
+        "date": day,
+        "slug": final.get("slug"),
+        "approved": False,
+        "score": score,
+        "concerns": concerns,
+        "fixes": fixes,
+        "reason": review.get("reason", ""),
+        "at": utc_now(),
+    }
+    save_json(discarded_path, discarded)
+    if queue:
+        queue.mark_discarded(final.get("slug"), review.get("reason", "review rejected"))
+    log(f"[review] DISCARDED {final.get('slug')} score={score} reason={review.get('reason', '')}")
+    append_log(wd, "review.discarded", discarded)
+    return None
+
+
 # ── CMS live feed (Cloudflare Worker KV) ───────────────────────────────────
 
 def push_post_to_cms(post: dict, replace_by_date: bool = True) -> bool:
@@ -2071,17 +2484,42 @@ def stage_publish(
     replace: bool = False,
     preserve_slug: str | None = None,
     no_ship: bool = False,
+    queue: QueueManager | None = None,
 ) -> int:
+    """Publish one reviewed post for `day`.
+
+    Priority:
+      1. Use `final` if passed explicitly (legacy/direct mode).
+      2. Pop the oldest reviewed post from the ready queue.
+      3. Fallback to WORK_ROOT/<day>/final.json (legacy catch-up).
+    """
+    queue = queue or QueueManager()
     wd = workdir(day)
-    final = final or load_json(wd / "final.json")
+    source_day = day
+
+    if final:
+        log(f"[publish] explicit final provided for {day}")
+    else:
+        queued = queue.pop_for_publish()
+        if queued:
+            source_day = queued.get("date") or day
+            wd = workdir(source_day)
+            final = load_json(wd / "final.json")
+            log(f"[publish] popped from queue: {queued.get('slug')} (source {source_day})")
+            if not final:
+                log(f"[publish] queued post missing final.json — falling back to legacy")
+                final = None
+        if not final:
+            final = load_json(wd / "final.json")
+            log("[publish] fallback to legacy final.json")
+
     if not final:
         log("[publish] no final.json — attempting late prep")
-        # last chance: run missing stages
-        research = load_json(wd / "research.json") or stage_research(day, force=True)
-        topic = load_json(wd / "topic.json") or stage_topic(day, research, force=True)
-        assets = load_json(wd / "assets.json") or stage_assets(day, topic, force=True)
-        draft = load_json(wd / "draft.json") or stage_write(day, research, topic, assets, force=True)
-        final = stage_polish(day, draft, force=True)
+        research = load_json(wd / "research.json") or stage_research(source_day, force=True)
+        topic = load_json(wd / "topic.json") or stage_topic(source_day, research, force=True, queue=queue)
+        assets = load_json(wd / "assets.json") or stage_assets(source_day, topic, force=True)
+        draft = load_json(wd / "draft.json") or stage_write(source_day, research, topic, assets, force=True)
+        final = stage_polish(source_day, draft, force=True)
         if not final:
             log("[publish] still no final — abort")
             return 2
@@ -2092,10 +2530,9 @@ def stage_publish(
         log(f"[publish] preflight validation fail {checks} — repair polish")
         append_log(wd, "publish.preflight_repair", checks)
         draft = load_json(wd / "draft.json") or final
-        final = stage_polish(day, draft, force=True)
+        final = stage_polish(source_day, draft, force=True)
         checks = final.get("validation") or validate_post(final)
         if not all(checks.values()):
-            # hard requirements only
             hard = [
                 "has_cover",
                 "has_body_es",
@@ -2110,9 +2547,22 @@ def stage_publish(
                 return 4
             log("[publish] soft validation warnings only — publishing anyway")
 
+    # Require review approval unless explicit final was passed (manual override)
+    if not preserve_slug and not (final.get("review") or {}).get("approved"):
+        reviewed = load_json(wd / "REVIEWED.json")
+        if reviewed and reviewed.get("approved"):
+            final.setdefault("review", reviewed)
+        else:
+            log("[publish] post not reviewed/approved — running review now")
+            reviewed = stage_review(source_day, force=True, queue=queue)
+            if not reviewed:
+                log("[publish] review rejected or failed — abort")
+                return 5
+            final = load_json(wd / "final.json")
+            checks = final.get("validation") or validate_post(final)
+
     posts_data = load_json(POSTS_PATH, {"version": 1, "posts": []})
     posts = posts_data.get("posts") or []
-    # skip if date exists (unless replace)
     if any(p.get("date") == day for p in posts):
         if replace:
             before = len(posts)
@@ -2122,14 +2572,13 @@ def stage_publish(
         else:
             log(f"[publish] already published for {day}")
             return 0
-    # unique slug — prefer preserved slug on rewrite
+
     slug = preserve_slug or final.get("slug") or f"note-{day}"
     slug = slugify(str(slug))
     existing = {p.get("slug") for p in posts}
     if slug in existing and not replace:
         slug = f"{slug}-{day[5:].replace('-', '')}"
     elif slug in existing and replace:
-        # still unique among remaining
         if slug in existing:
             slug = f"{slug}-r{day[8:]}"
     final["slug"] = slug
@@ -2154,6 +2603,11 @@ def stage_publish(
         "excerptEn": final.get("excerptEn"),
         "bodyEs": final.get("bodyEs"),
         "bodyEn": final.get("bodyEn"),
+        "pipeline": {
+            "topicId": (final.get("pipeline") or {}).get("topicId") or final.get("topicId"),
+            "reviewScore": (final.get("review") or {}).get("score"),
+            "sourceDay": source_day,
+        },
     }
     posts.append(post)
     posts.sort(key=lambda p: p.get("date") or "", reverse=True)
@@ -2169,8 +2623,6 @@ def stage_publish(
     save_json(POSTS_PATH, posts_data)
     log(f"[publish] wrote posts.json (+{slug})")
 
-    # Push live CMS (Cloudflare KV) so /data/blog/posts.json serves the new post
-    # without waiting for the next human seed. Soft-fail: git/ship still proceed.
     try:
         cms_ok = push_post_to_cms(post, replace_by_date=True)
         log(f"[publish] cms_upsert={'ok' if cms_ok else 'skipped_or_fail'}")
@@ -2228,12 +2680,106 @@ def stage_publish(
     return 0
 
 
+def next_available_day(start_day: str, queue: QueueManager, max_days: int = 30) -> str | None:
+    """Find the next calendar day >= start_day that is not in the queue and has no workdir."""
+    start = datetime.strptime(start_day, "%Y-%m-%d").date()
+    for offset in range(max_days):
+        d = (start + __import__("datetime").timedelta(days=offset)).isoformat()
+        if any(p.get("date") == d for p in queue.list_posts()):
+            continue
+        if (WORK_ROOT / d).exists():
+            # skip if already has final or published
+            if (WORK_ROOT / d / "PUBLISHED.json").exists():
+                continue
+            if (WORK_ROOT / d / "final.json").exists():
+                continue
+        return d
+    return None
+
+
+def stage_pool(
+    start_day: str,
+    *,
+    target: int = 3,
+    target_pool_size: int = 10,
+    force: bool = False,
+    no_ship: bool = True,
+) -> int:
+    """Generate up to `target` new posts to keep the ready pool near target_pool_size."""
+    queue = QueueManager(target=target_pool_size)
+    needed = max(0, target_pool_size - queue.active_count())
+    to_generate = min(needed, target)
+    if to_generate <= 0:
+        log(f"[pool] active count {queue.active_count()} >= {target_pool_size}; nothing to generate")
+        return 0
+
+    log(f"[pool] generating {to_generate} post(s) to reach pool target {target_pool_size}")
+    generated = 0
+    for i in range(to_generate):
+        day = next_available_day(start_day, queue)
+        if not day:
+            log("[pool] no available day in range — stop")
+            break
+        log(f"[pool] slot {i+1}/{to_generate} -> {day}")
+        wd = workdir(day)
+        try:
+            research = stage_research(day, force=force, models=MODELS_DECISION)
+            topic = stage_topic(day, research, force=force, queue=queue)
+            assets = stage_assets(day, topic, force=force)
+            draft = stage_write(day, research, topic, assets, force=force)
+            final = stage_polish(day, draft, force=force)
+            if not final:
+                log(f"[pool] polish failed for {day}")
+                append_log(wd, "pool.polish_fail", {"day": day})
+                continue
+            queue.add(final, topic.get("id"), wd, status="ready")
+            generated += 1
+            append_log(wd, "pool.generated", {"slug": final.get("slug"), "topicId": topic.get("id")})
+        except Exception as e:
+            log(f"[pool] generation failed for {day}: {e}")
+            append_log(wd, "pool.error", {"error": str(e)[:300]})
+            continue
+    log(f"[pool] generated {generated}/{to_generate}; pool active={queue.active_count()}")
+    return 0 if generated > 0 else 1
+
+
+def stage_review_queue(
+    *,
+    max_reviews: int = 10,
+    force: bool = False,
+) -> int:
+    """Run the review agent over all ready posts in the queue."""
+    queue = QueueManager()
+    ready = queue.list_posts("ready")
+    if not ready:
+        log("[review-queue] no ready posts")
+        return 0
+    reviewed = 0
+    discarded = 0
+    for entry in ready[:max_reviews]:
+        day = entry.get("date")
+        if not day:
+            continue
+        wd = workdir(day)
+        try:
+            result = stage_review(day, force=force, queue=queue)
+            if result:
+                reviewed += 1
+            else:
+                discarded += 1
+        except Exception as e:
+            log(f"[review-queue] review failed for {day}: {e}")
+            append_log(wd, "review_queue.error", {"error": str(e)[:300]})
+    log(f"[review-queue] reviewed={reviewed} discarded={discarded}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=date.today().isoformat())
     ap.add_argument(
         "--stage",
-        choices=["all", "research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish", "prep"],
+        choices=["all", "research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish", "prep", "review", "review-queue", "pool"],
         default="all",
     )
     ap.add_argument("--force", action="store_true")
@@ -2242,6 +2788,7 @@ def main() -> int:
     ap.add_argument("--topic-id", default=None, help="Pin topic bank id (e.g. porch-seasonal)")
     ap.add_argument("--preserve-slug", default=None, help="Keep this slug on publish/replace")
     ap.add_argument("--no-ship", action="store_true", help="Update posts.json only (no git/ship)")
+    ap.add_argument("--target", type=int, default=3, help="Posts to generate in pool stage")
     args = ap.parse_args()
     day = args.date
     os.chdir(ROOT)
@@ -2249,7 +2796,7 @@ def main() -> int:
 
     stage = args.stage
     # Single-stage mode: run ONLY that stage (no cascade via load-or-run fallbacks).
-    single = stage in ("research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish")
+    single = stage in ("research", "topic", "assets", "image-search", "image-download", "write", "polish", "publish", "review", "review-queue", "pool")
 
     research = load_json(workdir(day) / "research.json")
     topic = load_json(workdir(day) / "topic.json")
@@ -2325,9 +2872,30 @@ def main() -> int:
             log("[stage] polish only — stop")
             return 0
 
+    if stage == "review":
+        stage_review(day, force=args.force)
+        log("[stage] review only — stop")
+        return 0
+
+    if stage == "review-queue":
+        return stage_review_queue(force=args.force)
+
+    if stage == "pool":
+        return stage_pool(day, target=args.target, force=args.force, no_ship=args.no_ship)
+
     if stage in ("all", "publish"):
-        if not final:
+        # For explicit single-date publish, allow legacy direct final.json mode
+        # only when --replace or --preserve-slug is used. Otherwise use the queue.
+        use_legacy_final = bool(args.replace or args.preserve_slug)
+        if not use_legacy_final:
+            final = None
+        elif not final:
             final = load_json(workdir(day) / "final.json")
+        # In full run, ensure review happens before publish
+        if stage == "all" and final and not (final.get("review") or {}).get("approved"):
+            reviewed = stage_review(day, force=args.force)
+            if reviewed:
+                final = load_json(workdir(day) / "final.json")
         return stage_publish(
             day,
             final,
