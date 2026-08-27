@@ -12,6 +12,10 @@ public/data/listings.market.bak.json
 .vite/
 data/blog/pipeline/
 
+.wrangler/
+__pycache__/
+*.pyc
+
 # daily listings bot runtime logs
 data/listings-bot/
 

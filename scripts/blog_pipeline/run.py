@@ -130,7 +130,7 @@ def scrub_ai(text: str) -> str:
     out = text or ""
     for pat in AI_BANS:
         out = re.sub(pat, "", out, flags=re.I)
-    out = out.replace("—", " - ").replace("–", "-")
+    # Keep em-dashes; validate_post enforces the anti-spam limit.
     out = re.sub(r"[ \t]{2,}", " ", out)
     out = re.sub(r"\n{3,}", "\n\n", out)
     return out.strip()
@@ -150,13 +150,13 @@ def try_llm(
     min_chars: int = 120,
     attempts_per_model: int = 2,
 ) -> str | None:
-    """Try free/local models with per-model retries."""
-    models = models or ["free-then-local", "free", "local", "background"]
+    """Try configured models with per-model retries."""
+    models = models or ["openrouter/free", "hermes-orchestrator"]
     for model in models:
         for attempt in range(1, attempts_per_model + 1):
             try:
                 r = subprocess.run(
-                    ["hermes", "chat", "-q", prompt, "--model", model],
+                    ["hermes", "chat", "-q", prompt, "--model", model, "-Q"],
                     capture_output=True,
                     text=True,
                     timeout=240,
@@ -179,17 +179,22 @@ def try_llm(
 def extract_json_obj(text: str) -> dict | None:
     if not text:
         return None
+    # Strip thinking blocks if model output thinking tags
+    cleaned_text = re.sub(r"<think>[\s\S]*?</think>", "", text, flags=re.I).strip()
+    if not cleaned_text:
+        cleaned_text = text
+
     # fenced json
-    fence = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", text, re.I)
+    fence = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", cleaned_text, re.I)
     candidates = []
     if fence:
         candidates.append(fence.group(1))
-    # largest balanced-ish object: from first { to last }
-    if "{" in text and "}" in text:
-        candidates.append(text[text.find("{") : text.rfind("}") + 1])
+    # Largest balanced-ish object: from first { to last }
+    if "{" in cleaned_text and "}" in cleaned_text:
+        candidates.append(cleaned_text[cleaned_text.find("{") : cleaned_text.rfind("}") + 1])
     # also any medium objects
-    for m in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text):
-        if len(m.group(0)) > 200:
+    for m in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", cleaned_text):
+        if len(m.group(0)) > 150:
             candidates.append(m.group(0))
     for raw in candidates:
         cleaned = raw
@@ -197,15 +202,22 @@ def extract_json_obj(text: str) -> dict | None:
         cleaned = cleaned.replace("\u201c", '"').replace("\u201d", '"').replace("\u2019", "'")
         cleaned = re.sub(r",\s*}", "}", cleaned)
         cleaned = re.sub(r",\s*]", "]", cleaned)
+        # unescaped control chars in raw string
+        cleaned = re.sub(r'[\x00-\x1f\x7f-\x9f]', lambda m: ' ' if m.group(0) not in ('\n', '\r', '\t') else m.group(0), cleaned)
         for attempt in (raw, cleaned):
             try:
                 obj = json.loads(attempt)
                 if isinstance(obj, dict) and (
-                    "bodyEs" in obj or "titleEs" in obj or "headline_angle" in obj
+                    "bodyEs" in obj or "titleEs" in obj or "headline_angle" in obj or "title" in obj
                 ):
                     return obj
             except Exception:
-                continue
+                try:
+                    obj = json.loads(attempt, strict=False)
+                    if isinstance(obj, dict):
+                        return obj
+                except Exception:
+                    continue
     return None
 
 
@@ -219,7 +231,7 @@ def llm_json(
     tag: str = "json",
 ) -> dict | None:
     """Ask LLM for JSON; on parse failure run correction rounds with free/local models."""
-    models = models or ["free-then-local", "free", "local", "background"]
+    models = models or ["openrouter/free", "hermes-orchestrator"]
     last_raw = None
     for round_i in range(1, max_rounds + 1):
         if round_i == 1:
@@ -248,6 +260,10 @@ def llm_json(
     return None
 
 
+def _figure_indices(body: str) -> set[int]:
+    return {int(m.group(1)) for m in re.finditer(r"\{\{figure:(\d+)\}\}", body)}
+
+
 def validate_post(final: dict) -> dict[str, bool]:
     body_es = final.get("bodyEs") or ""
     body_en = final.get("bodyEn") or ""
@@ -257,6 +273,11 @@ def validate_post(final: dict) -> dict[str, bool]:
     title_en = final.get("titleEn") or ""
     cover = (final.get("cover") or {}).get("src") or ""
     banned_hit = any(re.search(p, body_es + "\n" + body_en, re.I) for p in AI_BANS)
+    figures = final.get("figures") or []
+    fig_count = len(figures)
+    es_figs = _figure_indices(body_es)
+    en_figs = _figure_indices(body_en)
+    valid_figs = fig_count > 0 and all(i < fig_count for i in es_figs | en_figs)
     return {
         "has_cover": bool(cover),
         "has_body_es": len(body_es) > 400,
@@ -266,8 +287,9 @@ def validate_post(final: dict) -> dict[str, bool]:
         "has_meta_es": 80 <= len(meta_es) <= 180,
         "has_meta_en": 80 <= len(meta_en) <= 180,
         "has_figure_marker": "{{figure:0}}" in body_es and "{{figure:0}}" in body_en,
+        "figures_match_markers": valid_figs,
         "has_signoff": "Leey" in body_es[-40:] and "Leey" in body_en[-40:],
-        "no_em_dash_spam": body_es.count("—") < 3 and body_en.count("—") < 3,
+        "no_em_dash_spam": body_es.count("—") <= 3 and body_en.count("—") <= 3,
         "no_ai_bans": not banned_hit,
         "has_tags": isinstance(final.get("tags"), list) and len(final.get("tags") or []) >= 3,
     }
@@ -304,10 +326,10 @@ def stage_research(day: str, force: bool = False) -> dict:
 
     # Lightweight free web snippets via DuckDuckGo HTML (no key)
     queries = [
-        f"Valdosta GA housing market {day[:4]}",
-        f"South Georgia home buying tips {season.split()[0]}",
-        "Lowndes County GA real estate trends",
-        "South Georgia home selling curb appeal tips",
+        f"Valdosta GA housing market first time buyer {day[:4]}",
+        f"South Georgia home buying down payment assistance",
+        "Lowndes County GA real estate neighborhood trends",
+        "South Georgia family home buying advice",
     ]
     web_notes = []
     for q in queries:
@@ -315,7 +337,7 @@ def stage_research(day: str, force: bool = False) -> dict:
         for attempt in range(1, 4):
             try:
                 url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": q})
-                html = http_get(url, timeout=25, retries=2).decode("utf-8", "replace")
+                html = http_get(url, timeout=10, retries=1).decode("utf-8", "replace")
                 texts = re.findall(
                     r'class="result__snippet"[^>]*>(.*?)</a>|<a class="result__a"[^>]*>(.*?)</a>',
                     html,
@@ -338,24 +360,36 @@ def stage_research(day: str, force: bool = False) -> dict:
         time.sleep(0.5)
 
     # Optional free LLM synthesis with JSON correction rounds
-    synth_prompt = f"""You are a local South Georgia real-estate researcher for realtor Leey Hernandez (Valdosta area).
-Given season="{season}", inventory city counts={top_cities}, and web snippets={json.dumps(web_notes)[:3500]},
-return STRICT JSON only (no markdown):
+    prompt = f"""You are the lead local real estate researcher for realtor Leyanis "Leey" Hernandez in Valdosta, South Georgia.
+Season: {season}
+Top active cities in inventory: {top_cities}
+
+Generate a fresh, original, highly-engaging blog topic proposal for a home buying/moving guide in South Georgia.
+Topics to choose from (pick ONE fresh angle):
+- Ayudas de pago inicial (Georgia Dream Down Payment Assistance) y préstamos USDA 100% financiamiento en Valdosta y Lowndes County.
+- Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad (Homestead Exemption) y seguros de hogar.
+- Comprar tu primera casa en Valdosta: cómo revisar el presupuesto, el patio y el vecindario sin estrés.
+
+Output ONLY a valid JSON object without markdown fences:
 {{
-  "headline_angle": "one concrete angle for tomorrow's blog",
-  "why_now": "2 sentences why this matters this week/season",
-  "primary_towns": ["Valdosta", "..."],
-  "category": "buying|selling|remodel|decor|neighborhoods|market|first_home",
-  "keywords_es": ["..."],
-  "keywords_en": ["..."],
-  "image_queries": ["english search terms for free photos", "..."],
-  "claims_to_avoid": ["no fake stats", "..."],
-  "sources_notes": "short"
-}}
-No hype. No invented statistics. Towns only from South Georgia list: {SOUTH_GA}.
-"""
+  "headline_angle": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros",
+  "headline_angle_en": "Georgia Down Payment Assistance: How to Buy Your First Home in Valdosta with Less Cash",
+  "why_now": "Con las tasas de interés actuales, muchas familias en Lowndes County desconocen que pueden acceder a programas estatales de hasta $10,000 para el pago inicial. Es el momento perfecto para explicar los requisitos reales sin complicaciones.",
+  "primary_towns": ["Valdosta", "Hahira", "Adel"],
+  "category": "first_home",
+  "keywords_es": ["ayuda pago inicial Georgia", "comprar primera casa Valdosta", "Georgia Dream Loan", "Lock and Key Realty"],
+  "keywords_en": ["Georgia Dream down payment assistance", "buy first home Valdosta GA", "USDA loan Georgia", "Lock and Key Realty"],
+  "image_queries": [
+    "suburban house front yard family home",
+    "american brick ranch house front lawn",
+    "modern residential house exterior United States",
+    "front porch residential house sunny day"
+  ],
+  "claims_to_avoid": ["no fake appreciation stats", "no generic Atlanta advice"],
+  "sources_notes": "Georgia Dream Down Payment Assistance and local loan programs"
+}}"""
     synth = llm_json(
-        synth_prompt,
+        prompt,
         required_any=["headline_angle", "category", "image_queries"],
         max_rounds=3,
         wd=wd,
@@ -364,16 +398,17 @@ No hype. No invented statistics. Towns only from South Georgia list: {SOUTH_GA}.
     if not synth:
         append_log(wd, "research.synth_fallback", True)
         synth = {
-            "headline_angle": f"Home tips for {season.split()[0]} in South Georgia",
-            "why_now": f"Season context: {season}. Families are still moving around Valdosta and nearby towns.",
+            "headline_angle": f"Consejos para comprar y cuidar tu casa en el sur de Georgia",
+            "headline_angle_en": f"Tips for Buying and Caring for Your Home in South Georgia",
+            "why_now": f"Contexto de temporada: {season}. Familias e inversores activos en el mercado de Valdosta y condados cercanos.",
             "primary_towns": [c for c, _ in top_cities[:3]] or ["Valdosta", "Hahira", "Tifton"],
             "category": "buying",
-            "keywords_es": ["comprar casa Valdosta", "sur de Georgia"],
-            "keywords_en": ["buy home Valdosta", "South Georgia realtor"],
+            "keywords_es": ["comprar casa Valdosta", "inspección sur de Georgia", "Lock and Key Realty"],
+            "keywords_en": ["buy home Valdosta GA", "South Georgia home inspection", "Lock and Key Realty"],
             "image_queries": [
-                "Valdosta Georgia house exterior",
+                "Valdosta Georgia residential house",
                 "South Georgia porch home",
-                "brick ranch house Georgia",
+                "American brick ranch house",
             ],
             "claims_to_avoid": ["no fake appreciation rates", "no invented days on market"],
             "sources_notes": "local inventory + season heuristic",
@@ -451,6 +486,7 @@ def stage_topic(
         "angleEs": base["angleEs"],
         "angleEn": base["angleEn"],
         "headline_angle": base["angleEs"] if prefer_bank else (synth.get("headline_angle") or base["angleEs"]),
+        "headline_angle_en": base["angleEn"] if prefer_bank else (synth.get("headline_angle_en") or base["angleEn"]),
         "why_now": synth.get("why_now") or research.get("season"),
         "keywords_es": base.get("mustInclude") or synth.get("keywords_es") or [],
         "keywords_en": synth.get("keywords_en") or [],
@@ -590,36 +626,50 @@ def topic_visual_brief(topic: dict) -> dict:
     if "porch" in tid or "porche" in angle or "porch" in angle:
         return {
             "label": "porch",
-            "must_show": "a residential front porch, stoop, veranda, or covered entry with steps/railings/chairs",
-            "reject_if": "only a blank exterior wall, pure yard with no porch, kitchen interior, car, document, or unrelated object",
+            "must_show": "a beautiful residential front porch, veranda, or covered entry with seating, clean railings, or flowers",
+            "reject_if": "run-down shack, abandoned structure, blank wall, parking lot, car, document, or non-residential scene",
             "keywords": ["porch", "stoop", "veranda", "portico", "front steps", "rocking chair", "entry"],
         }
     if "kitchen" in tid or "cocina" in angle or "kitchen" in angle:
         return {
             "label": "kitchen",
-            "must_show": "a home kitchen interior (cabinets, counters, sink, appliances, or kitchen window light)",
-            "reject_if": "exterior-only house shot with no kitchen, bathroom, empty room, or unrelated object",
+            "must_show": "an attractive, bright home kitchen interior (modern cabinets, clean counters, sink, or sunlight)",
+            "reject_if": "dirty/messy room, exterior shot with no kitchen, bathroom, commercial kitchen, or unrelated object",
             "keywords": ["kitchen", "cabinets", "counter", "sink", "stove", "refrigerator"],
         }
     if cat == "neighborhoods" or any(k in angle for k in ("valdosta", "hahira", "adel", "zona", "where to start")):
         place = ", ".join(areas) if areas else "the named South Georgia towns"
         return {
             "label": "place",
-            "must_show": f"a real outdoor scene clearly associated with {place} (street, downtown, landmark, neighborhood homes)",
-            "reject_if": "unrelated city, interior-only, document, car lot, or generic stock with no place cues",
-            "keywords": areas + ["downtown", "street", "courthouse", "georgia"],
+            "must_show": f"an attractive, well-maintained outdoor scene associated with {place} (pleasant residential street, nice homes with manicured lawns, clean downtown)",
+            "reject_if": "dilapidated building, industrial zone, car lot, document, or unappealing rubble",
+            "keywords": areas + ["downtown", "street", "courthouse", "georgia", "neighborhood"],
         }
     if cat in ("buying", "selling") or "offer" in tid or "oferta" in angle:
         return {
             "label": "home_sale",
-            "must_show": "a residential house exterior and/or a for-sale context suitable for a home offer article",
-            "reject_if": "unrelated commercial building only, document, car dealership, or non-home scene",
-            "keywords": ["house", "home", "for sale", "yard", "exterior", "listing"],
+            "must_show": "an attractive, welcoming single-family residential house exterior with lawn or appealing front yard",
+            "reject_if": "run-down/abandoned shack, dilapidated roof, industrial building, car dealership, or commercial strip mall",
+            "keywords": ["house", "home", "for sale", "yard", "exterior", "listing", "ranch"],
+        }
+    if "termite" in tid or "termitas" in angle or "moisture" in angle or "humedad" in angle:
+        return {
+            "label": "foundation_care",
+            "must_show": "a clean, well-maintained residential home exterior, foundation, clean landscaping, or bright porch/lawn",
+            "reject_if": "rotted wood, active pests closeup, debris pile, dilapidated ruin, industrial site, or document",
+            "keywords": ["house", "brick", "foundation", "home", "yard", "exterior", "crawl space"],
+        }
+    if "mudanza" in tid or "florida" in angle or "tax" in angle or "seguro" in angle:
+        return {
+            "label": "relocation_home",
+            "must_show": "an attractive suburban single-family home or residential neighborhood street in South Georgia",
+            "reject_if": "shack, abandoned property, industrial zone, car lot, documents, or blurry photos",
+            "keywords": ["house", "home", "neighborhood", "residential", "street", "ranch", "lawn"],
         }
     return {
         "label": "home",
-        "must_show": "a residential home scene relevant to South Georgia real estate (house exterior, yard, or interior living space)",
-        "reject_if": "documents, cars, maps, logos, pure text, or unrelated objects",
+        "must_show": "an attractive, well-kept residential home scene (appealing house exterior, green manicured lawn, or cozy interior)",
+        "reject_if": "shack, abandoned property, run-down building, commercial lot, documents, or blurry photos",
         "keywords": ["house", "home", "residential"],
     }
 
@@ -646,7 +696,7 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
     )
 
     # One fast vision attempt, then one fallback. Short timeouts.
-    models = ["free-then-local", "vision"]
+    models = ["openrouter/free"]
     for model in models:
         try:
             r = subprocess.run(
@@ -668,9 +718,12 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
                 log(f"[vision] weak model={model} code={r.returncode} chars={len(body)} err={(r.stderr or '')[:120]}")
                 continue
             out = body
-            obj = extract_json_obj(out)
+            # Strip cli headers/warnings
+            cleaned_out = re.sub(r"Warning:[^\n]*\n", "", out)
+            cleaned_out = re.sub(r"session_id:[^\n]*\n", "", cleaned_out).strip()
+            obj = extract_json_obj(cleaned_out) or extract_json_obj(out)
             if not obj:
-                m = re.search(r"\{[\s\S]*\}", out)
+                m = re.search(r"\{[\s\S]*\}", cleaned_out)
                 if m:
                     try:
                         obj = json.loads(m.group(0))
@@ -705,7 +758,9 @@ def looks_archival_or_old(candidate: dict) -> bool:
     """Reject historical/archival/HABS/old scans and B&W labelled media."""
     title = f"{candidate.get('title') or ''} {candidate.get('artist') or ''} {candidate.get('description') or ''}".lower()
     date_raw = str(candidate.get("date") or candidate.get("year") or "")
-    blob = f"{title} {date_raw}".lower()
+    page = str(candidate.get("page") or "").lower()
+    url = str(candidate.get("url") or "").lower()
+    blob = f"{title} {date_raw} {page} {url}".lower()
 
     bad_tokens = (
         "black and white",
@@ -748,14 +803,21 @@ def looks_archival_or_old(candidate: dict) -> bool:
         "lantern slide",
         "film negative",
         "nara ",
+        "nara-",
+        "nara_",
         "national archives",
+        "chs-",
+        "chs_",
+        "loc-",
+        "loc_",
+        "carol m. highsmith",
     )
     if any(t in blob for t in bad_tokens):
         return True
 
-    years = [int(y) for y in re.findall(r"\b(19\d{2}|20[0-2]\d)\b", blob)]
+    years = [int(y) for y in re.findall(r"\b(18\d{2}|19\d{2}|20[0-2]\d)\b", blob)]
     if years:
-        if max(years) < 2015:
+        if max(years) < 2016:
             return True
     return False
 
@@ -994,6 +1056,7 @@ def relevance_score(candidate: dict, topic: dict) -> float:
     source = (candidate.get("source") or "").lower()
 
     bad = (
+        "shack", "abandoned", "dilapidated", "ruins", "decay", "slum",
         "constitution", "djvu", "map of", "locator map", "coat of arms", "flag of",
         "logo", "svg", "diagram", "chart", "screenshot", "passport", "document",
         "dealership", "subaru", "toyota", "ford dealer", "airport", "aircraft",
@@ -1005,17 +1068,20 @@ def relevance_score(candidate: dict, topic: dict) -> float:
         return -100.0
 
     score = 0.0
-    if source == "listing":
+    if source == "openverse":
+        score += 35.0  # High-quality curated CC photography
+    elif source == "wikimedia":
         score += 25.0
-    elif source in ("wikimedia", "openverse"):
-        score += 2.0
+    elif source == "listing":
+        score += 15.0
 
     good = (
+        "beautiful", "charming", "lovely", "attractive", "modern",
         "house", "home", "residential", "porch", "yard", "for sale", "real estate",
         "suburban", "ranch", "kitchen", "neighborhood", "street", "downtown",
         "georgia", "valdosta", "hahira", "adel", "cottage", "bungalow", "front",
         "door", "lawn", "listing", "mls", "exterior", "interior", "driveway",
-        "brick", "siding",
+        "brick", "siding", "garden", "flowers", "sunlight", "sunny",
     )
     for g in good:
         if g in title:
@@ -1064,44 +1130,72 @@ def relevance_score(candidate: dict, topic: dict) -> float:
 
 
 def build_image_queries(topic: dict) -> list[str]:
-    queries = list(topic.get("image_queries") or ["South Georgia house exterior"])
+    queries = list(topic.get("image_queries") or [])
     for a in topic.get("areas") or []:
-        queries.append(f"{a.replace('-', ' ')} Georgia residential house")
+        queries.append(f"{a.replace('-', ' ')} Georgia beautiful home exterior")
     cat = (topic.get("category") or "").lower()
-    if cat in ("buying", "selling"):
+    tid = (topic.get("id") or "").lower()
+    angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {topic.get('headline_angle_en') or ''} {topic.get('headline_angle') or ''} {tid}".lower()
+
+    if any(k in angle for k in ("first home", "primera casa", "primera vivienda", "down payment", "ayuda pago", "loan", "prestamo")):
         queries.extend([
-            "modern house for sale yard sign color photo",
-            "suburban home exterior driveway color",
-            "american ranch house front yard",
-            "brick house exterior curb appeal",
+            "beautiful suburban house front lawn garden",
+            "modern brick ranch house curb appeal",
+            "charming southern home front porch sunny",
+            "lovely single family home green yard",
+            "attractive suburban home driveway lawn",
         ])
-    elif cat == "neighborhoods":
+    elif any(k in angle for k in ("florida", "mudanza", "move", "moving", "state line", "frontera", "impuesto", "tax", "seguro", "insurance")):
         queries.extend([
-            "small town Georgia main street color",
-            "south Georgia residential neighborhood houses",
-            "downtown street Georgia USA color photo",
+            "beautiful southern residential neighborhood houses",
+            "charming brick home front yard flowers",
+            "attractive single story ranch house sunny lawn",
+            "pleasant suburban street houses trees",
+            "charming southern home manicured lawn flowers",
+            "modern suburban house Georgia driveway trees",
         ])
-    elif cat in ("decor", "remodel"):
+    elif any(k in angle for k in ("termite", "termitas", "moisture", "humedad", "crawl space", "inspection", "inspeccion")):
         queries.extend([
-            "southern front porch house color",
-            "bright kitchen residential interior color",
-            "house exterior curb appeal modern",
+            "well maintained southern brick house crawl space clean yard",
+            "attractive brick home foundation landscaping sunny",
+            "clean dry home exterior crawl space vents garden",
+            "charming southern single family home sunny lawn",
+        ])
+    elif any(k in angle for k in ("porch", "porche", "curb appeal")):
+        queries.extend([
+            "beautiful southern front porch rocking chairs flowers",
+            "charming covered front porch house exterior",
+            "lovely front porch brick house steps",
+            "attractive home entrance front porch potted plants",
+        ])
+    elif any(k in angle for k in ("kitchen", "cocina", "remodel", "remodelacion")):
+        queries.extend([
+            "beautiful modern kitchen interior natural light",
+            "bright clean kitchen cabinets granite countertop",
+            "spacious kitchen island residential interior",
+        ])
+    elif any(k in angle for k in ("staging", "vender", "sell", "listing", "listar")):
+        queries.extend([
+            "beautiful bright living room home staging",
+            "elegant clean living room natural sunlight",
+            "attractive modern house exterior front yard",
         ])
     else:
         queries.extend([
-            "Georgia ranch house exterior color",
-            "Southern porch house residential",
-            "American suburban home front yard",
+            "beautiful South Georgia home exterior lawn",
+            "charming American brick ranch house",
+            "attractive Southern home front porch",
+            "pleasant suburban neighborhood street houses",
         ])
     cleaned = []
     for q in queries:
         qs = str(q).strip()
-        if not qs:
+        if not qs or len(qs) < 3:
             continue
-        if "historic" in qs.lower() or "vintage" in qs.lower():
+        if "historic" in qs.lower() or "vintage" in qs.lower() or "19" in qs:
             continue
         cleaned.append(qs)
-    return list(dict.fromkeys(cleaned))[:12]
+    return list(dict.fromkeys(cleaned))[:14]
 
 
 def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> list[dict]:
@@ -1119,7 +1213,15 @@ def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> lis
             ])
         queries = list(dict.fromkeys(place_q + queries))[:16]
     candidates: list[dict] = []
+    # Query Openverse first (high quality modern CC photos), then Wikimedia
     for q in queries:
+        for attempt in range(1, 3):
+            try:
+                candidates.extend(openverse_search(q, limit=8))
+                break
+            except Exception as e:
+                log(f"[assets] openverse fail {q} try {attempt}: {e}")
+                time.sleep(attempt)
         for attempt in range(1, 3):
             try:
                 candidates.extend(wikimedia_search(q, limit=6))
@@ -1127,15 +1229,8 @@ def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> lis
             except Exception as e:
                 log(f"[assets] wiki fail {q} try {attempt}: {e}")
                 time.sleep(attempt)
-        for attempt in range(1, 3):
-            try:
-                candidates.extend(openverse_search(q, limit=5))
-                break
-            except Exception as e:
-                log(f"[assets] openverse fail {q} try {attempt}: {e}")
-                time.sleep(attempt)
-        time.sleep(0.25)
-        if len(candidates) >= 40:
+        time.sleep(0.2)
+        if len(candidates) >= 50:
             break
     return candidates
 
@@ -1333,17 +1428,17 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
     if strict and brief.get("label") in ("porch", "kitchen"):
         for c in pool:
             try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= 4:
+            if len(saved) >= 2:
                 break
     else:
         for c in [x for x in pool if x.get("source") == "listing"]:
             try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= 4:
+            if len(saved) >= 2:
                 break
-        if len(saved) < 4:
+        if len(saved) < 2:
             for c in [x for x in pool if x.get("source") != "listing"]:
                 try_save(c, f"{topic.get('id') or 'img'}")
-                if len(saved) >= 4:
+                if len(saved) >= 2:
                     break
 
     if len(saved) < 2:
@@ -1469,20 +1564,45 @@ def stage_write(day: str, research: dict, topic: dict, assets: dict, force: bool
         f"{i.get('local')} ({i.get('license')}, {i.get('artist')})" for i in imgs[:4]
     ]
 
-    prompt = f"""
-Eres copywriter SEO para Leyanis "Leey" Hernandez (Lock & Key Realty), sur de Georgia.
-Responde SOLO con un objeto JSON compacto (máx 3500 caracteres). Sin markdown, sin ```.
+    prompt = f"""Eres copywriter inmobiliario y redactora bilingüe para Leyanis "Leey" Hernandez (Lock & Key Realty), en el sur de Georgia (Valdosta, Thomasville, Tifton, Hahira).
 
-Contexto:
-season={research.get('season')}; why_now={topic.get('why_now')}; angle={topic.get('headline_angle')};
-category={topic.get('category')}; towns={topic.get('areas')}; kw_es={topic.get('keywords_es')}; kw_en={topic.get('keywords_en')};
-images={img_notes}
+Escribe una nota de blog concisa, cálida, humana y práctica en español y en inglés sobre el tema seleccionado.
+Ambas versiones (español e inglés) deben ser exactamente equivalentes en contenido y calidad, con la voz cercana y honesta de Leey (como si estuviera conversando con una familia en la mesa de la cocina).
 
-JSON shape exacto:
-{{"slug":"kebab","titleEs":"","titleEn":"","seoTitleEs":"","seoTitleEn":"","seoDescriptionEs":"","seoDescriptionEn":"","excerptEs":"","excerptEn":"","bodyEs":"parrafos con \\n\\n y **subtitulo** y {{{{figure:0}}}} cierre — Leey","bodyEn":"same","tags":["a","b"],"readMinutes":7,"primaryKeywordEs":"","primaryKeywordEn":""}}
+Contexto del post:
+- Tema: {topic.get('headline_angle') or topic.get('angleEs')}
+- Angle EN: {topic.get('headline_angle_en') or topic.get('angleEn')}
+- Por qué importa ahora: {topic.get('why_now')}
+- Zonas clave: {topic.get('areas')}
+- Palabras clave ES: {topic.get('keywords_es')}
+- Palabras clave EN: {topic.get('keywords_en')}
+- Imágenes disponibles: {img_notes}
 
-Reglas: primera persona Leey; cero stats inventadas; prohibido delve/landscape/seamless/unlock/moreover; SEO local natural; ES de EE.UU.
-""".strip()
+Instrucciones de estilo y formato (MUY IMPORTANTE):
+1. NO uses símbolos markdown de encabezados como "###", "##", "#" ni listas con guiones tipo manual. Usa párrafos fluidos y naturales con negrita (**Subtítulo**) para separar ideas.
+2. Longitud moderada y concisa (3 a 4 párrafos cortos y directos, sin extenderse innecesariamente).
+3. Inserta los marcadores de imágenes {{{{figure:0}}}}, {{{{figure:1}}}} de forma natural entre párrafos.
+4. Cierre cálido y directo firmado con "— Leey".
+5. Prohibidos clichés de IA o lenguaje acartonado (nada de "en conclusión", "en resumen", "delve", "seamless", "tapestry", "paisaje", "desbloquear").
+
+Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```json, sin texto adicional):
+{{
+  "slug": "{slugify(topic.get('id') or 'nota')}-{day}",
+  "titleEs": "Título exacto, cálido y atractivo en Español",
+  "titleEn": "Exact, warm and compelling title in English",
+  "seoTitleEs": "Título SEO en Español (máx 55 caracteres) | Leey",
+  "seoTitleEn": "SEO Title in English (max 55 chars) | Leey",
+  "seoDescriptionEs": "Meta descripción natural en Español (120-150 caracteres)",
+  "seoDescriptionEn": "Natural meta description in English (120-150 characters)",
+  "excerptEs": "Resumen breve de 1-2 oraciones para la tarjeta del blog en Español",
+  "excerptEn": "Short 1-2 sentence excerpt for the blog card in English",
+  "bodyEs": "Cuerpo humano y conciso en Español con párrafos separados por \\n\\n, negrita **Subtítulo** (SIN ###) y marcadores {{{{figure:0}}}}",
+  "bodyEn": "Concise and warm body in English with paragraphs separated by \\n\\n, bold **Subheadings** (NO ###) and {{{{figure:0}}}} markers",
+  "tags": ["{topic.get('category') or 'buying'}", "Valdosta", "South Georgia", "Leey"],
+  "readMinutes": 5,
+  "primaryKeywordEs": "{(topic.get('keywords_es') or ['realtor'])[0]}",
+  "primaryKeywordEn": "{(topic.get('keywords_en') or ['realtor'])[0]}"
+}}"""
 
     core = llm_json(
         prompt,
@@ -1600,46 +1720,46 @@ def _caption_en(im: dict) -> str:
 def _fallback_draft(day: str, topic: dict, research: dict) -> dict:
     town = str((topic.get("areas") or ["valdosta"])[0]).replace("-", " ").title()
     angle_es = str(topic.get("headline_angle") or topic.get("angleEs") or "Nota del sur de Georgia")
-    angle_en = str(topic.get("angleEn") or "South Georgia note")
-    title_es = angle_es.split(":")[0][:90]
-    title_en = angle_en.split(":")[0][:90]
+    angle_en = str(topic.get("headline_angle_en") or topic.get("angleEn") or "South Georgia Real Estate Note")
+    title_es = angle_es.split(":")[0].strip()[:90]
+    title_en = angle_en.split(":")[0].strip()[:90]
     return {
         "slug": f"{topic['id']}-{day}",
         "titleEs": title_es,
         "titleEn": title_en,
-        "excerptEs": f"{angle_es} Notas claras desde {town}.",
-        "excerptEn": f"{angle_en} Clear notes from {town}.",
-        "seoTitleEs": f"{title_es[:50]} | Leey",
-        "seoTitleEn": f"{title_en[:50]} | Leey",
-        "seoDescriptionEs": f"Consejos de realtor en {town} y el sur de Georgia: {angle_es[:80]}",
-        "seoDescriptionEn": f"Realtor notes in {town} and South Georgia: {angle_en[:80]}",
+        "excerptEs": f"{angle_es}. Consejos prácticos de inspección y compra desde {town} con Leey Hernandez.",
+        "excerptEn": f"{angle_en}. Practical inspection and buying advice from {town} with Leey Hernandez.",
+        "seoTitleEs": f"{title_es[:45]} | Leey Hernandez",
+        "seoTitleEn": f"{title_en[:45]} | Leey Hernandez",
+        "seoDescriptionEs": f"Consejos de inspección y compra de vivienda en {town} y el sur de Georgia con Leyanis 'Leey' Hernandez: {angle_es[:80]}.",
+        "seoDescriptionEn": f"Home inspection and buying guidance in {town} and South Georgia with Leyanis 'Leey' Hernandez: {angle_en[:80]}.",
         "bodyEs": "\n\n".join(
             [
-                f"Hoy me quedé pensando en {town} y en cómo se siente comprar o arreglar casa en esta temporada ({research.get('season')}).",
-                f"{angle_es}",
-                "**Lo que miro primero**",
-                "No empiezo por la foto de Pinterest. Empiezo por el trayecto, la humedad, el patio y si la casa va a pelear contigo el primer año.",
+                f"Cuando acompaño a familias en {town} y el sur de Georgia durante esta temporada ({research.get('season')}), sé que la emoción de encontrar casa debe ir siempre acompañada de una revisión técnica rigurosa.",
+                f"**{angle_es}**",
+                "### 1. La estructura y el suelo que no se ven a simple vista",
+                "No empiezo por el color de las paredes ni por los acabados de moda. Empiezo por los cimientos, la ventilación, la humedad del terreno y cómo responderá la vivienda a las lluvias intensas de nuestra zona.",
                 "{{figure:0}}",
-                "**Qué haría yo**",
-                "Una lista corta y honesta. Si es cosmético, lo digo. Si es caro de verdad (techo, HVAC, termitas), también.",
-                "Si te suena a tu búsqueda, escríbeme. Mejor cinco minutos claros que una semana de duda.",
+                "### 2. Lo que exigimos antes de retirar contingencias",
+                "Una revisión honesta y sin prisas: si hay detalles cosméticos menores, los evaluamos con calma; pero si encontramos humedad en vigas, problemas de aislamiento o indicios de plagas, negociamos reparaciones o créditos antes de la firma final.",
+                "Si estás evaluando propiedades en el área y quieres revisar cada paso con criterio claro, escríbeme. Siempre es mejor una conversación clara antes de tomar una decisión importante.",
                 "— Leey",
             ]
         ),
         "bodyEn": "\n\n".join(
             [
-                f"I kept thinking about {town} and what it feels like to buy or fix up a home in this season ({research.get('season')}).",
-                f"{angle_en}",
-                "**What I look at first**",
-                "I do not start with the Pinterest photo. I start with the drive, the moisture, the yard, and whether the house will fight you in year one.",
+                f"When walking through properties with families in {town} and across South Georgia during this season ({research.get('season')}), I always ensure that excitement is backed by thorough technical due diligence.",
+                f"**{angle_en}**",
+                "### 1. Structural integrity and subfloor conditions",
+                "I do not begin with paint colors or modern cosmetic touches. I begin with foundation vents, subfloor moisture, drainage, and how the property withstands heavy South Georgia rainfall.",
                 "{{figure:0}}",
-                "**What I would do**",
-                "A short honest list. If it is cosmetic, I say so. If it is truly expensive (roof, HVAC, termites), I say that too.",
-                "If this sounds like your search, message me. Better five clear minutes than a week of second-guessing.",
+                "### 2. Essential checkpoints before removing contingencies",
+                "A calm, straightforward evaluation: minor cosmetic items can be handled easily, but any structural moisture, failing insulation, or pest evidence must be negotiated for seller repairs or credits before closing.",
+                "If you are searching for a home in the area and want clear, honest guidance at every step, reach out to me anytime.",
                 "— Leey",
             ]
         ),
-        "tags": [topic.get("category"), town, "South Georgia", "Leey"],
+        "tags": [topic.get("category") or "buying", town, "South Georgia", "Leey"],
         "readMinutes": 6,
     }
 
@@ -1681,26 +1801,53 @@ def stage_polish(day: str, draft: dict, force: bool = False) -> dict:
                     + [final.get("category") or "market", "Valdosta", "South Georgia", "Leey"]
                 )
             )[:8]
+
+        # Strip unwanted ### markdown headings from bodies for clean, human reading
+        for body_k in ("bodyEs", "bodyEn"):
+            if final.get(body_k):
+                # Replace ### Subheading with **Subheading**
+                final[body_k] = re.sub(r"###\s*(.+)", r"**\1**", final[body_k])
+                final[body_k] = re.sub(r"##\s*(.+)", r"**\1**", final[body_k])
+                final[body_k] = re.sub(r"#\s*(.+)", r"**\1**", final[body_k])
+
         return final
 
     final = dict(draft)
-    prompt = f"""
-Eres editor senior (SEO + humanizer anti-detección IA). Reescribe SOLO para mejorar naturalidad y SEO local sin inventar datos.
-Entrada JSON del draft:
+    prompt = f"""Eres el editor senior de contenidos y estratega SEO bilingüe para Leyanis "Leey" Hernandez.
+Revisa, pule y perfecciona este borrador para publicación final en https://leeyrealty.com/blog/.
+
+Objetivos de edición:
+1. Asegurar que el tono sea 100% humano, cercano, conciso y natural (sin frases de relleno ni párrafos eternos).
+2. Prohibido el uso de encabezados markdown "###", "##" o "#". Usa negrita **Subtítulo** de forma limpia.
+3. Asegurar que las versiones en ESPAÑOL e INGLÉS sean perfectamente equivalentes y fluidas.
+4. Ajustar los metadatos SEO (título SEO < 55 caracteres, meta descripción 120-150 caracteres).
+5. Preservar intactos los marcadores {{{{figure:N}}}} y la firma final "— Leey".
+
+Borrador a revisar (JSON):
 {json.dumps({k: draft.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','primaryKeywordEs','primaryKeywordEn','category']}, ensure_ascii=False)[:7000]}
 
-Devuelve el MISMO shape JSON (mismos campos de texto), compacto, sin markdown:
-- Títulos naturales con keyword local si cabe
-- Meta descriptions 140-160 chars
-- Cuerpo con ritmo humano, sin clichés IA
-- Conserva {{{{figure:N}}}} y el cierre — Leey
-- No agregues estadísticas nuevas
-Solo JSON.
-"""
+Devuelve EXCLUSIVAMENTE un objeto JSON compacto con la misma estructura (sin bloques markdown ni ```json):
+{{
+  "slug": "{draft.get('slug')}",
+  "titleEs": "Título final en Español",
+  "titleEn": "Final Title in English",
+  "seoTitleEs": "Título SEO ES (máx 55 caracteres) | Leey",
+  "seoTitleEn": "SEO Title EN (max 55 chars) | Leey",
+  "seoDescriptionEs": "Meta descripción optimizada ES (120-150 caracteres)",
+  "seoDescriptionEn": "Optimized meta description EN (120-150 characters)",
+  "excerptEs": "Extracto en Español para la tarjeta del blog",
+  "excerptEn": "Excerpt in English for the blog card",
+  "bodyEs": "Cuerpo editado, humano y conciso en Español (SIN ###) con \\n\\n y marcadores {{{{figure:N}}}}",
+  "bodyEn": "Edited, human and concise body in English (NO ###) with \\n\\n and {{{{figure:N}}}} markers",
+  "tags": {json.dumps(draft.get('tags') or [])},
+  "readMinutes": {draft.get('readMinutes') or 5},
+  "primaryKeywordEs": "{draft.get('primaryKeywordEs') or ''}",
+  "primaryKeywordEn": "{draft.get('primaryKeywordEn') or ''}"
+}}"""
     polished = llm_json(
         prompt,
-        required_any=["bodyEs", "titleEs", "seoDescriptionEs"],
-        max_rounds=3,
+        required_any=["bodyEs", "titleEs"],
+        max_rounds=2,
         wd=wd,
         tag="polish",
     )
@@ -1734,7 +1881,45 @@ Solo JSON.
 
     final = apply_guards(final)
 
-    # Validation + correction loop (up to 2 repair rounds with free/local)
+    # Restore media/attribution from draft; if draft lost them, reload from assets.
+    if not final.get("cover") or not final.get("figures"):
+        assets = load_json(wd / "assets.json")
+        if assets and assets.get("images"):
+            figures = []
+            for i, im in enumerate(assets["images"][:4]):
+                figures.append(
+                    {
+                        "src": im["local"],
+                        "altEs": f"{final.get('titleEs') or 'Nota'} — imagen {i+1}",
+                        "altEn": f"{final.get('titleEn') or 'Note'} — image {i+1}",
+                        "kind": "photo" if im.get("source") != "generated" else "infographic",
+                        "captionEs": _caption_es(im),
+                        "captionEn": _caption_en(im),
+                    }
+                )
+            final["cover"] = figures[0]
+            final["figures"] = figures
+            final["attribution"] = [
+                {
+                    "src": im.get("local"),
+                    "artist": im.get("artist"),
+                    "license": im.get("license"),
+                    "page": im.get("page"),
+                    "source": im.get("source"),
+                }
+                for im in assets["images"]
+            ]
+        elif draft.get("cover") and draft.get("figures"):
+            final["cover"] = draft["cover"]
+            final["figures"] = draft["figures"]
+            final["attribution"] = draft.get("attribution") or []
+    else:
+        # Ensure attribution/cover/figures from draft survive any LLM rewrite.
+        final.setdefault("attribution", draft.get("attribution") or [])
+        final.setdefault("cover", draft.get("cover"))
+        final.setdefault("figures", draft.get("figures"))
+
+    # Validation + correction loop (up to 2 repair rounds)
     for repair in range(0, 3):
         checks = validate_post(final)
         final["validation"] = checks
@@ -1763,7 +1948,7 @@ Post actual:
             max_rounds=2,
             wd=wd,
             tag=f"repair{repair}",
-            models=["local", "free-then-local", "free", "background"],
+            models=["openrouter/free", "hermes-orchestrator"],
         )
         if fixed:
             for k in (
@@ -1911,7 +2096,14 @@ def stage_publish(
         checks = final.get("validation") or validate_post(final)
         if not all(checks.values()):
             # hard requirements only
-            hard = ["has_cover", "has_body_es", "has_body_en", "has_title_es", "has_title_en"]
+            hard = [
+                "has_cover",
+                "has_body_es",
+                "has_body_en",
+                "has_title_es",
+                "has_title_en",
+                "figures_match_markers",
+            ]
             if not all(checks.get(k) for k in hard):
                 log(f"[publish] hard validation still failing: {checks} — abort ship")
                 append_log(wd, "publish.abort_hard_validation", checks)

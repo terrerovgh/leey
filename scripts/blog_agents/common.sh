@@ -8,6 +8,14 @@ export LEEY_ROOT
 cd "$LEEY_ROOT"
 export PATH="${HOME}/.local/bin:${HOME}/.npm-global/bin:/usr/local/bin:${PATH}"
 
+# Load project secrets (CMS agent token, API keys) when available.
+if [[ -f "$LEEY_ROOT/.env" ]]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$LEEY_ROOT/.env"
+  set +a
+fi
+
 PIPELINE="${LEEY_ROOT}/scripts/blog_pipeline/run.py"
 
 # Target day:
