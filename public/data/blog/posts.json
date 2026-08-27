@@ -1,7 +1,60 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-27T14:41:38.000Z",
+  "updatedAt": "2026-08-27T14:53:06.000Z",
   "posts": [
+    {
+      "slug": "yard-weekend-2026-08-27",
+      "date": "2026-08-27",
+      "updatedAt": "2026-08-27T14:53:06.000Z",
+      "category": "first_home",
+      "readMinutes": 5,
+      "tags": [
+        "first_home",
+        "Valdosta",
+        "South Georgia",
+        "Leey"
+      ],
+      "areas": [
+        "ray-city",
+        "nashville"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260827/yard-weekend-1.jpg",
+        "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 1",
+        "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260827/yard-weekend-1.jpg",
+          "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 1",
+          "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260827/yard-weekend-2.jpg",
+          "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 2",
+          "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "Georgia Dream y USDA: Cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros",
+      "titleEn": "Georgia Dream and USDA: How to Buy Your First Home in Lowndes County Without Draining Your Savings",
+      "seoTitleEs": "Comprar Casa en Lowndes County sin Pago Inicial | Leey",
+      "seoTitleEn": "Buy Home in Lowndes County No Down Payment | Leey",
+      "seoDescriptionEs": "Georgia Dream y USDA: compra tu primera casa en Lowndes County sin pago inicial. Asistencia estatal y federal para que no agotes tus ahorros.",
+      "seoDescriptionEn": "Georgia Dream and USDA help you buy your first home in Lowndes County with no large down payment. State and federal assistance that keeps your savings intact.",
+      "excerptEs": "Comprar tu primera casa en Lowndes County sin pago inicial es posible con Georgia Dream y USDA. Lock and Key Realty te guía por los programas estatales y federales.",
+      "excerptEn": "Buy your first home in Lowndes County with no down payment using Georgia Dream and USDA programs. Lock and Key Realty guides you through state and federal assistance.",
+      "bodyEs": "**Por qué crees que necesitas un pago inicial enorme**\nCon los precios subiendo y las tasas cambiando, muchos compradores primerizos en Valdosta piensan que necesitan ahorrar una fortuna para el pago inicial. La buena noticia: no es así. Programas estatales y federales pueden cubrir la mayor parte de los costos iniciales, pero la información está dispersa.\n\n{{figure:0}}\n\n**Georgia Dream: tu aliado estatal**\nGeorgia Dream es el programa de compra de primera casa del estado. Ofrece asistencia para el pago inicial y costos de cierre. Para compradores en Lowndes County, puede ser la diferencia entre alquilar para siempre y tener tus propias llaves. El programa también incluye incentivos para áreas como Ray City y Nashville.\n\n{{figure:1}}\n\n**USDA: financiamiento al 100% en áreas rurales**\nEl programa USDA permite comprar sin pago inicial en áreas rurales designadas, incluyendo partes de Lowndes County. Es una opción subestimada que puede ahorrarte miles en el pago inicial. La clave: verificar si tu dirección califica dentro de los límites del condado.\n\n**Lock and Key Realty: tu guía local**\nEn Lock and Key Realty sabemos que comprar tu primera casa es un paso grande. Nuestros agentes conocen Georgia Dream y USDA y pueden guiarte sin agotar tus ahorros. Si estás listo para dar el salto, te ayudamos a encontrar tu casa.\n\n— Leey",
+      "bodyEn": "**Why you think you need a huge down payment**\nWith prices rising and rates shifting, many first-time buyers around Valdosta think they need to save a fortune for the down payment. The good news: you don't. State and federal programs can cover much of the upfront costs, but the information is scattered and confusing.\n\n{{figure:0}}\n\n**Georgia Dream: your state ally**\nGeorgia Dream is the state's first-time home buyer program, offering down payment and closing cost assistance. For buyers in Lowndes County, it can mean the difference between renting forever and holding your own keys. The program also includes incentives for areas like Ray City and Nashville.\n\n{{figure:1}}\n\n**USDA: 100% financing in rural areas**\nThe USDA mortgage program lets you buy with zero down payment in designated rural areas, including parts of Lowndes County. It's an underrated option that can save you thousands on the down payment. The key: verify whether your address qualifies within the county boundaries.\n\n**Lock and Key Realty: your local guide**\nAt Lock and Key Realty, we know buying your first home is a big step. Our agents know Georgia Dream and USDA and can guide you without draining your savings. If you're ready to take the leap, we'll help you find your home.\n\n— Leey"
+    },
     {
       "slug": "termite-south-ga-2026-08-26",
       "date": "2026-08-26",
