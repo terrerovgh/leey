@@ -338,17 +338,23 @@ async function saveIndex(env, index) {
 /** @param {Env} env @param {Request} request */
 async function servePostsJson(env, request) {
   const index = await loadIndex(env);
-  // Public feed: only non-draft
+  // Public feed: only non-draft, newest first
   const publicIndex = {
     version: 1,
     updatedAt: index.updatedAt,
-    posts: (index.posts || []).filter((p) => !p.draft),
+    posts: (index.posts || [])
+      .filter((p) => !p.draft)
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)),
   };
   return new Response(JSON.stringify(publicIndex), {
     status: 200,
     headers: {
       "content-type": "application/json; charset=utf-8",
+      // Browser may cache briefly; Cloudflare edge must revalidate every request
+      // so the public feed reflects KV edits/upserts immediately.
       "cache-control": "public, max-age=30, must-revalidate",
+      "cdn-cache-control": "no-cache, must-revalidate",
       "access-control-allow-origin": "*",
     },
   });
