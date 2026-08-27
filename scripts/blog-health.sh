@@ -63,6 +63,7 @@ EXPECTED_CRONS=(
   leey-blog-writer
   leey-blog-editor
   leey-blog-publish
+  leey-blog-health
 )
 CRON_LIST=$(hermes cron list 2>/dev/null || true)
 MISSING_CRONS=()

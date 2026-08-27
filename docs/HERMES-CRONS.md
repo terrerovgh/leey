@@ -23,6 +23,7 @@ El script es idempotente: borra los jobs `leey-*` existentes y los recrea.
 | 6 | `leey-blog-writer` | 22:10 | agent | `leey-blog-04-write.sh` |
 | 7 | `leey-blog-editor` | 22:40 | agent | `leey-blog-05-editor.sh` |
 | 8 | `leey-blog-publish` | 07:00 | agent | `leey-blog-06-publish.sh` |
+| 9 | `leey-blog-health` | 07:30 | no-agent | `leey-blog-health.sh` |
 
 Los scripts viven en `~/.hermes/scripts/` y apuntan a `scripts/blog_agents/` del repo.
 
@@ -70,12 +71,13 @@ Los scripts viven en `~/.hermes/scripts/` y apuntan a `scripts/blog_agents/` del
 Última instalación: _rellenar tras ejecutar `scripts/hermes-crons-install.sh`_.
 
 ```text
-leey-daily-listings:    f12e6531556b
-leey-blog-research:     9deccbac2a2b
-leey-blog-topic:        29b5498e428c
-leey-blog-image-search: 4ec680d6c1b9
-leey-blog-image-download: e0917b2fbec9
-leey-blog-writer:       27d9f7f87652
-leey-blog-editor:       71db4ebf619e
-leey-blog-publish:      0d1504e38248
+leey-daily-listings:       4ea1d5bfbec6
+leey-blog-research:        c1b6500b1d74
+leey-blog-topic:           f7663eb62263
+leey-blog-image-search:    e4ec7b3f9c79
+leey-blog-image-download:  afcd20772f5c
+leey-blog-writer:          cdd2275c5385
+leey-blog-editor:          39c6bce4b05c
+leey-blog-publish:         34b7d7d2fa63
+leey-blog-health:          dc7616f60403
 ```

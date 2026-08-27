@@ -28,6 +28,7 @@ SCHED_WRITE="10 22 * * *"
 SCHED_EDITOR="40 22 * * *"
 SCHED_PUBLISH="0 7 * * *"
 SCHED_LISTINGS="0 7 * * *"
+SCHED_HEALTH="30 7 * * *"
 
 remove_all_leey_crons() {
   local ids
@@ -144,6 +145,12 @@ create_agent_cron \
   "$SCHED_PUBLISH" \
   "leey-blog-06-publish.sh" \
   "You are the leey-blog-publish specialized bot. Publish today's ready Leey Realty blog post. If READY.json is missing you may run catch-up, otherwise publish only. Report STATUS OK/FAIL."
+
+# Daily health report (no LLM)
+create_noagent_cron \
+  "leey-blog-health" \
+  "$SCHED_HEALTH" \
+  "leey-blog-health.sh"
 
 echo "[cron] installation complete"
 if [[ "$DRY_RUN" == "0" ]]; then
