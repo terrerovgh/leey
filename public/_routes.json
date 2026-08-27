@@ -3,7 +3,10 @@
   "include": ["/*"],
   "exclude": [
     "/assets/*",
-    "/data/*",
+    "/data/listings.json",
+    "/data/listings.demo.json",
+    "/data/listings.json.bak",
+    "/data/listings.market.bak.json",
     "/*.ico",
     "/*.txt",
     "/*.xml",

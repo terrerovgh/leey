@@ -348,7 +348,7 @@ async function servePostsJson(env, request) {
     status: 200,
     headers: {
       "content-type": "application/json; charset=utf-8",
-      "cache-control": "public, max-age=30, stale-while-revalidate=60",
+      "cache-control": "public, max-age=30, must-revalidate",
       "access-control-allow-origin": "*",
     },
   });
