@@ -1,88 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-28T11:02:28.000Z",
+  "updatedAt": "2026-08-27T14:53:06.000Z",
   "posts": [
-    {
-      "slug": "adel-value-2026-08-28",
-      "date": "2026-08-28",
-      "updatedAt": "2026-08-28T11:02:28.000Z",
-      "category": "first_home",
-      "readMinutes": 5,
-      "tags": [
-        "first_home",
-        "Valdosta",
-        "Adel",
-        "South Georgia",
-        "Georgia Dream",
-        "down payment assistance",
-        "Leey"
-      ],
-      "areas": [
-        "adel",
-        "sparks"
-      ],
-      "cover": {
-        "src": "/assets/blog/20260828/adel-value-1.jpg",
-        "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-        "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Decorative Concrete Kingdom · by",
-        "captionEn": "Photo: Decorative Concrete Kingdom · by"
-      },
-      "figures": [
-        {
-          "src": "/assets/blog/20260828/adel-value-1.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Decorative Concrete Kingdom · by",
-          "captionEn": "Photo: Decorative Concrete Kingdom · by"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-2.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 2",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-3.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 3",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-4.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 4",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        }
-      ],
-      "titleEs": "Ayuda Inicial en Georgia: Tu Primera Casa en Valdosta",
-      "titleEn": "Georgia Down Payment: Your First Home in Valdosta",
-      "seoTitleEs": "Ayuda Inicial en Georgia | Leey",
-      "seoTitleEn": "Georgia Down Payment Help | Leey",
-      "seoDescriptionEs": "Descubre cómo acceder a hasta $10,000 de ayuda para el pago inicial y compra tu primera casa en Valdosta o Adel, Georgia. Te guiamos paso a paso.",
-      "seoDescriptionEn": "Learn how to access up to $10,000 in down payment assistance and buy your first home in Valdosta or Adel, Georgia. We guide you step by step.",
-      "excerptEs": "Aprovecha hasta $10,000 del programa Georgia Dream y compra tu primera casa en Valdosta o Adel sin esperar años ahorrando.",
-      "excerptEn": "Take advantage of up to $10,000 from the Georgia Dream program and buy your first home in Valdosta or Adel without years of saving.",
-      "bodyEs": "En Georgia, muchas familias pueden acceder a ayudas de hasta **$10,000** para el pago inicial de su primera casa. Esta puede ser la oportunidad que esperabas para dar el paso a la propiedad sin pasar años ahorrando.\n\nVes {{figure:0}}\n\nEl **programa Georgia Dream** está pensado para compradores como tú. Ofrece asistencia en el enganche, tasas competitivas y opciones de financiamiento flexibles para que el dinero no sea el obstáculo.\n\nYa sea en Valdosta, en Adel o en cualquier rincón del sur de Georgia, este apoyo estatal puede acercarte a las llaves de tu hogar.\n\nConsulta los requisitos actualizados en {{figure:1}}.\n\n— Leey",
-      "bodyEn": "In Georgia, many families can access up to **$10,000** in down payment assistance for their first home. This could be the opportunity you've been waiting for to step into homeownership without years of saving.\n\nSee {{figure:0}}\n\nThe **Georgia Dream program** is designed for buyers just like you. It offers down payment help, competitive rates, and flexible financing options so money doesn't have to stand in your way.\n\nWhether you're in Valdosta, Adel, or anywhere across South Georgia, this state-level support can get you closer to your new home keys.\n\nCheck the latest requirements at {{figure:1}}.\n\n— Leey",
-      "pipeline": {
-        "topicId": "adel-value",
-        "reviewScore": 82,
-        "sourceDay": "2026-08-28"
-      }
-    },
     {
       "slug": "yard-weekend-2026-08-27",
       "date": "2026-08-27",
-      "updatedAt": "2026-08-27T18:10:00.000Z",
+      "updatedAt": "2026-08-27T14:53:06.000Z",
       "category": "first_home",
       "readMinutes": 5,
       "tags": [
@@ -96,24 +19,29 @@
         "nashville"
       ],
       "cover": {
-        "src": "/assets/blog/20260827/georgia-dream-lowndes-pelham.jpg",
-        "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-        "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779"
+        "src": "/assets/blog/20260827/yard-weekend-1.jpg",
+        "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 1",
+        "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260827/georgia-dream-lowndes-valdosta.jpg",
-          "altEs": "Downtown Social, Valdosta, Lowndes County, Georgia",
-          "altEn": "Downtown Social, Valdosta, Lowndes County, Georgia",
-          "captionEs": "Valdosta · Foto: Mjrmtg · CC BY 4.0",
-          "captionEn": "Valdosta · Photo: Mjrmtg · CC BY 4.0"
+          "src": "/assets/blog/20260827/yard-weekend-1.jpg",
+          "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 1",
+          "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260827/georgia-dream-lowndes-doerun.jpg",
-          "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
-          "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744",
-          "captionEs": "Foto listing · Ginny Henry · Doerun",
-          "captionEn": "Listing photo · Ginny Henry · Doerun"
+          "src": "/assets/blog/20260827/yard-weekend-2.jpg",
+          "altEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — imagen 2",
+          "altEn": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
       "titleEs": "Georgia Dream y USDA: Cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros",
@@ -130,7 +58,7 @@
     {
       "slug": "termite-south-ga-2026-08-26",
       "date": "2026-08-26",
-      "updatedAt": "2026-08-27T18:10:00.000Z",
+      "updatedAt": "2026-08-27T14:41:38.000Z",
       "category": "market",
       "readMinutes": 5,
       "tags": [
@@ -141,24 +69,29 @@
       ],
       "areas": [],
       "cover": {
-        "src": "/assets/blog/20260826/termite-south-ga-doerun.jpg",
-        "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
-        "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744"
+        "src": "/assets/blog/20260826/termite-south-ga-1.jpg",
+        "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 1",
+        "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260826/termite-south-ga-pelham.jpg",
-          "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "captionEs": "Foto listing · Will Wright · Pelham",
-          "captionEn": "Listing photo · Will Wright · Pelham"
+          "src": "/assets/blog/20260826/termite-south-ga-1.jpg",
+          "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 1",
+          "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260826/termite-south-ga-nashville.jpg",
-          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
-          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
-          "captionEs": "Foto listing · Madison Hewett · Nashville",
-          "captionEn": "Listing photo · Madison Hewett · Nashville"
+          "src": "/assets/blog/20260826/termite-south-ga-2.jpg",
+          "altEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA — imagen 2",
+          "altEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
       "titleEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA",
@@ -175,7 +108,7 @@
     {
       "slug": "mudarse-florida-sur-georgia-ahorro-impuestos-seguros-2026-08-25",
       "date": "2026-08-25",
-      "updatedAt": "2026-08-27T18:10:00.000Z",
+      "updatedAt": "2026-08-24T19:19:16.000Z",
       "category": "moving_guide",
       "readMinutes": 5,
       "tags": [
@@ -189,24 +122,45 @@
         "thomasville"
       ],
       "cover": {
-        "src": "/assets/blog/20260825/florida-to-georgia-i75.jpg",
-        "altEs": "Carretera I-75 llegando a Downtown Valdosta Historic District, Exit 16",
-        "altEn": "I-75 highway approaching Downtown Valdosta Historic District, Exit 16"
+        "src": "/assets/blog/20260825/list-before-paint-1.jpg",
+        "altEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — imagen 1",
+        "altEn": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260825/florida-to-georgia-moultrie.jpg",
-          "altEs": "Downtown Pocket Park, Moultrie, Georgia",
-          "altEn": "Downtown Pocket Park, Moultrie, Georgia",
-          "captionEs": "Moultrie · Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Moultrie · Photo: Michael Rivera · CC BY-SA 4.0"
+          "src": "/assets/blog/20260825/list-before-paint-1.jpg",
+          "altEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — imagen 1",
+          "altEn": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260825/florida-to-georgia-thomasville.jpg",
-          "altEs": "Torre de agua en el centro de Thomasville, Georgia",
-          "altEn": "Water tower in downtown Thomasville, Georgia",
-          "captionEs": "Thomasville · Foto: The Bushranger · CC BY-SA 4.0",
-          "captionEn": "Thomasville · Photo: The Bushranger · CC BY-SA 4.0"
+          "src": "/assets/blog/20260825/list-before-paint-2.jpg",
+          "altEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — imagen 2",
+          "altEn": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260825/list-before-paint-3.jpg",
+          "altEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — imagen 3",
+          "altEn": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260825/list-before-paint-4.jpg",
+          "altEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — imagen 4",
+          "altEn": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos de propiedad y seguros de hogar — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
       "titleEs": "Mudarse de Florida al Sur de Georgia: ¿Cuánto ahorras en impuestos y seguros?",
