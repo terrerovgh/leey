@@ -64,6 +64,13 @@
       "listar",
       "fotos",
       "precio"
+    ],
+    "image_queries": [
+      "house for sale yard sign",
+      "home staging living room interior",
+      "freshly painted house exterior",
+      "modern house exterior front yard Georgia",
+      "seller preparing home for sale"
     ]
   },
   {
@@ -135,6 +142,13 @@
       "Adel",
       "lote",
       "valor"
+    ],
+    "image_queries": [
+      "Adel Georgia residential house",
+      "Sparks Georgia home exterior",
+      "Cook County Georgia house front yard",
+      "South Georgia ranch house large lot",
+      "residential home exterior Adel Georgia"
     ]
   },
   {
@@ -150,6 +164,13 @@
       "inspección",
       "termitas",
       "humedad"
+    ],
+    "image_queries": [
+      "well maintained brick house exterior Georgia",
+      "residential home foundation landscaping",
+      "clean house exterior crawl space vents",
+      "Valdosta Georgia house exterior",
+      "Thomasville Georgia residential home"
     ]
   },
   {
@@ -165,6 +186,13 @@
       "staging",
       "fotos",
       "luz"
+    ],
+    "image_queries": [
+      "home staging living room interior",
+      "bright clean living room natural light",
+      "minimalist home staging bedroom",
+      "house exterior front yard Georgia",
+      "modern kitchen staging interior"
     ]
   },
   {
@@ -180,6 +208,13 @@
       "Florida",
       "licencia",
       "mudanza"
+    ],
+    "image_queries": [
+      "Valdosta Georgia residential neighborhood",
+      "suburban homes street Georgia",
+      "North Florida South Georgia border area homes",
+      "family home exterior front yard",
+      "residential street houses trees Georgia"
     ]
   },
   {
@@ -195,6 +230,13 @@
       "primera casa",
       "financiamiento",
       "calma"
+    ],
+    "image_queries": [
+      "first time homebuyer touring house interior",
+      "single family home exterior front yard Georgia",
+      "Hahira Georgia residential house",
+      "Valdosta Georgia home exterior",
+      "new homeowner keys front door"
     ]
   },
   {
@@ -210,6 +252,13 @@
       "patio",
       "curb appeal",
       "fin de semana"
+    ],
+    "image_queries": [
+      "large backyard lawn residential house Georgia",
+      "front yard curb appeal house exterior",
+      "suburban home backyard green lawn",
+      "South Georgia house front yard",
+      "weekend yard cleanup home exterior"
     ]
   },
   {
@@ -225,6 +274,13 @@
       "baño",
       "presupuesto",
       "vender"
+    ],
+    "image_queries": [
+      "clean modern bathroom interior",
+      "bright bathroom vanity mirror",
+      "updated bathroom sink faucet",
+      "small bathroom refresh white tiles",
+      "residential bathroom natural light"
     ]
   },
   {
@@ -239,6 +295,13 @@
       "precio",
       "mercado",
       "días en mercado"
+    ],
+    "image_queries": [
+      "house for sale yard sign",
+      "real estate agent discussing price with seller",
+      "Valdosta Georgia house exterior",
+      "home listing price reduction concept",
+      "residential house exterior front yard"
     ]
   },
   {
@@ -253,6 +316,57 @@
       "Thomasville",
       "histórico",
       "mantenimiento"
+    ],
+    "image_queries": [
+      "Thomasville Georgia historic home exterior",
+      "Thomasville Georgia residential street",
+      "historic house front porch Georgia",
+      "Thomasville Georgia neighborhood homes",
+      "well maintained historic home exterior"
+    ]
+  },
+  {
+    "id": "georgia-dream-lowndes",
+    "category": "first_home",
+    "areas": [
+      "valdosta",
+      "lowndes-county",
+      "ray-city",
+      "hahira"
+    ],
+    "angleEs": "Georgia Dream y USDA: cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros",
+    "angleEn": "Georgia Dream and USDA: How to Buy Your First Home in Lowndes County Without Draining Your Savings",
+    "mustInclude": [
+      "Georgia Dream",
+      "USDA",
+      "Lowndes County"
+    ],
+    "image_queries": [
+      "Valdosta Georgia house exterior",
+      "Lowndes County Georgia home",
+      "South Georgia ranch house front yard"
+    ]
+  },
+  {
+    "id": "florida-to-georgia",
+    "category": "moving_guide",
+    "areas": [
+      "moultrie",
+      "thomasville",
+      "valdosta"
+    ],
+    "angleEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras en impuestos y seguros",
+    "angleEn": "Moving from Florida to South Georgia: How Much You Save on Taxes and Insurance",
+    "mustInclude": [
+      "Florida",
+      "Georgia",
+      "impuestos",
+      "seguros"
+    ],
+    "image_queries": [
+      "Thomasville Georgia historic home",
+      "Moultrie Georgia residential neighborhood",
+      "South Georgia home exterior"
     ]
   }
 ]

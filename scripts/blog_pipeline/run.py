@@ -396,6 +396,96 @@ def _figure_indices(body: str) -> set[int]:
     return {int(m.group(1)) for m in re.finditer(r"\{\{figure:(\d+)\}\}", body)}
 
 
+def _figure_markers_on_own_lines(body: str) -> bool:
+    """Every {{figure:N}} sits on its own line with no other text."""
+    for line in (body or "").splitlines():
+        line = line.strip()
+        if re.search(r"\{\{figure:\d+\}\}", line):
+            if not re.fullmatch(r"\{\{figure:\d+\}\}", line):
+                return False
+    return True
+
+
+def normalize_figure_markers(body: str, n_figures: int) -> str:
+    """Put every valid {{figure:N}} on its own paragraph line, distributed evenly.
+
+    - Strips broken/escaped variants and inline markers.
+    - Drops indices >= n_figures.
+    - Inserts missing markers if the body has too few.
+    - Cleans up double spaces left by removed inline markers.
+    """
+    if n_figures <= 0:
+        return body or ""
+
+    text = body or ""
+    # Normalize line endings and collapse multiple blank lines.
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    # Remove inline/broken figure markers, leaving a placeholder we will collapse.
+    text = re.sub(r"\\\{\{figure:\d+\\\}\}", " ", text)
+    text = re.sub(r"\{\{\s*figure\s*:\s*\d+\s*\}\}", " ", text, flags=re.I)
+    text = re.sub(r"\[Figura?\s*\d+\]", " ", text, flags=re.I)
+    text = re.sub(r"\bFigure\s*\d+\b", " ", text, flags=re.I)
+    # Clean double spaces left behind inside paragraphs.
+    text = re.sub(r"[ \t]{2,}", " ", text)
+
+    # Split into non-empty paragraphs.
+    paragraphs = [p.strip() for p in re.split(r"\n\n+", text) if p.strip()]
+
+    # Collect valid existing standalone markers and remove their paragraphs.
+    markers: list[int] = []
+    clean_paragraphs: list[str] = []
+    marker_re = re.compile(r"^\{\{figure:(\d+)\}\}$")
+    for p in paragraphs:
+        m = marker_re.match(p)
+        if m:
+            idx = int(m.group(1))
+            if idx < n_figures and idx not in markers:
+                markers.append(idx)
+            continue
+        clean_paragraphs.append(p)
+
+    # Ensure we use a reasonable spread of indices.
+    target_markers = list(range(n_figures))
+    existing_set = set(markers)
+    for idx in target_markers:
+        if idx not in existing_set:
+            markers.append(idx)
+    markers = sorted(set(m for m in markers if m < n_figures))
+
+    n_markers = len(markers)
+    n_paras = len(clean_paragraphs)
+    out: list[str] = []
+    if n_paras == 0:
+        for idx in markers:
+            out.append(f"{{{{figure:{idx}}}}}")
+        return "\n\n".join(out)
+
+    # Treat the sign-off line as a special trailing block so markers never go after it.
+    signoff: str | None = None
+    if clean_paragraphs and clean_paragraphs[-1].rstrip().endswith("Leey"):
+        signoff = clean_paragraphs.pop()
+        n_paras -= 1
+
+    # Distribute markers evenly across paragraphs (excluding sign-off).
+    step = max(1, n_paras // max(1, n_markers)) if n_paras > 0 else 1
+    marker_idx = 0
+    for i, para in enumerate(clean_paragraphs):
+        out.append(para)
+        if marker_idx < n_markers and (i + 1) % step == 0:
+            out.append(f"{{{{figure:{markers[marker_idx]}}}}}")
+            marker_idx += 1
+    while marker_idx < n_markers:
+        out.append(f"{{{{figure:{markers[marker_idx]}}}}}")
+        marker_idx += 1
+
+    if signoff:
+        out.append(signoff)
+
+    return "\n\n".join(out)
+
+
 def validate_post(final: dict) -> dict[str, bool]:
     body_es = final.get("bodyEs") or ""
     body_en = final.get("bodyEn") or ""
@@ -410,6 +500,9 @@ def validate_post(final: dict) -> dict[str, bool]:
     es_figs = _figure_indices(body_es)
     en_figs = _figure_indices(body_en)
     valid_figs = fig_count > 0 and all(i < fig_count for i in es_figs | en_figs)
+    min_used = min(2, fig_count) if fig_count > 0 else 0
+    balanced_es = len(es_figs) >= min_used
+    balanced_en = len(en_figs) >= min_used
     return {
         "has_cover": bool(cover),
         "has_body_es": len(body_es) > 400,
@@ -420,6 +513,8 @@ def validate_post(final: dict) -> dict[str, bool]:
         "has_meta_en": 80 <= len(meta_en) <= 180,
         "has_figure_marker": "{{figure:0}}" in body_es and "{{figure:0}}" in body_en,
         "figures_match_markers": valid_figs,
+        "figures_on_own_lines": _figure_markers_on_own_lines(body_es) and _figure_markers_on_own_lines(body_en),
+        "figures_used_balanced": balanced_es and balanced_en,
         "has_signoff": "Leey" in body_es[-40:] and "Leey" in body_en[-40:],
         "no_em_dash_spam": body_es.count("—") <= 3 and body_en.count("—") <= 3,
         "no_ai_bans": not banned_hit,
@@ -618,19 +713,29 @@ def stage_topic(
         base = scored[0][1]
 
     synth = research.get("synth") or {}
-    # When topic is pinned, prefer bank angles over research drift
-    prefer_bank = bool(topic_id)
+    # Always anchor on the topic bank angle to avoid research drift.
+    # Research synth enriches keywords/image_queries but must not override the
+    # bank's angle, category, primary areas, or why_now context.
+    bank_keywords_es = list(base.get("mustInclude") or [])
+    # Keep English keywords from synth only; the bank's mustInclude is ES-first
+    # and often leaks Spanish words like "listar", "fotos", "precio".
+    bank_keywords_en: list[str] = []
+    season = research.get("season") or "esta temporada"
+    why_now_local = (
+        f"{base['angleEs']} En el sur de Georgia, {season.lower()} es un buen momento "
+        f"para hablar de esto con familias que buscan casa en {', '.join(str(a).replace('-', ' ').title() for a in (base.get('areas') or ['Valdosta']))}."
+    )
     topic = {
         "id": base["id"],
-        "category": base["category"] if prefer_bank else (synth.get("category") or base["category"]),
-        "areas": base.get("areas") or synth.get("primary_towns") or ["valdosta"],
+        "category": base["category"],
+        "areas": base.get("areas") or ["valdosta"],
         "angleEs": base["angleEs"],
         "angleEn": base["angleEn"],
-        "headline_angle": base["angleEs"] if prefer_bank else (synth.get("headline_angle") or base["angleEs"]),
-        "headline_angle_en": base["angleEn"] if prefer_bank else (synth.get("headline_angle_en") or base["angleEn"]),
-        "why_now": synth.get("why_now") or research.get("season"),
-        "keywords_es": base.get("mustInclude") or synth.get("keywords_es") or [],
-        "keywords_en": synth.get("keywords_en") or [],
+        "headline_angle": base["angleEs"],
+        "headline_angle_en": base["angleEn"],
+        "why_now": why_now_local,
+        "keywords_es": list(dict.fromkeys(bank_keywords_es + list(synth.get("keywords_es") or [])))[:10],
+        "keywords_en": list(dict.fromkeys(bank_keywords_en + list(synth.get("keywords_en") or [])))[:10],
         "image_queries": list(base.get("image_queries") or [])
         or list(synth.get("image_queries") or [])
         or [
@@ -639,29 +744,64 @@ def stage_topic(
             "brick ranch house yard Georgia",
         ],
         "researchDate": day,
-        "pinned": prefer_bank,
+        "pinned": bool(topic_id),
     }
     # normalize areas to slugs-ish
     topic["areas"] = [
         re.sub(r"[^a-z0-9]+", "-", str(a).lower()).strip("-") for a in topic["areas"]
     ][:4]
-    # enrich image queries from topic must-include / angle / named towns
+    # enrich image queries from topic must-include / angle / named towns / category
     extra_q = []
     blob = (topic["angleEn"] + " " + topic["angleEs"] + " " + " ".join(topic["areas"])).lower()
+    cat = topic["category"].lower()
+    areas_title = [str(a).replace("-", " ").title() for a in topic["areas"]]
+
+    # Core residential context for every topic
+    for place in areas_title:
+        extra_q.append(f"{place} Georgia residential house exterior")
+        extra_q.append(f"{place} Georgia home front yard")
+    if not areas_title:
+        extra_q += ["South Georgia residential house exterior", "Georgia home front yard"]
+
     if any(w in blob for w in ("porch", "porche")):
-        extra_q += ["southern front porch house", "georgia porch rocking chair home"]
+        extra_q += [
+            "southern front porch house",
+            "georgia porch rocking chair home",
+            "covered front porch residential house",
+        ]
     if any(w in blob for w in ("kitchen", "cocina")):
-        extra_q += ["bright kitchen interior residential", "kitchen remodel before after home"]
-    if any(w in blob for w in ("offer", "oferta")):
-        extra_q += ["house for sale yard sign", "couple touring home interior"]
-    # Prefer place-name photo searches for neighborhood posts
+        extra_q += [
+            "bright kitchen interior residential",
+            "kitchen remodel before after home",
+            "modern kitchen interior natural light",
+        ]
+    if any(w in blob for w in ("offer", "oferta", "buying", "comprar", "first_home", "primera casa")):
+        extra_q += [
+            "single family home exterior Georgia",
+            "residential house front yard lawn",
+            "american brick ranch house curb appeal",
+            "suburban home exterior sunny day",
+        ]
+    if any(w in blob for w in ("selling", "vender", "staging", "listar")):
+        extra_q += [
+            "house for sale yard sign",
+            "home staging living room interior",
+            "residential house exterior ready for sale",
+        ]
+    if any(w in blob for w in ("moving", "mudanza", "florida", "tax", "seguro", "insurance")):
+        extra_q += [
+            "suburban neighborhood street houses Georgia",
+            "residential community homes street",
+            "family home exterior south georgia",
+        ]
+    # Place-name photo searches for neighborhood/place posts (keep them residential)
     for place in ("Valdosta", "Hahira", "Adel", "Sparks", "Tifton", "Moultrie", "Thomasville", "Nashville"):
         if place.lower() in blob:
-            extra_q.append(f"{place} Georgia")
-            extra_q.append(f"{place} Georgia downtown")
+            extra_q.append(f"{place} Georgia residential neighborhood")
+            extra_q.append(f"{place} Georgia homes street")
     if any(w in blob for w in ("town", "pueblo", "neighborhood", "zona", "trayecto", "drive")):
         extra_q += [
-            "small town Georgia main street",
+            "small town Georgia residential street",
             "south Georgia residential neighborhood",
             "pine trees residential street Georgia USA",
         ]
@@ -782,16 +922,23 @@ def topic_visual_brief(topic: dict) -> dict:
         place = ", ".join(areas) if areas else "the named South Georgia towns"
         return {
             "label": "place",
-            "must_show": f"an attractive, well-maintained outdoor scene associated with {place} (pleasant residential street, nice homes with manicured lawns, clean downtown)",
-            "reject_if": "dilapidated building, industrial zone, car lot, document, or unappealing rubble",
-            "keywords": areas + ["downtown", "street", "courthouse", "georgia", "neighborhood"],
+            "must_show": f"an attractive, well-maintained residential scene associated with {place}: pleasant residential street, nice homes with manicured lawns, or a clean, small-town downtown with houses visible — NOT a courthouse, festival, or commercial strip",
+            "reject_if": "dilapidated building, industrial zone, car lot, courthouse only, festival, commercial strip without homes, document, or unappealing rubble",
+            "keywords": areas + ["residential", "neighborhood", "homes", "street", "downtown"],
         }
     if cat in ("buying", "selling") or "offer" in tid or "oferta" in angle:
         return {
             "label": "home_sale",
             "must_show": "an attractive, welcoming single-family residential house exterior with lawn or appealing front yard",
-            "reject_if": "run-down/abandoned shack, dilapidated roof, industrial building, car dealership, or commercial strip mall",
+            "reject_if": "run-down/abandoned shack, dilapidated roof, industrial building, car dealership, commercial strip mall, festival, concrete floor, or non-residential scene",
             "keywords": ["house", "home", "for sale", "yard", "exterior", "listing", "ranch"],
+        }
+    if cat == "first_home" or "primera casa" in angle or "down payment" in angle or "ayuda pago" in angle:
+        return {
+            "label": "first_home",
+            "must_show": "an attractive, welcoming single-family residential house exterior with lawn, front yard, porch, or driveway — clearly a home a first-time buyer would tour",
+            "reject_if": "festival, concrete floor, entertainment room, parking lot, car lot, industrial building, commercial strip, document, or non-residential scene",
+            "keywords": ["house", "home", "residential", "yard", "exterior", "front porch", "driveway", "ranch"],
         }
     if "termite" in tid or "termitas" in angle or "moisture" in angle or "humedad" in angle:
         return {
@@ -810,13 +957,38 @@ def topic_visual_brief(topic: dict) -> dict:
     return {
         "label": "home",
         "must_show": "an attractive, well-kept residential home scene (appealing house exterior, green manicured lawn, or cozy interior)",
-        "reject_if": "shack, abandoned property, run-down building, commercial lot, documents, or blurry photos",
+        "reject_if": "shack, abandoned property, run-down building, commercial lot, documents, festival, concrete floor, or non-residential scene",
         "keywords": ["house", "home", "residential"],
     }
 
 
+def _vision_cache() -> dict:
+    path = WORK_ROOT / ".vision_cache.json"
+    data = load_json(path, {"version": 1, "entries": {}})
+    return data if isinstance(data, dict) else {"version": 1, "entries": {}}
+
+
+def _vision_cache_save(data: dict) -> None:
+    path = WORK_ROOT / ".vision_cache.json"
+    data["updatedAt"] = utc_now()
+    save_json(path, data)
+
+
+def _vision_cache_key(path: Path, topic: dict) -> str:
+    try:
+        h = hashlib.sha1(path.read_bytes()).hexdigest()
+    except Exception:
+        h = hashlib.sha1(str(path).encode()).hexdigest()
+    label = topic_visual_brief(topic).get("label", "home")
+    return f"{h}:{label}"
+
+
 def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = None) -> tuple[bool, str]:
-    """Vision gate: examine the image before accepting it for the topic."""
+    """Vision gate: examine the image before accepting it for the topic.
+
+    Uses a per-hash cache to avoid re-analyzing the same image for the same brief.
+    When vision is unavailable, strict topics require matching metadata keywords.
+    """
     brief = topic_visual_brief(topic)
     title = f"{(candidate or {}).get('title') or ''} {(candidate or {}).get('description') or ''}".lower()
     kws = [k.lower() for k in brief.get("keywords") or []]
@@ -827,6 +999,23 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
         k in title for k in ("kitchen", "bathroom", "floor plan", "map of", "logo", "dealership")
     ) and "porch" not in title and "stoop" not in title and "veranda" not in title:
         return False, "metadata non-porch"
+
+    # Non-residential metadata reject
+    non_residential = (
+        "festival", "daylily", "concrete", "epoxy", "graniflex", "entertainment room",
+        "floor warriors", "parade", "concert", "crowd", "courthouse", "jail", "prison",
+        "hospital", "school", "stadium", "restaurant", "commercial", "industrial",
+    )
+    if any(k in title for k in non_residential):
+        return False, "metadata non-residential"
+
+    # Cache lookup
+    cache = _vision_cache()
+    cache_key = _vision_cache_key(path, topic)
+    cached = cache.get("entries", {}).get(cache_key)
+    if cached:
+        log(f"[vision] cache hit {path.name} -> match={cached.get('match')}")
+        return bool(cached.get("match")), str(cached.get("reason") or "cached")
 
     prompt = (
         "Eres un QA visual para fotos de un blog inmobiliario en South Georgia. "
@@ -839,6 +1028,7 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
 
     # Vision models: strong first for gate decisions, then free fallback.
     models = list(MODELS_VISION)
+    vision_answer: tuple[bool, str] | None = None
     for model in models:
         try:
             r = subprocess.run(
@@ -882,7 +1072,8 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
             match = obj.get("match") is True or str(obj.get("match")).lower() == "true"
             reason = str(obj.get("reason") or obj.get("what_you_see") or out[:120])
             log(f"[vision] model={model} match={match} {reason[:100]}")
-            return bool(match), reason
+            vision_answer = (bool(match), reason)
+            break
         except subprocess.TimeoutExpired:
             log(f"[vision] timeout model={model}")
             continue
@@ -890,14 +1081,27 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
             log(f"[vision] fail model={model}: {e}")
             continue
 
+    if vision_answer is not None:
+        cache["entries"][cache_key] = {"match": vision_answer[0], "reason": vision_answer[1]}
+        _vision_cache_save(cache)
+        return vision_answer
+
     # Fallback when vision stack is down
     if brief["label"] in ("porch", "kitchen"):
         if meta_hit:
             return True, "vision unavailable; metadata keywords ok"
         return False, "vision unavailable; strict topic needs porch/kitchen cues"
+    if brief["label"] in ("first_home", "home_sale"):
+        if meta_hit:
+            return True, "vision unavailable; residential metadata ok"
+        return False, "vision unavailable; home topic needs residential cues"
+    if brief["label"] == "place":
+        if meta_hit:
+            return True, "vision unavailable; place metadata ok"
+        return False, "vision unavailable; place topic needs location cues"
     if meta_hit:
         return True, "vision unavailable; metadata ok"
-    return True, "vision unavailable; soft allow"
+    return False, "vision unavailable; strict gate rejects unknown image"
 
 
 
@@ -1204,28 +1408,17 @@ def unsplash_search(query: str, limit: int = 5) -> list[dict]:
     return out
 
 
-def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
-    """Prefer live Lock & Key / GAMLS listing photos (color, current inventory)."""
-    feed = load_json(ROOT / "public/data/listings.json", {"listings": []})
-    items = feed.get("listings") if isinstance(feed, dict) else feed
-    if not isinstance(items, list):
-        items = []
-
-    areas = [str(a).replace("-", " ").lower() for a in (topic.get("areas") or [])]
-    cat = (topic.get("category") or "").lower()
-    angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {topic.get('id') or ''}".lower()
-    want_interior = any(k in angle or k in cat for k in ("kitchen", "cocina", "interior", "remodel", "decor"))
-    want_porch = any(k in angle for k in ("porch", "porche", "curb"))
-    want_exterior = cat in ("buying", "selling", "neighborhoods", "market", "first_home") or not want_interior
-    # Neighborhood / place posts: only use listings that match topic areas.
-    # Never fill with random South GA cities when the post names specific towns.
-    require_area_match = bool(areas) and (
-        cat == "neighborhoods"
-        or any(k in angle for k in ("valdosta", "hahira", "adel", "sparks", "tifton", "thomasville", "donde", "where to start", "zona", "area"))
-    )
-
+def _score_listing_photos(
+    items: list[dict],
+    areas: list[str],
+    want_interior: bool,
+    want_porch: bool,
+    want_exterior: bool,
+    require_area_match: bool,
+    neighbor_boost: bool,
+    seen_urls: set[str],
+) -> list[tuple[float, dict]]:
     scored: list[tuple[float, dict]] = []
-    seen_urls: set[str] = set()
     for it in items:
         city = str(it.get("city") or "").lower()
         addr = str(it.get("address") or it.get("title") or "")
@@ -1242,19 +1435,15 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
                 area_hit = True
         if areas and not area_hit:
             if require_area_match:
-                continue  # wrong city for this topic
-            # generic posts may still use inventory elsewhere, but weakly
-            area_boost = 0.5
+                continue
+            area_boost = 0.5 if not neighbor_boost else 2.0
 
         ordered = list(imgs)
         if want_interior and len(ordered) > 2:
-            # MLS galleries usually: 0 exterior hero, then interiors (kitchen/bath/living)
-            # Prefer interior slots first for kitchen/remodel/decor posts.
             interior = ordered[2:12]
             hero = ordered[:2]
             ordered = interior + hero
         elif want_porch and len(ordered) > 1:
-            # porch/curb: exterior-first angles; vision gate will keep true porches
             ordered = ordered[:10]
         elif want_exterior:
             ordered = ordered[:6]
@@ -1294,8 +1483,53 @@ def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
                     },
                 )
             )
+    return scored
 
+
+def listing_image_candidates(topic: dict, limit: int = 24) -> list[dict]:
+    """Prefer live Lock & Key / GAMLS listing photos (color, current inventory).
+
+    First pass uses the topic's exact areas. If too few are found and the topic is
+    not a strict neighborhood guide, a second pass pulls photos from nearby
+    South Georgia towns so home/buying/selling posts still get real house photos.
+    """
+    feed = load_json(ROOT / "public/data/listings.json", {"listings": []})
+    items = feed.get("listings") if isinstance(feed, dict) else feed
+    if not isinstance(items, list):
+        items = []
+
+    areas = [str(a).replace("-", " ").lower() for a in (topic.get("areas") or [])]
+    cat = (topic.get("category") or "").lower()
+    angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {topic.get('id') or ''}".lower()
+    want_interior = any(k in angle or k in cat for k in ("kitchen", "cocina", "interior", "remodel", "decor"))
+    want_porch = any(k in angle for k in ("porch", "porche", "curb"))
+    want_exterior = cat in ("buying", "selling", "neighborhoods", "market", "first_home", "moving_guide") or not want_interior
+    # Neighborhood / place posts: only use listings that match topic areas.
+    require_area_match = bool(areas) and (
+        cat == "neighborhoods"
+        or any(k in angle for k in ("valdosta", "hahira", "adel", "sparks", "tifton", "thomasville", "donde", "where to start", "zona", "area"))
+    )
+
+    seen_urls: set[str] = set()
+    scored = _score_listing_photos(
+        items, areas, want_interior, want_porch, want_exterior,
+        require_area_match, neighbor_boost=False, seen_urls=seen_urls,
+    )
     scored.sort(key=lambda x: x[0], reverse=True)
+
+    # Fallback to nearby South GA towns for home/buying/selling/moving topics
+    # when exact-area inventory is thin. Neighborhood guides keep strict match.
+    min_before_fallback = 6
+    if not require_area_match and len(scored) < min_before_fallback:
+        neighbor_areas = [a.lower() for a in SOUTH_GA if a.lower() not in areas]
+        extra = _score_listing_photos(
+            items, neighbor_areas, want_interior, want_porch, want_exterior,
+            require_area_match=False, neighbor_boost=True, seen_urls=seen_urls,
+        )
+        scored.extend(extra)
+        scored.sort(key=lambda x: x[0], reverse=True)
+        log(f"[assets] listing fallback used; exact={len([s for s in scored if s[0] >= 20])} total={len(scored)}")
+
     out = [c for _, c in scored[:limit]]
     log(f"[assets] listing candidates={len(out)} from inventory={len(items)}")
     return out
@@ -1317,6 +1551,13 @@ def relevance_score(candidate: dict, topic: dict) -> float:
         "military", "museum interior exhibit", "skeleton", "anatomy", "microscopy",
         "ellipsis", "postcard", "statue", "cemetery", "gravestone", "ruin",
         "demolished", "fire damage", "warship", "locomotive", "steam engine",
+        # Non-residential / event / irrelevant tokens that leak into home searches
+        "festival", "daylily", "concrete", "epoxy", "graniflex", "entertainment room",
+        "floor warriors", "parade", "concert", "crowd", "food truck", "carnival",
+        "fairground", "plaza", "courthouse", "jail", "prison", "hospital", "school",
+        "university campus", "college building", "stadium", "gym", "storefront",
+        "restaurant", "shop", "commercial", "industrial", "warehouse", "parking lot",
+        "highway", "interstate", "road sign", "billboard", "car lot", "dealership",
     )
     if any(b in title for b in bad):
         return -100.0
@@ -1358,15 +1599,23 @@ def relevance_score(candidate: dict, topic: dict) -> float:
             place_hit = True
 
     cat = (topic.get("category") or "").lower()
+    # For topics that must show homes, require residential cues in web photos.
+    # Listing photos are homes by definition, so skip this penalty for them.
+    must_be_home = cat in ("buying", "selling", "first_home", "moving_guide")
+    residential_cues = ("house", "home", "residential", "exterior", "porch", "yard", "ranch", "bungalow", "cottage")
+    has_home_cue = any(w in title for w in residential_cues)
+    if must_be_home and source != "listing" and not has_home_cue:
+        score -= 60.0
     # For neighborhood/place posts, web photos without place tokens are near-useless
     if cat == "neighborhoods" and candidate.get("source") != "listing" and not place_hit:
         score -= 20.0
+    # Neighborhood posts should still look residential, not just downtown monuments
+    if cat == "neighborhoods" and candidate.get("source") != "listing" and not has_home_cue:
+        score -= 25.0
 
-    if cat in ("buying", "selling") and any(
-        w in title for w in ("for sale", "house", "home", "yard sign", "real estate", "listing")
-    ):
-        score += 3.0
-    if cat == "neighborhoods" and any(w in title for w in ("downtown", "street", "georgia", "town", "listing")):
+    if cat in ("buying", "selling", "first_home") and has_home_cue:
+        score += 6.0
+    if cat == "neighborhoods" and any(w in title for w in ("downtown", "street", "georgia", "town", "listing", "residential")):
         score += 3.0
     if cat in ("decor", "remodel") and any(
         w in title for w in ("kitchen", "porch", "interior", "room", "house", "listing")
@@ -1385,23 +1634,26 @@ def relevance_score(candidate: dict, topic: dict) -> float:
 
 def build_image_queries(topic: dict) -> list[str]:
     queries = list(topic.get("image_queries") or [])
-    for a in topic.get("areas") or []:
-        queries.append(f"{a.replace('-', ' ')} Georgia beautiful home exterior")
+    areas = topic.get("areas") or ["valdosta"]
+    for a in areas:
+        place = a.replace("-", " ").title()
+        queries.append(f"{place} Georgia residential house exterior")
+        queries.append(f"{place} Georgia home front yard")
     cat = (topic.get("category") or "").lower()
     tid = (topic.get("id") or "").lower()
     angle = f"{topic.get('angleEn') or ''} {topic.get('angleEs') or ''} {topic.get('headline_angle_en') or ''} {topic.get('headline_angle') or ''} {tid}".lower()
 
     if any(k in angle for k in ("first home", "primera casa", "primera vivienda", "down payment", "ayuda pago", "loan", "prestamo")):
         queries.extend([
-            "beautiful suburban house front lawn garden",
+            "single family home exterior front yard",
             "modern brick ranch house curb appeal",
             "charming southern home front porch sunny",
-            "lovely single family home green yard",
+            "lovely residential house green lawn",
             "attractive suburban home driveway lawn",
         ])
     elif any(k in angle for k in ("florida", "mudanza", "move", "moving", "state line", "frontera", "impuesto", "tax", "seguro", "insurance")):
         queries.extend([
-            "beautiful southern residential neighborhood houses",
+            "southern residential neighborhood houses",
             "charming brick home front yard flowers",
             "attractive single story ranch house sunny lawn",
             "pleasant suburban street houses trees",
@@ -1410,7 +1662,7 @@ def build_image_queries(topic: dict) -> list[str]:
         ])
     elif any(k in angle for k in ("termite", "termitas", "moisture", "humedad", "crawl space", "inspection", "inspeccion")):
         queries.extend([
-            "well maintained southern brick house crawl space clean yard",
+            "well maintained southern brick house exterior clean yard",
             "attractive brick home foundation landscaping sunny",
             "clean dry home exterior crawl space vents garden",
             "charming southern single family home sunny lawn",
@@ -1442,11 +1694,13 @@ def build_image_queries(topic: dict) -> list[str]:
             "pleasant suburban neighborhood street houses",
         ])
     cleaned = []
+    banned_terms = ("festival", "concrete", "epoxy", "entertainment room", "parade", "concert", "crowd")
     for q in queries:
         qs = str(q).strip()
         if not qs or len(qs) < 3:
             continue
-        if "historic" in qs.lower() or "vintage" in qs.lower() or "19" in qs:
+        ql = qs.lower()
+        if "historic" in ql or "vintage" in ql or ql.startswith("19") or any(b in ql for b in banned_terms):
             continue
         cleaned.append(qs)
     return list(dict.fromkeys(cleaned))[:14]
@@ -1868,10 +2122,11 @@ Contexto del post:
 
 Instrucciones de estilo y formato (MUY IMPORTANTE):
 1. NO uses símbolos markdown de encabezados como "###", "##", "#" ni listas con guiones tipo manual. Usa párrafos fluidos y naturales con negrita (**Subtítulo**) para separar ideas.
-2. Longitud moderada y concisa (3 a 4 párrafos cortos y directos, sin extenderse innecesariamente).
-3. Inserta los marcadores de imágenes {{{{figure:0}}}}, {{{{figure:1}}}} de forma natural entre párrafos.
-4. Cierre cálido y directo firmado con "— Leey".
-5. Prohibidos clichés de IA o lenguaje acartonado (nada de "en conclusión", "en resumen", "delve", "seamless", "tapestry", "paisaje", "desbloquear").
+2. Longitud moderada y concisa (3 a 5 párrafos cortos y directos, sin extenderse innecesariamente).
+3. Inserta los marcadores de imágenes EXACTAMENTE así: {{{{figure:0}}}} y {{{{figure:1}}}}. Cada marcador debe ir en SU PROPIA LÍNEA, separado por párrafos. NUNCA escribas texto alrededor, como "Ves {{{{figure:0}}}}" o "Mira la imagen: {{{{figure:1}}}}". Solo la línea exacta {{{{figure:N}}}}.
+4. Usa todos los marcadores disponibles (de {{{{figure:0}}}} a {{{{figure:{len(imgs)-1}}}}}) distribuidos a lo largo del texto si hay varias imágenes.
+5. Cierre cálido y directo firmado con "— Leey".
+6. Prohibidos clichés de IA o lenguaje acartonado (nada de "en conclusión", "en resumen", "delve", "seamless", "tapestry", "paisaje", "desbloquear").
 
 Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```json, sin texto adicional):
 {{
@@ -1937,6 +2192,9 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```js
             return default
         return str(v)
 
+    body_es_raw = scrub_ai(_s(core.get("bodyEs"))).replace("\\n", "\n")
+    body_en_raw = scrub_ai(_s(core.get("bodyEn"))).replace("\\n", "\n")
+    n_figures = len(figures)
     draft = {
         "slug": slugify(_s(core.get("slug"), f"{topic['id']}-{day}")),
         "date": day,
@@ -1954,8 +2212,8 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```js
         "seoDescriptionEn": scrub_ai(_s(core.get("seoDescriptionEn"), _s(core.get("excerptEn")))),
         "excerptEs": scrub_ai(_s(core.get("excerptEs"))),
         "excerptEn": scrub_ai(_s(core.get("excerptEn"))),
-        "bodyEs": scrub_ai(_s(core.get("bodyEs"))).replace("\\n", "\n"),
-        "bodyEn": scrub_ai(_s(core.get("bodyEn"))).replace("\\n", "\n"),
+        "bodyEs": normalize_figure_markers(body_es_raw, n_figures),
+        "bodyEn": normalize_figure_markers(body_en_raw, n_figures),
         "primaryKeywordEs": _s(core.get("primaryKeywordEs")),
         "primaryKeywordEn": _s(core.get("primaryKeywordEn")),
         "attribution": [
@@ -1977,14 +2235,10 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto (sin markdown, sin bloques ```js
             "createdAt": utc_now(),
         },
     }
-    if "{{figure:0}}" not in draft["bodyEs"]:
-        draft["bodyEs"] += "\n\n{{figure:0}}"
-    if "{{figure:0}}" not in draft["bodyEn"]:
-        draft["bodyEn"] += "\n\n{{figure:0}}"
     if not draft["bodyEs"].rstrip().endswith("Leey"):
-        draft["bodyEs"] += "\n\n— Leey"
+        draft["bodyEs"] = draft["bodyEs"].rstrip() + "\n\n— Leey"
     if not draft["bodyEn"].rstrip().endswith("Leey"):
-        draft["bodyEn"] += "\n\n— Leey"
+        draft["bodyEn"] = draft["bodyEn"].rstrip() + "\n\n— Leey"
 
     save_json(out_path, draft)
     log(f"[write] draft {draft['slug']}")
@@ -2027,11 +2281,10 @@ def _fallback_draft(day: str, topic: dict, research: dict) -> dict:
             [
                 f"Cuando acompaño a familias en {town} y el sur de Georgia durante esta temporada ({research.get('season')}), sé que la emoción de encontrar casa debe ir siempre acompañada de una revisión técnica rigurosa.",
                 f"**{angle_es}**",
-                "### 1. La estructura y el suelo que no se ven a simple vista",
                 "No empiezo por el color de las paredes ni por los acabados de moda. Empiezo por los cimientos, la ventilación, la humedad del terreno y cómo responderá la vivienda a las lluvias intensas de nuestra zona.",
                 "{{figure:0}}",
-                "### 2. Lo que exigimos antes de retirar contingencias",
                 "Una revisión honesta y sin prisas: si hay detalles cosméticos menores, los evaluamos con calma; pero si encontramos humedad en vigas, problemas de aislamiento o indicios de plagas, negociamos reparaciones o créditos antes de la firma final.",
+                "{{figure:1}}",
                 "Si estás evaluando propiedades en el área y quieres revisar cada paso con criterio claro, escríbeme. Siempre es mejor una conversación clara antes de tomar una decisión importante.",
                 "— Leey",
             ]
@@ -2040,11 +2293,10 @@ def _fallback_draft(day: str, topic: dict, research: dict) -> dict:
             [
                 f"When walking through properties with families in {town} and across South Georgia during this season ({research.get('season')}), I always ensure that excitement is backed by thorough technical due diligence.",
                 f"**{angle_en}**",
-                "### 1. Structural integrity and subfloor conditions",
                 "I do not begin with paint colors or modern cosmetic touches. I begin with foundation vents, subfloor moisture, drainage, and how the property withstands heavy South Georgia rainfall.",
                 "{{figure:0}}",
-                "### 2. Essential checkpoints before removing contingencies",
                 "A calm, straightforward evaluation: minor cosmetic items can be handled easily, but any structural moisture, failing insulation, or pest evidence must be negotiated for seller repairs or credits before closing.",
+                "{{figure:1}}",
                 "If you are searching for a home in the area and want clear, honest guidance at every step, reach out to me anytime.",
                 "— Leey",
             ]
@@ -2079,6 +2331,8 @@ def stage_polish(day: str, draft: dict, force: bool = False) -> dict:
             if len(final.get(title_k) or "") > 65:
                 final[title_k] = (final[title_k][:62]).rsplit(" ", 1)[0] + "…"
             body = final.get(body_k) or ""
+            n_figures = len(final.get("figures") or [])
+            body = normalize_figure_markers(body, max(1, n_figures))
             if "{{figure:0}}" not in body:
                 body = body + "\n\n{{figure:0}}"
             if "Leey" not in body[-60:]:
@@ -2112,6 +2366,7 @@ Objetivos de edición:
 3. Asegurar que las versiones en ESPAÑOL e INGLÉS sean perfectamente equivalentes y fluidas.
 4. Ajustar los metadatos SEO (título SEO < 55 caracteres, meta descripción 120-150 caracteres).
 5. Preservar intactos los marcadores {{{{figure:N}}}} y la firma final "— Leey".
+6. Los marcadores {{{{figure:N}}}} deben ir CADA UNO EN SU PROPIA LÍNEA, sin texto antes ni después. NUNCA escribas "Vea {{{{figure:0}}}}" o "Imagen: {{{{figure:1}}}}"; solo la línea exacta {{{{figure:N}}}}.
 
 Borrador a revisar (JSON):
 {json.dumps({k: draft.get(k) for k in ['slug','titleEs','titleEn','seoTitleEs','seoTitleEn','seoDescriptionEs','seoDescriptionEn','excerptEs','excerptEn','bodyEs','bodyEn','tags','primaryKeywordEs','primaryKeywordEn','category']}, ensure_ascii=False)[:7000]}
@@ -2227,7 +2482,9 @@ Devuelve EXCLUSIVAMENTE un objeto JSON compacto con la misma estructura (sin blo
 Corrige este post JSON. Falló validación en: {failed}.
 Devuelve SOLO JSON con los mismos campos de texto del post, arreglando SOLO lo fallido:
 - bodyEs/bodyEn > 400 chars, con {{{{figure:0}}}} y cierre — Leey
-- seoDescriptionEs/En entre 140 y 160 chars
+- cada marcador {{{{figure:N}}}} debe ir en su propia línea, sin texto alrededor
+- usa al menos 2 marcadores de figura si hay 2+ imágenes disponibles
+- seoDescriptionEs/En entre 120 y 160 chars
 - sin clichés IA (delve, seamless, moreover, etc.)
 - tags >= 3
 Post actual:
@@ -2309,7 +2566,7 @@ Post actual:
 
 # ── Stage 5.5: Pre-publish review/decision agent ───────────────────────────
 
-REVIEW_MIN_SCORE = 60
+REVIEW_MIN_SCORE = 70
 
 
 def stage_review(day: str, force: bool = False, queue: QueueManager | None = None) -> dict | None:
@@ -2335,7 +2592,8 @@ def stage_review(day: str, force: bool = False, queue: QueueManager | None = Non
     checks = final.get("validation") or validate_post(final)
     hard_ok = all(checks.get(k) for k in [
         "has_cover", "has_body_es", "has_body_en", "has_title_es",
-        "has_title_en", "figures_match_markers",
+        "has_title_en", "figures_match_markers", "figures_on_own_lines",
+        "figures_used_balanced", "has_tags",
     ])
     if not hard_ok:
         save_json(discarded_path, {
@@ -2351,6 +2609,18 @@ def stage_review(day: str, force: bool = False, queue: QueueManager | None = Non
             queue.mark_discarded(final.get("slug"), "hard validation failed")
         return None
 
+    # Pre-review image metadata sanity check
+    non_residential_tokens = (
+        "festival", "daylily", "concrete", "epoxy", "graniflex", "entertainment room",
+        "floor warriors", "parade", "concert", "crowd", "courthouse", "jail", "prison",
+        "hospital", "school", "stadium", "restaurant", "commercial", "industrial",
+    )
+    image_concerns: list[str] = []
+    for fig in (final.get("figures") or []):
+        blob = f"{fig.get('altEs') or ''} {fig.get('altEn') or ''} {fig.get('captionEs') or ''} {fig.get('captionEn') or ''}".lower()
+        if any(t in blob for t in non_residential_tokens):
+            image_concerns.append(f"possible off-topic image: {fig.get('src')}")
+
     prompt = f"""Eres el editor final de calidad del blog de Leyanis "Leey" Hernandez, agente de bienes raíces en South Georgia.
 Revisa el siguiente post bilingüe y decide si está listo para publicar mañana.
 
@@ -2360,8 +2630,9 @@ Criterios (sé exigente):
 3. Utilidad: ¿el lector aprende algo concreto que lo ayude a comprar/vender/mudarse?
 4. SEO: título < 55 caracteres, meta descripción 120-150 caracteres, tags relevantes.
 5. Estructura: bodyEs y bodyEn > 400 caracteres, tienen marcador {{figure:0}} y firma "— Leey".
-6. Imágenes: cover y figures presentes, atribución clara.
-7. Originalidad: no repite el mismo ángulo de posts recientes.
+6. Marcadores de figura: cada {{figure:N}} debe estar en su propia línea, sin texto alrededor. Nada de "Ves {{figure:0}}" o "Mira la imagen {{figure:1}}".
+7. Imágenes: cover y figures presentes, atribución clara, y las fotos deben ser de casas/residencias coherentes con el tema (no festivales, pisos de concreto, carteles o calles sin casas).
+8. Originalidad: no repite el mismo ángulo de posts recientes.
 
 Devuelve ÚNICAMENTE un objeto JSON compacto sin bloques markdown:
 {{
@@ -2387,9 +2658,12 @@ Post a revisar:
     ) or {"approve": False, "score": 0, "reason": "review LLM unavailable"}
 
     score = int(review.get("score") or 0)
-    approve = bool(review.get("approve")) and score >= REVIEW_MIN_SCORE
-    concerns = review.get("concerns") or []
+    concerns = (review.get("concerns") or []) + image_concerns
     fixes = review.get("fixes") or []
+    # Auto-reject if image metadata looks off-topic regardless of LLM score
+    if image_concerns:
+        score = min(score, REVIEW_MIN_SCORE - 1)
+    approve = bool(review.get("approve")) and score >= REVIEW_MIN_SCORE and not image_concerns
 
     if approve:
         reviewed = {
@@ -2540,6 +2814,9 @@ def stage_publish(
                 "has_title_es",
                 "has_title_en",
                 "figures_match_markers",
+                "figures_on_own_lines",
+                "figures_used_balanced",
+                "has_tags",
             ]
             if not all(checks.get(k) for k in hard):
                 log(f"[publish] hard validation still failing: {checks} — abort ship")

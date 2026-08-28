@@ -62,23 +62,33 @@ export function parseBody(body: string): BodyBlock[] {
     .filter(Boolean);
   const out: BodyBlock[] = [];
   for (const chunk of chunks) {
-    const fig = chunk.match(/^\{\{figure:(\d+)\}\}$/);
-    if (fig) {
-      out.push({ type: "figure", index: Number(fig[1]) });
-      continue;
-    }
-    if (chunk.startsWith("**") && chunk.endsWith("**") && !chunk.slice(2, -2).includes("**")) {
-      out.push({ type: "h", text: chunk.slice(2, -2) });
-      continue;
-    }
-    // heading-like lines wrapped in **text** mid paragraph handled below
-    if (/^\*\*[^*]+\*\*$/.test(chunk)) {
-      out.push({ type: "h", text: chunk.replace(/\*/g, "") });
-      continue;
-    }
-    out.push({ type: "p", html: inlineFormat(chunk) });
+    out.push(...parseChunk(chunk));
   }
   return out;
+}
+
+function parseChunk(chunk: string): BodyBlock[] {
+  const fig = chunk.match(/^\{\{figure:(\d+)\}\}$/);
+  if (fig) return [{ type: "figure", index: Number(fig[1]) }];
+
+  if (chunk.startsWith("**") && chunk.endsWith("**") && !chunk.slice(2, -2).includes("**")) {
+    return [{ type: "h", text: chunk.slice(2, -2) }];
+  }
+  if (/^\*\*[^*]+\*\*$/.test(chunk)) {
+    return [{ type: "h", text: chunk.replace(/\*/g, "") }];
+  }
+
+  const blocks: BodyBlock[] = [];
+  const parts = chunk.split(/(\{\{figure:\d+\}\})/);
+  for (const part of parts) {
+    const figMatch = part.match(/^\{\{figure:(\d+)\}\}$/);
+    if (figMatch) {
+      blocks.push({ type: "figure", index: Number(figMatch[1]) });
+    } else if (part.trim()) {
+      blocks.push({ type: "p", html: inlineFormat(part.trim()) });
+    }
+  }
+  return blocks;
 }
 
 function escapeHtml(s: string) {

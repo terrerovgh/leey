@@ -234,12 +234,15 @@ function blogIndexContent() {
     </main>`;
 }
 
-function blogPostContent(p) {
-  const paras = String(p.bodyEs || "")
+function figureHtml(f) {
+  return `<figure><img src="${esc(f.src)}" alt="${esc(f.altEs || "")}" /><figcaption>${esc(f.captionEs || "")}</figcaption></figure>`;
+}
+
+function renderTextBlock(text) {
+  return String(text)
     .split(/\n{2,}/)
     .map((s) => s.trim())
     .filter(Boolean)
-    .filter((s) => !/^\{\{figure:\d+\}\}$/.test(s))
     .map((s) => {
       if (s.startsWith("**") && s.endsWith("**")) {
         return `<h2>${esc(s.replace(/\*/g, ""))}</h2>`;
@@ -247,12 +250,42 @@ function blogPostContent(p) {
       return `<p>${esc(s.replace(/\*\*/g, ""))}</p>`;
     })
     .join("\n");
-  const figs = (p.figures || [])
-    .map(
-      (f) =>
-        `<figure><img src="${esc(f.src)}" alt="${esc(f.altEs || "")}" /><figcaption>${esc(f.captionEs || "")}</figcaption></figure>`,
-    )
-    .join("");
+}
+
+function renderBlogBody(body, figures) {
+  const used = new Set();
+  const regex = /\{\{figure:(\d+)\}\}/g;
+  let html = "";
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(body)) !== null) {
+    if (match.index > lastIndex) {
+      html += renderTextBlock(body.slice(lastIndex, match.index));
+    }
+    const idx = Number(match[1]);
+    const f = figures?.[idx];
+    if (f) {
+      used.add(idx);
+      html += figureHtml(f);
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < body.length) {
+    html += renderTextBlock(body.slice(lastIndex));
+  }
+
+  // Append any figures not referenced inline so none are lost.
+  for (let i = 0; i < (figures || []).length; i++) {
+    if (!used.has(i)) {
+      html += figureHtml(figures[i]);
+    }
+  }
+  return html;
+}
+
+function blogPostContent(p) {
+  const bodyHtml = renderBlogBody(p.bodyEs || "", p.figures || []);
   return `
     <main class="seo-static">
       <article>
@@ -260,8 +293,7 @@ function blogPostContent(p) {
         <h1>${esc(p.titleEs)}</h1>
         <p class="lede">${esc(p.excerptEs || "")}</p>
         <img src="${esc(p.cover?.src || "")}" alt="${esc(p.cover?.altEs || p.titleEs)}" />
-        ${paras}
-        ${figs}
+        ${bodyHtml}
         <div class="listing-office">Por ${esc(AGENT)}, ${esc(BROKERAGE)}</div>
         <p>Phone: <a href="tel:${PHONE_TEL}">${esc(PHONE_DISPLAY)}</a> · <a href="mailto:${EMAIL}">${esc(EMAIL)}</a></p>
       </article>

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-27T16:50:30.000Z",
+  "updatedAt": "2026-08-28T11:02:28.000Z",
   "target": 10,
   "posts": [
     {
@@ -72,30 +72,6 @@
       "path": null,
       "addedAt": "2026-08-27T15:41:42.991817+00:00",
       "reviewedAt": null
-    },
-    {
-      "slug": "adel-value-2026-08-28",
-      "date": "2026-08-28",
-      "topicId": "adel-value",
-      "status": "reviewed",
-      "score": 82,
-      "path": "data/blog/pipeline/2026-08-28",
-      "addedAt": "2026-08-27T16:47:49.000Z",
-      "reviewedAt": "2026-08-27T16:50:30.000Z",
-      "review": {
-        "date": "2026-08-28",
-        "slug": "adel-value-2026-08-28",
-        "approved": true,
-        "score": 82,
-        "concerns": [
-          "Error gramatical en español: 'Ves {{figure:0}}' debería ser 'Ve {{figure:0}}'"
-        ],
-        "fixes": [
-          "Cambiar 'Ves {{figure:0}}' por 'Ve {{figure:0}}' en bodyEs"
-        ],
-        "reason": "Contenido útil con información concreta sobre Georgia Dream, SEO optimizado y estructura correcta, solo requiere corrección gramatical menor",
-        "at": "2026-08-27T16:50:30.000Z"
-      }
     }
   ]
 }
