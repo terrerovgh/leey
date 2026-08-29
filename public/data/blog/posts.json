@@ -1,92 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-28T11:02:28.000Z",
+  "updatedAt": "2026-08-29T00:13:03.000Z",
   "posts": [
     {
-      "slug": "adel-value-2026-08-28",
+      "slug": "yard-weekend-2026-08-28",
       "date": "2026-08-28",
-      "updatedAt": "2026-08-28T11:02:28.000Z",
-      "category": "first_home",
+      "updatedAt": "2026-08-29T00:13:03.000Z",
+      "category": "decor",
       "readMinutes": 5,
       "tags": [
-        "first_home",
-        "Valdosta",
-        "Adel",
-        "South Georgia",
-        "Georgia Dream",
-        "down payment assistance",
-        "Leey"
-      ],
-      "areas": [
-        "adel",
-        "sparks"
-      ],
-      "cover": {
-        "src": "/assets/blog/20260828/adel-value-1.jpg",
-        "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-        "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Decorative Concrete Kingdom · by",
-        "captionEn": "Photo: Decorative Concrete Kingdom · by"
-      },
-      "figures": [
-        {
-          "src": "/assets/blog/20260828/adel-value-1.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Decorative Concrete Kingdom · by",
-          "captionEn": "Photo: Decorative Concrete Kingdom · by"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-2.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 2",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-3.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 3",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260828/adel-value-4.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 4",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        }
-      ],
-      "titleEs": "Ayuda Inicial en Georgia: Tu Primera Casa en Valdosta",
-      "titleEn": "Georgia Down Payment: Your First Home in Valdosta",
-      "seoTitleEs": "Ayuda Inicial en Georgia | Leey",
-      "seoTitleEn": "Georgia Down Payment Help | Leey",
-      "seoDescriptionEs": "Descubre cómo acceder a hasta $10,000 de ayuda para el pago inicial y compra tu primera casa en Valdosta o Adel, Georgia. Te guiamos paso a paso.",
-      "seoDescriptionEn": "Learn how to access up to $10,000 in down payment assistance and buy your first home in Valdosta or Adel, Georgia. We guide you step by step.",
-      "excerptEs": "Aprovecha hasta $10,000 del programa Georgia Dream y compra tu primera casa en Valdosta o Adel sin esperar años ahorrando.",
-      "excerptEn": "Take advantage of up to $10,000 from the Georgia Dream program and buy your first home in Valdosta or Adel without years of saving.",
-      "bodyEs": "En Georgia, muchas familias pueden acceder a ayudas de hasta **$10,000** para el pago inicial de su primera casa. Esta puede ser la oportunidad que esperabas para dar el paso a la propiedad sin pasar años ahorrando.\n\nVes {{figure:0}}\n\nEl **programa Georgia Dream** está pensado para compradores como tú. Ofrece asistencia en el enganche, tasas competitivas y opciones de financiamiento flexibles para que el dinero no sea el obstáculo.\n\nYa sea en Valdosta, en Adel o en cualquier rincón del sur de Georgia, este apoyo estatal puede acercarte a las llaves de tu hogar.\n\nConsulta los requisitos actualizados en {{figure:1}}.\n\n— Leey",
-      "bodyEn": "In Georgia, many families can access up to **$10,000** in down payment assistance for their first home. This could be the opportunity you've been waiting for to step into homeownership without years of saving.\n\nSee {{figure:0}}\n\nThe **Georgia Dream program** is designed for buyers just like you. It offers down payment help, competitive rates, and flexible financing options so money doesn't have to stand in your way.\n\nWhether you're in Valdosta, Adel, or anywhere across South Georgia, this state-level support can get you closer to your new home keys.\n\nCheck the latest requirements at {{figure:1}}.\n\n— Leey",
-      "pipeline": {
-        "topicId": "adel-value",
-        "reviewScore": 82,
-        "sourceDay": "2026-08-28"
-      }
-    },
-    {
-      "slug": "yard-weekend-2026-08-27",
-      "date": "2026-08-27",
-      "updatedAt": "2026-08-27T18:10:00.000Z",
-      "category": "first_home",
-      "readMinutes": 5,
-      "tags": [
-        "first_home",
+        "decor",
         "Valdosta",
         "South Georgia",
         "Leey"
@@ -96,81 +19,210 @@
         "nashville"
       ],
       "cover": {
-        "src": "/assets/blog/20260827/georgia-dream-lowndes-pelham.jpg",
-        "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-        "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779"
+        "src": "/assets/blog/20260828/yard-weekend-1.jpg",
+        "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 1",
+        "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260827/georgia-dream-lowndes-valdosta.jpg",
-          "altEs": "Downtown Social, Valdosta, Lowndes County, Georgia",
-          "altEn": "Downtown Social, Valdosta, Lowndes County, Georgia",
-          "captionEs": "Valdosta · Foto: Mjrmtg · CC BY 4.0",
-          "captionEn": "Valdosta · Photo: Mjrmtg · CC BY 4.0"
+          "src": "/assets/blog/20260828/yard-weekend-1.jpg",
+          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 1",
+          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260827/georgia-dream-lowndes-doerun.jpg",
-          "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
-          "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744",
-          "captionEs": "Foto listing · Ginny Henry · Doerun",
-          "captionEn": "Listing photo · Ginny Henry · Doerun"
+          "src": "/assets/blog/20260828/yard-weekend-2.jpg",
+          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 2",
+          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260828/yard-weekend-3.jpg",
+          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 3",
+          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260828/yard-weekend-4.jpg",
+          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 4",
+          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
-      "titleEs": "Georgia Dream y USDA: Cómo comprar tu primera casa en Lowndes County sin agotar tus ahorros",
-      "titleEn": "Georgia Dream and USDA: How to Buy Your First Home in Lowndes County Without Draining Your Savings",
-      "seoTitleEs": "Comprar Casa en Lowndes County sin Pago Inicial | Leey",
-      "seoTitleEn": "Buy Home in Lowndes County No Down Payment | Leey",
-      "seoDescriptionEs": "Georgia Dream y USDA: compra tu primera casa en Lowndes County sin pago inicial. Asistencia estatal y federal para que no agotes tus ahorros.",
-      "seoDescriptionEn": "Georgia Dream and USDA help you buy your first home in Lowndes County with no large down payment. State and federal assistance that keeps your savings intact.",
-      "excerptEs": "Comprar tu primera casa en Lowndes County sin pago inicial es posible con Georgia Dream y USDA. Lock and Key Realty te guía por los programas estatales y federales.",
-      "excerptEn": "Buy your first home in Lowndes County with no down payment using Georgia Dream and USDA programs. Lock and Key Realty guides you through state and federal assistance.",
-      "bodyEs": "**Por qué crees que necesitas un pago inicial enorme**\nCon los precios subiendo y las tasas cambiando, muchos compradores primerizos en Valdosta piensan que necesitan ahorrar una fortuna para el pago inicial. La buena noticia: no es así. Programas estatales y federales pueden cubrir la mayor parte de los costos iniciales, pero la información está dispersa.\n\n{{figure:0}}\n\n**Georgia Dream: tu aliado estatal**\nGeorgia Dream es el programa de compra de primera casa del estado. Ofrece asistencia para el pago inicial y costos de cierre. Para compradores en Lowndes County, puede ser la diferencia entre alquilar para siempre y tener tus propias llaves. El programa también incluye incentivos para áreas como Ray City y Nashville.\n\n{{figure:1}}\n\n**USDA: financiamiento al 100% en áreas rurales**\nEl programa USDA permite comprar sin pago inicial en áreas rurales designadas, incluyendo partes de Lowndes County. Es una opción subestimada que puede ahorrarte miles en el pago inicial. La clave: verificar si tu dirección califica dentro de los límites del condado.\n\n**Lock and Key Realty: tu guía local**\nEn Lock and Key Realty sabemos que comprar tu primera casa es un paso grande. Nuestros agentes conocen Georgia Dream y USDA y pueden guiarte sin agotar tus ahorros. Si estás listo para dar el salto, te ayudamos a encontrar tu casa.\n\n— Leey",
-      "bodyEn": "**Why you think you need a huge down payment**\nWith prices rising and rates shifting, many first-time buyers around Valdosta think they need to save a fortune for the down payment. The good news: you don't. State and federal programs can cover much of the upfront costs, but the information is scattered and confusing.\n\n{{figure:0}}\n\n**Georgia Dream: your state ally**\nGeorgia Dream is the state's first-time home buyer program, offering down payment and closing cost assistance. For buyers in Lowndes County, it can mean the difference between renting forever and holding your own keys. The program also includes incentives for areas like Ray City and Nashville.\n\n{{figure:1}}\n\n**USDA: 100% financing in rural areas**\nThe USDA mortgage program lets you buy with zero down payment in designated rural areas, including parts of Lowndes County. It's an underrated option that can save you thousands on the down payment. The key: verify whether your address qualifies within the county boundaries.\n\n**Lock and Key Realty: your local guide**\nAt Lock and Key Realty, we know buying your first home is a big step. Our agents know Georgia Dream and USDA and can guide you without draining your savings. If you're ready to take the leap, we'll help you find your home.\n\n— Leey"
+      "titleEs": "Fin de semana en el patio: ideas para mejorar tu hogar en…",
+      "titleEn": "Weekend Patio Ideas: Boost Your South Georgia Home",
+      "seoTitleEs": "Fin de semana en el patio: ideas para mejorar tu hogar | Leey",
+      "seoTitleEn": "Weekend Patio Ideas for South Georgia Homes | Leey",
+      "seoDescriptionEs": "Descubre cómo transformar tu patio este fin de semana con ideas de decoración y mejoras que aumentan el curb appeal y el valor de tu hogar en South Georgia.",
+      "seoDescriptionEn": "Discover how to transform your patio this weekend with décor and upgrades that boost curb appeal and home value in South Georgia.",
+      "excerptEs": "Ideas rápidas y económicas para renovar tu patio y disfrutar al aire libre.",
+      "excerptEn": "Quick, affordable ideas to refresh your patio and enjoy outdoor living.",
+      "bodyEs": "**Limpieza y orden primero\n\nUn patio no necesita ser enorme para impresionar. El primer paso es quitar lo que no pertenece: herramientas oxidadas, macetas vacías y ramas caídas. En menos de dos horas el espacio ya respira diferente. Muchas familias en Ray City y Nashville me dicen que este simple paso les hizo ver el patio como una habitación más de la casa.\n\n{{figure:0}}\n\n**Definir bordes y caminos\n\nUn borde limpio entre césped y jardín cambia toda la cara del frente. Puedes usar ladrillo, piedra o mulch oscuro. No se trata de gastar mucho, sino de que se note intención. Un sendero claro desde la entrada hasta la puerta principal también invita a caminar la propiedad con calma.\n\n{{figure:1}}\n\n**Plantas que sobreviven al calor\n\nEn South Georgia el verano es largo y húmedo. Elije plantas locales como liriope, gardénias o azaleas que aguantan bien sin exigir riego constante. Un par de macetas grandes a cada lado de la entrada dan color sin complicaciones. Si prefieres algo más sencillo, el césped bien cortado y unos arbustos recortados ya marcan la diferencia.\n\n{{figure:2}}\n\n**Toques que se sienten en casa\n\nUna silla de madera, un farol pequeño o un felpudo nuevo hacen que el patio se sienta vivido. Cuando vendes, esos detalles son los que ayudan al comprador a imaginarse llegando con las llaves en la mano. Si estás en Valdosta o Hahira y quieres una segunda opinión sobre qué arreglos valen la pena antes de listar, escríbeme.\n\n{{figure:3}}\n\n— Leey",
+      "bodyEn": "**Start with cleanup\n\nA yard does not have to be huge to impress. The first step is removing what does not belong: rusty tools, empty pots, and fallen branches. In less than two hours the space already feels different. Families in Ray City and Nashville often tell me this simple step made them see the yard as another room of the house.\n\n{{figure:0}}\n\n**Define edges and paths\n\nA clean edge between lawn and garden changes the whole front face. You can use brick, stone, or dark mulch. It is not about spending a lot; it is about showing intention. A clear walkway from the driveway to the front door also invites buyers to stroll the property calmly.\n\n{{figure:1}}\n\n**Plants that survive the heat\n\nIn South Georgia summer is long and humid. Choose local plants like liriope, gardenias, or azaleas that thrive without constant watering. A couple of large pots on each side of the entrance add color without hassle. If you prefer simpler, freshly cut grass and trimmed shrubs already make a difference.\n\n{{figure:2}}\n\n**Touches that feel like home\n\nA wooden chair, a small lantern, or a new doormat make the yard feel lived-in. When you are selling, those details help buyers picture themselves arriving with keys in hand. If you are in Valdosta or Hahira and want a second opinion on which fixes are worth it before listing, reach out.\n\n{{figure:3}}\n\n— Leey",
+      "pipeline": {
+        "topicId": "yard-weekend",
+        "reviewScore": 85,
+        "sourceDay": "2026-08-28"
+      }
     },
     {
-      "slug": "termite-south-ga-2026-08-26",
-      "date": "2026-08-26",
-      "updatedAt": "2026-08-27T18:10:00.000Z",
-      "category": "market",
-      "readMinutes": 5,
+      "slug": "termite-south-ga-2026-08-27",
+      "date": "2026-08-27",
+      "updatedAt": "2026-08-28T23:46:53.000Z",
+      "category": "buying",
+      "readMinutes": 3,
       "tags": [
-        "first_home",
+        "purchasing",
         "Valdosta",
         "South Georgia",
         "Leey"
       ],
-      "areas": [],
+      "areas": [
+        "valdosta",
+        "thomasville"
+      ],
       "cover": {
-        "src": "/assets/blog/20260826/termite-south-ga-doerun.jpg",
-        "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
-        "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744"
+        "src": "/assets/blog/20260827/termite-south-ga-1.jpg",
+        "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 1",
+        "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260826/termite-south-ga-pelham.jpg",
-          "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779",
-          "captionEs": "Foto listing · Will Wright · Pelham",
-          "captionEn": "Listing photo · Will Wright · Pelham"
+          "src": "/assets/blog/20260827/termite-south-ga-1.jpg",
+          "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 1",
+          "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
         },
         {
-          "src": "/assets/blog/20260826/termite-south-ga-nashville.jpg",
-          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
-          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
-          "captionEs": "Foto listing · Madison Hewett · Nashville",
-          "captionEn": "Listing photo · Madison Hewett · Nashville"
+          "src": "/assets/blog/20260827/termite-south-ga-2.jpg",
+          "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 2",
+          "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260827/termite-south-ga-3.jpg",
+          "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 3",
+          "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260827/termite-south-ga-4.jpg",
+          "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 4",
+          "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
-      "titleEs": "De Campamento a Propietario: Comprar en South Georgia con Ayuda de Pago Inicial y Préstamos USDA",
-      "titleEn": "From Trailer Park to Homeowner: Buying in South Georgia with Down Payment Help and USDA Loans",
-      "seoTitleEs": "Comprar Casa South Georgia: Georgia Dream + USDA | Leey",
-      "seoTitleEn": "Buy Home South Georgia: Georgia Dream + USDA Loans | Leey",
-      "seoDescriptionEs": "Georgia Dream cubre $10,000 y préstamos USDA financian 100% en Valdosta, Thomasville y Lowndes. Inventario moviéndose rápido este verano.",
-      "seoDescriptionEn": "Georgia Dream covers $10,000 and USDA loans finance 100% in Valdosta, Thomasville, Lowndes. Inventory moving fast this summer.",
-      "excerptEs": "Programas de ayuda de pago inicial y préstamos USDA al 100% hacen posible ser propietario en pueblos rurales de South Georgia como Valdosta y Thomasville.",
-      "excerptEn": "Down payment assistance and 100% USDA loans make homeownership possible in rural South Georgia towns like Valdosta and Thomasville.",
-      "bodyEs": "**La oportunidad que muchos desconocen**\n\nEl verano está moviendo inventario rápido en Valdosta, Thomasville, Camilla y Blackshear. Lo que la mayoría ignora: Georgia Dream cubre hasta $10,000 del pago inicial y los préstamos USDA financian el 100% en áreas rurales calificadas de South Georgia. {{figure:0}}\n\n**Inspección, termitas y humedad: lo que no se ve**\n\nEn el sur de Georgia, la **inspección** no es opcional. La humedad y las termitas convierten lo invisible en costoso si no tienes a alguien que sepa dónde mirar. {{figure:1}}\n\n**Lock & Key Realty: tu llave en la mano**\n\nTrabajar con quien conoce el terreno —literalmente— ahorra meses de vueltas. El camino de campamento a propietario existe; solo hace falta quien te abra la puerta.\n\n— Leey",
-      "bodyEn": "**The opportunity most buyers miss**\n\nSummer heat is moving inventory fast in Valdosta, Thomasville, Camilla, and Blackshear. What most don't know: Georgia Dream covers up to $10,000 of your down payment and USDA loans finance 100% in eligible rural areas of South Georgia. {{figure:0}}\n\n**Inspection, termites, and humidity: what you can't see**\n\nIn South Georgia, **inspection** isn't optional. Humidity and termites turn the invisible into expensive repairs if you don't have someone who knows where to look. {{figure:1}}\n\n**Lock & Key Realty: your key in hand**\n\nWorking with someone who knows the terrain — literally — saves months of runaround. The path from trailer park to homeowner exists; you just need someone to it.\n\n— Leey"
+      "titleEs": "¿Qué pido en una inspección de termitas y por qué es importante en Valdosta y Georgia del Sur",
+      "titleEn": "What I Ask for in a Termite Inspection and Why It Matters in South Georgia and Valdosta",
+      "seoTitleEs": "Inspección de termitas en Valdosta: guía rápida",
+      "seoTitleEn": "Termite Inspection in Valdosta: Quick Guide",
+      "seoDescriptionEs": "Aprende qué revisar en una inspección de termitas en Valdosta y por qué es clave para proteger tu hogar antes de comprar.",
+      "seoDescriptionEn": "Learn what to check in a Valdosta termite inspection and why it’s vital to protect your home before buying, ensuring peace of mind.",
+      "excerptEs": "En una inspección de termitas en Valdosta, Georgia del Sur, es importantísimo buscar problemas ocultos para proteger tu hogar",
+      "excerptEn": "During a termite inspection in Valdosta, South Georgia, it's crucial to find hidden problems to protect your home",
+      "bodyEs": "Comprar una casa es emocionante, pero también puede generar preocupación si no conoces los problemas ocultos. Aquí te digo qué pido en una inspección de termitas y por qué es clave para proteger tu inversión en Valdosta, Thomasville y el sur de Georgia.\n\n{{figure:0}}\n\nEn la inspección, pido que se busquen señales de termitas tanto dentro como fuera de la propiedad. En nuestra zona, los termitas y las cucarachas (palharucas) son los más destructivos.\n\n{{figure:1}}\n\nDetectar estos problemas temprano te permite negociar reparaciones o decidir con más confianza antes de firmar.\n\n{{figure:2}}\n\nSer un buen vecino también significa mantener tu hogar libre de plagas que puedan afectar a los vecinos.\n\n{{figure:3}}\n\n— Leey",
+      "bodyEn": "Buying a home is exciting, but it can also be worrisome if you're unaware of hidden issues. Here’s what I request in a termite inspection and why it matters for protecting your investment in Valdosta, Thomasville, and South Georgia.\n\n{{figure:0}}\n\nDuring the inspection, I ask for a check of termite signs inside and outside the property. In our area, termites and cockroaches (palmetto bugs) are the most destructive.\n\n{{figure:1}}\n\nFinding these problems early lets you negotiate repairs or move forward with confidence before closing.\n\n{{figure:2}}\n\nBeing a good neighbor also means keeping your home pest‑free to protect those around you.\n\n{{figure:3}}\n\n— Leey",
+      "pipeline": {
+        "topicId": "termite-south-ga",
+        "reviewScore": 87,
+        "sourceDay": "2026-08-27"
+      }
+    },
+    {
+      "slug": "list-before-paint-2026-08-26",
+      "date": "2026-08-26",
+      "updatedAt": "2026-08-28T23:41:59.000Z",
+      "category": "selling",
+      "readMinutes": 5,
+      "tags": [
+        "selling",
+        "Valdosta",
+        "South Georgia",
+        "Leeyrealty"
+      ],
+      "areas": [
+        "moultrie",
+        "thomasville"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260826/list-before-paint-1.jpg",
+        "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 1",
+        "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260826/list-before-paint-1.jpg",
+          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 1",
+          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260826/list-before-paint-2.jpg",
+          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 2",
+          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260826/list-before-paint-3.jpg",
+          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 3",
+          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260826/list-before-paint-4.jpg",
+          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 4",
+          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado",
+      "titleEn": "Before painting the whole house to sell: three things that actually move a listing",
+      "seoTitleEs": "Before painting the whole house to sell: three things that…",
+      "seoTitleEn": "Before painting the whole house to sell: three things that…",
+      "seoDescriptionEs": "Descubre cómo personalizar la casa en venta para atraer a los compradores antes de pintar, con el secreto de Lock & Key Realty",
+      "seoDescriptionEn": "Descubre cómo personalizar la casa en venta para atraer a los compradores antes de pintar, con el secreto de Lock & Key Realty",
+      "excerptEs": "No hay necesidad de pintar toda la casa para venderla. Aprende cómo personalizar y actualizar para atraer compradores sin gastos extra.",
+      "excerptEn": "There's no need to paint the whole house to sell it. Learn how to personalize and update to attract buyers without extra costs.",
+      "bodyEs": "¿Estás pensando en vender tu casa pero no estás seguro de si es necesario pintarla por completo? Parece que todos los vendedores pintan sus casas antes de ponerlas en venta, ¿verdad? Lo cierto es que pintar toda la casa no es necesariamente la solución adecuada para todos los propietarios que desean vender. Aquí te contamos tres cosas que sí podrían mover el listado de tu casa, ¡sin necesidad de pintar por completo!\n\n{{figure:0}}\n\nMientras más personalizada y acogedora esté tu casa, ¡más posibilidades tienes de encontrar a tu comprador ideal!\n\n{{figure:1}}\n\n--\n\n{{figure:2}}\n\nPorque no es solo tu 'vendedor'; es tu 'comprador' también.\n\n{{figure:3}}\n\nEn la casa número 2 que mostramos aquí, las sencillas mejoras lograron maravillas en la apariencia y el precio. Mientras más pueda mostrarse la casa como 'viva' y acogedora, ¡más posibilidades tienes de encontrar a tu comprador ideal!\n\n--\n\n— Leey",
+      "bodyEn": "Thinking about selling your house but unsure if you need to paint the whole thing? It seems like everyone painting their houses before putting them on the market, right? The truth is that painting the whole house isn't necessarily the right solution for all homeowners looking to sell. Here are three things that *will* move the listing on your house — without needing to paint the whole thing!\n\n{{figure:0}}\n\nThe more personalized and welcoming your house is, the higher your chances of finding the right buyer!\n\n{{figure:1}}\n\n--\n\n{{figure:2}}\n\nBecause they are not just your 'seller'; they are your 'buyer' too.\n\n{{figure:3}}\n\nIn house **2 that we showed here, the simple improvements did wonders for the appearance and price. The more your house can show as 'homie' and welcoming, the higher your chances of finding the right buyer!**\n\n--\n\n— Leey",
+      "pipeline": {
+        "topicId": "list-before-paint",
+        "reviewScore": 80,
+        "sourceDay": "2026-08-26"
+      }
     },
     {
       "slug": "mudarse-florida-sur-georgia-ahorro-impuestos-seguros-2026-08-25",

@@ -987,12 +987,16 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
     """Vision gate: examine the image before accepting it for the topic.
 
     Uses a per-hash cache to avoid re-analyzing the same image for the same brief.
-    When vision is unavailable, strict topics require matching metadata keywords.
+    The cache is only written when we get a clean, parseable answer.
+    When vision is unavailable or ambiguous, we trust metadata/relevance filters
+    rather than rejecting good listing photos.
     """
     brief = topic_visual_brief(topic)
     title = f"{(candidate or {}).get('title') or ''} {(candidate or {}).get('description') or ''}".lower()
     kws = [k.lower() for k in brief.get("keywords") or []]
     meta_hit = any(k in title for k in kws if len(k) >= 4)
+    source = (candidate or {}).get("source") or ""
+    is_listing = source == "listing"
 
     # Strong metadata reject for strict topics
     if brief["label"] == "porch" and any(
@@ -1000,11 +1004,12 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
     ) and "porch" not in title and "stoop" not in title and "veranda" not in title:
         return False, "metadata non-porch"
 
-    # Non-residential metadata reject
+    # Non-residential metadata reject (these are definitive red flags)
     non_residential = (
         "festival", "daylily", "concrete", "epoxy", "graniflex", "entertainment room",
         "floor warriors", "parade", "concert", "crowd", "courthouse", "jail", "prison",
         "hospital", "school", "stadium", "restaurant", "commercial", "industrial",
+        "abandoned lot", "parking lot", "dealership", "warehouse", "factory",
     )
     if any(k in title for k in non_residential):
         return False, "metadata non-residential"
@@ -1017,13 +1022,16 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
         log(f"[vision] cache hit {path.name} -> match={cached.get('match')}")
         return bool(cached.get("match")), str(cached.get("reason") or "cached")
 
+    # Direct prompt that does not rely on tool_call / JSON schema compliance.
     prompt = (
-        "Eres un QA visual para fotos de un blog inmobiliario en South Georgia. "
-        f"Tema='{brief['label']}'. DEBE mostrar: {brief['must_show']}. "
-        f"Rechazar si: {brief['reject_if']}. "
+        "Eres un QA visual para fotos de un blog inmobiliario de South Georgia. "
+        "Mira la imagen y responde con UNA SOLA LÍNEA exactamente en este formato: "
+        "SI - breve descripción de lo que se ve, o NO - breve explicación del rechazo. "
+        f"Tema del artículo: {brief['label']}. "
+        f"La foto DEBE mostrar: {brief['must_show']}. "
+        f"Rechazar si muestra: {brief['reject_if']}. "
         f"Título de la foto: {(candidate or {}).get('title') or 'unknown'}. "
-        "Responde EXACTAMENTE este JSON compacto y nada más: "
-        '{"match":true,"reason":"una frase corta"} o {"match":false,"reason":"una frase corta"}'
+        "No devuelvas JSON, ni tool_call, ni código. Solo la línea SI/NO."
     )
 
     # Vision models: strong first for gate decisions, then free fallback.
@@ -1040,40 +1048,57 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
                 ],
                 capture_output=True,
                 text=True,
-                timeout=35,
+                timeout=60,
                 cwd=str(ROOT),
             )
-            out = ((r.stdout or "") + "\n" + (r.stderr or "")).strip()
-            body = (r.stdout or "").strip() or out
-            if r.returncode != 0 or len(body) < 8:
-                log(f"[vision] weak model={model} code={r.returncode} chars={len(body)}")
+            # Only use stdout; stderr from Hermes/OpenRouter is almost always noise.
+            body = (r.stdout or "").strip()
+            if not body or len(body) < 3:
+                log(f"[vision] empty model={model} code={r.returncode}")
                 continue
-            out = body
-            cleaned_out = re.sub(r"Warning:[^\n]*\n", "", out)
-            cleaned_out = re.sub(r"session_id:[^\n]*\n", "", cleaned_out).strip()
-            obj = extract_json_obj(cleaned_out) or extract_json_obj(out)
-            if not obj:
-                m = re.search(r"\{[\s\S]*\}", cleaned_out)
-                if m:
-                    try:
-                        obj = json.loads(m.group(0))
-                    except Exception:
-                        obj = None
-            # Allow Spanish approval/rejection keywords as fallback
-            if not obj:
-                text_l = cleaned_out.lower()
-                if any(k in text_l for k in ("rechazada", "rechazado", "no apta", "no es adecuada", "no adecuada")):
-                    obj = {"match": False, "reason": cleaned_out[:120]}
-                elif any(k in text_l for k in ("aprobada", "aprobado", "apta", "adecuada", "perfecta")):
-                    obj = {"match": True, "reason": cleaned_out[:120]}
-            if not obj:
-                log(f"[vision] unparsed model={model}: {out[:140]}")
-                continue
-            match = obj.get("match") is True or str(obj.get("match")).lower() == "true"
-            reason = str(obj.get("reason") or obj.get("what_you_see") or out[:120])
-            log(f"[vision] model={model} match={match} {reason[:100]}")
-            vision_answer = (bool(match), reason)
-            break
+
+            # Clean Hermes / OpenRouter noise.
+            cleaned = body
+            cleaned = re.sub(r"```[\s\S]*?```", " ", cleaned)
+            cleaned = re.sub(r"<think>[\s\S]*?</think>", " ", cleaned, flags=re.I)
+            cleaned = re.sub(r"Warning:[^\n]*", " ", cleaned, flags=re.I)
+            cleaned = re.sub(r"session_id:[^\n]*", " ", cleaned, flags=re.I)
+            cleaned = re.sub(r"tool_call[^\n]*", " ", cleaned, flags=re.I)
+            cleaned = re.sub(r"Unknown toolsets[^\n]*", " ", cleaned, flags=re.I)
+            cleaned = re.sub(r"\{[\s\S]*?\"error\"[\s\S]*?\}", " ", cleaned)
+            cleaned = cleaned.replace("\\", " ")
+            cleaned = re.sub(r"\s+", " ", cleaned).strip()
+
+            # Try JSON fallback first (some models still return it).
+            obj = extract_json_obj(cleaned) or extract_json_obj(body)
+            if obj:
+                match = obj.get("match") is True or str(obj.get("match")).lower() == "true"
+                reason = str(obj.get("reason") or obj.get("what_you_see") or cleaned[:120])
+                log(f"[vision] model={model} match={match} {reason[:100]}")
+                vision_answer = (bool(match), reason)
+                break
+
+            # Direct SI/NO parsing.
+            first_line = cleaned.splitlines()[0].strip().lower()
+            # Remove leading bullets/numbers.
+            first_line = re.sub(r"^[-*•\d.)]+\s*", "", first_line)
+            reject_words = ("no -", "no:", "no,", "rechaz", "no apta", "no adecuada", "no muestra")
+            approve_words = ("si -", "si:", "si,", "sí -", "sí:", "sí,", "aprob", "apta", "adecuada", "perfecta")
+            is_reject = first_line.startswith("no") or any(w in first_line for w in reject_words)
+            is_approve = first_line.startswith("si") or first_line.startswith("sí") or any(w in first_line for w in approve_words)
+
+            if is_reject and not is_approve:
+                vision_answer = (False, cleaned[:120])
+                log(f"[vision] model={model} match=False {cleaned[:100]}")
+                break
+            if is_approve and not is_reject:
+                vision_answer = (True, cleaned[:120])
+                log(f"[vision] model={model} match=True {cleaned[:100]}")
+                break
+
+            # Response was ambiguous noise; do not cache, try next model.
+            log(f"[vision] ambiguous model={model}: {cleaned[:140]}")
+            continue
         except subprocess.TimeoutExpired:
             log(f"[vision] timeout model={model}")
             continue
@@ -1082,16 +1107,31 @@ def examine_image_for_topic(path: Path, topic: dict, candidate: dict | None = No
             continue
 
     if vision_answer is not None:
-        cache["entries"][cache_key] = {"match": vision_answer[0], "reason": vision_answer[1]}
-        _vision_cache_save(cache)
-        return vision_answer
+        # Do not cache answers that look like noise/unparsed tool errors.
+        reason_l = str(vision_answer[1]).lower()
+        if vision_answer[0] and any(w in reason_l for w in ("tool_call", "unknown toolsets", "error", "name argument", "no puedo ver")):
+            log(f"[vision] ignoring suspicious approval: {vision_answer[1][:100]}")
+            vision_answer = None
+        else:
+            cache["entries"][cache_key] = {"match": vision_answer[0], "reason": vision_answer[1]}
+            _vision_cache_save(cache)
+            return vision_answer
 
-    # Fallback when vision stack is down
+    # Fallback when vision stack is down or ambiguous.
+    # Listing photos are real homes by definition; accept unless metadata is non-residential.
+    if is_listing:
+        if meta_hit:
+            return True, f"vision unclear; listing photo with {brief['label']} metadata ok"
+        # For non-strict topics, a real listing photo is still a safe fallback.
+        if brief["label"] not in ("porch", "kitchen"):
+            return True, "vision unclear; trusting real listing photo"
+        return False, "vision unclear; strict topic needs porch/kitchen metadata"
+
     if brief["label"] in ("porch", "kitchen"):
         if meta_hit:
             return True, "vision unavailable; metadata keywords ok"
         return False, "vision unavailable; strict topic needs porch/kitchen cues"
-    if brief["label"] in ("first_home", "home_sale"):
+    if brief["label"] in ("first_home", "home_sale", "foundation_care"):
         if meta_hit:
             return True, "vision unavailable; residential metadata ok"
         return False, "vision unavailable; home topic needs residential cues"
