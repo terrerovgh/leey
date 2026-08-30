@@ -1,7 +1,80 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-29T11:02:57.000Z",
+  "updatedAt": "2026-08-30T11:03:27.000Z",
   "posts": [
+    {
+      "slug": "list-before-paint-2026-08-29",
+      "date": "2026-08-30",
+      "updatedAt": "2026-08-30T11:03:27.000Z",
+      "category": "first_home",
+      "readMinutes": 7,
+      "tags": [
+        "list",
+        "photos",
+        "price"
+      ],
+      "areas": [
+        "moultrie",
+        "thomasville"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260829/list-before-paint-1.jpg",
+        "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
+        "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260829/list-before-paint-1.jpg",
+          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
+          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260829/list-before-paint-2.jpg",
+          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 2",
+          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260829/list-before-paint-3.jpg",
+          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 3",
+          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260829/list-before-paint-4.jpg",
+          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 4",
+          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "Ayuda de pago inicial en Georgia: Compra tu primera casa en Valdosta con menos ahorros",
+      "titleEn": "Georgia Down Payment Assistance: Buy Your First Home in Valdosta with Less Cash",
+      "seoTitleEs": "Ayuda pago inicial Georgia: Compra casa Valdosta | Leey",
+      "seoTitleEn": "GA down payment aid: Buy first home Valdosta | Leey",
+      "seoDescriptionEs": "Descubre cómo acceder a hasta $10,000 de ayuda para el pago inicial en Valdosta, Georgia, y comprar tu primera casa incluso con pocos ahorros. Información…",
+      "seoDescriptionEn": "Learn how to access up to $10,000 in down payment assistance in Valdosta, Georgia, to buy your first home with minimal savings. Essential info for Lowndes…",
+      "excerptEs": "La ayuda de pago inicial en Georgia permite a compradores primerizos en Valdosta adquirir una vivienda con menos ahorros. Conoce los requisitos y cómo aplicar.",
+      "excerptEn": "Georgia down payment assistance helps first-time buyers in Valdosta purchase a home with less cash. Learn the eligibility and how to apply.",
+      "bodyEs": "¿Sabías que en Valdosta puedes recibir hasta $10,000 de ayuda para el pago inicial mediante programas estatales como **Georgia Dream**? Esto reduce significativamente el efectivo necesario para cerrar la compra de tu primera casa.\n\n{{figure:0}}\n\nLos fondos pueden usarse para el pago inicial y costos de cierre, permitiendo que familias de **Lowndes County** accedan a hipotecas convencionales, **USDA** o préstamos FHA con menos requisitos de ahorro. Además, los requisitos de ingreso son flexibles y se prioriza a compradores primerizos.\n\n{{figure:1}}\n\nPara comenzar, visita la página de Georgia Dream o consulta con un prestamista local aprobado. Tener listos tus documentos de ingreso y identificación acelerará el proceso y te acercará a la llave de tu nuevo hogar en Valdosta.\n\n{{figure:2}}\n\n{{figure:3}}\n\n— Leey",
+      "bodyEn": "Did you know you can receive up to $10,000 in down payment assistance in Valdosta through state programs like **Georgia Dream**? This greatly reduces the cash needed to close on your first home.\n\n{{figure:0}}\n\nThese funds can cover the down payment and closing costs, allowing families in **Lowndes County** to qualify for conventional, **USDA**, or FHA loans with lower savings requirements. Income limits are flexible and priority is given to first-time buyers.\n\n{{figure:1}}\n\nTo get started, visit the Georgia Dream website or talk to an approved local lender. Having your income documents and ID ready will speed the process and bring you closer to the key to your new home in Valdosta.\n\n{{figure:2}}\n\n{{figure:3}}\n\n— Leey",
+      "pipeline": {
+        "topicId": "list-before-paint",
+        "reviewScore": 86,
+        "sourceDay": "2026-08-29"
+      }
+    },
     {
       "slug": "adel-value-2026-08-30",
       "date": "2026-08-29",
