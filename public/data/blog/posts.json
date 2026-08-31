@@ -1,7 +1,225 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-30T11:03:27.000Z",
+  "updatedAt": "2026-08-31T11:09:12.000Z",
   "posts": [
+    {
+      "slug": "adel-primer-ano-2026-09-01",
+      "date": "2026-09-01",
+      "updatedAt": "2026-09-01T10:00:00.000Z",
+      "category": "neighborhoods",
+      "readMinutes": 6,
+      "tags": [
+        "Adel",
+        "primer año",
+        "sur de Georgia",
+        "comprar casa",
+        "Leey"
+      ],
+      "areas": [
+        "adel",
+        "spark",
+        "lowndes-county"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260901/adel-primer-ano-1.jpg",
+        "altEs": "Adel, Georgia: primer año en el sur — imagen 1",
+        "altEn": "Adel, Georgia: first year in the South — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: archivo local · Adel, Lowndes County",
+        "captionEn": "Photo: local archive · Adel, Lowndes County"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260901/adel-primer-ano-1.jpg",
+          "altEs": "Adel, Georgia: primer año — imagen 1",
+          "altEn": "Adel, Georgia: first year — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: archivo local · Adel, Lowndes County",
+          "captionEn": "Photo: local archive · Adel, Lowndes County"
+        }
+      ],
+      "titleEs": "Adel, Georgia: qué esperar del primer año en el sur (y por qué vale la pena)",
+      "titleEn": "Adel, Georgia: What to Expect Your First Year in the South (and Why It's Worth It)",
+      "seoTitleEs": "Adel Georgia primer año: qué esperar | Leey",
+      "seoTitleEn": "Adel GA first year: what to expect | Leey",
+      "seoDescriptionEs": "Adel ofrece casas amplias a menor costo que Valdosta, con acceso rápido al sur de Georgia y una comunidad en crecimiento. Descubre qué esperar el primer año.",
+      "seoDescriptionEn": "Adel offers larger homes at lower cost than Valdosta, with quick access to south Georgia and a growing community. Discover what to expect the first year.",
+      "excerptEs": "Adel, Georgia combina precios accesibles con acceso al sur del estado. Aquí te contamos qué esperar del primer año: comunidad, servicios y el ritmo real del lugar.",
+      "excerptEn": "Adel, Georgia combines affordable prices with access to the south of the state. Here's what to expect your first year: community, services, and the real pace of the place.",
+      "bodyEs": "**Adel** no es Valdosta ni Hahira, y eso es precisamente lo que lo hace interesante. A solo 20 minutos del centro de Lowndes County, ofrece casas más amplias a precios que aún permiten entrar sin estirar el presupuesto al límite. **Las familias que se mudan desde Florida** suelen encontrar lotes más grandes, impuestos más bajos y un ritmo de vida menos acelerado.",
+      "bodyEn": "**Adel** is not Valdosta or Hahira, and that's exactly what makes it interesting. Just 20 minutes from the center of Lowndes County, it offers larger homes at prices that still allow entry without stretching the budget to the limit. **Families moving from Florida** often find larger lots, lower taxes, and a less rushed pace of life."
+    },
+    {
+      "slug": "ahorro-impuestos-florida-georgia-2026-09-01",
+      "date": "2026-09-01",
+      "updatedAt": "2026-09-01T10:00:00.000Z",
+      "category": "moving_guide",
+      "readMinutes": 6,
+      "tags": [
+        "mudanza",
+        "Florida",
+        "impuestos",
+        "seguros",
+        "ahorro",
+        "Leey"
+      ],
+      "areas": [
+        "moultrie",
+        "valdosta",
+        "thomasville"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260901/ahorro-impuestos-1.jpg",
+        "altEs": "Comparación de impuestos entre Florida y Georgia — imagen 1",
+        "altEn": "Tax comparison between Florida and Georgia — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: archivo local · Lowndes County",
+        "captionEn": "Photo: local archive · Lowndes County"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260901/ahorro-impuestos-1.jpg",
+          "altEs": "Tax comparison Florida vs Georgia — image 1",
+          "altEn": "Tax comparison Florida vs Georgia — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: archivo local · Lowndes County",
+          "captionEn": "Photo: local archive · Lowndes County"
+        }
+      ],
+      "titleEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos y seguros",
+      "titleEn": "Moving from Florida to South Georgia: How Much You Really Save in Taxes and Insurance",
+      "seoTitleEs": "Mudarse Florida a Georgia: ahorro impuestos | Leey",
+      "seoTitleEn": "Moving Florida to Georgia: real savings | Leey",
+      "seoDescriptionEs": "Comparamos el costo real de vivir en Florida versus el sur de Georgia. Menos impuestos estatales, seguros más bajos y una diferencia que suma más de lo esperado.",
+      "seoDescriptionEn": "We compare the real cost of living in Florida versus south Georgia. Lower state taxes, lower insurance, and a difference that adds up more than expected.",
+      "excerptEs": "El cambio de Florida al sur de Georgia no es solo por el clima: los números en impuestos, seguros y servicios públicos muestran una diferencia clara que favorece al comprador.",
+      "excerptEn": "Moving from Florida to south Georgia isn't just about climate: numbers in taxes, insurance, and utilities show a clear difference that favors the buyer.",
+      "bodyEs": "**El sur de Georgia no solo ofrece casas más accesibles**, también un sistema fiscal que favorece al comprador. Sin impuesto estatal sobre la renta en Florida parece atractivo, pero el costo combinado de seguros de propiedad, tasas locales y el precio de las viviendas cambia completamente la ecuación. **En Lowndes y Thomasville** se observan ahorros anuales significativos.",
+      "bodyEn": "**South Georgia doesn't just offer more affordable homes**, it also has a tax system that favors buyers. No state income tax in Florida seems attractive, but the combined cost of property insurance, local fees, and home prices completely changes the equation. **In Lowndes and Thomasville** significant annual savings are observed."
+    },
+    {
+      "slug": "cocina-isla-casas-sur-georgia-2026-09-01",
+      "date": "2026-09-01",
+      "updatedAt": "2026-09-01T10:00:00.000Z",
+      "category": "remodel",
+      "readMinutes": 5,
+      "tags": [
+        "cocina",
+        "isla",
+        "remodel",
+        "sur de Georgia",
+        "Leey"
+      ],
+      "areas": [
+        "valdosta",
+        "thomasville",
+        "moultrie"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260901/cocina-isla-1.jpg",
+        "altEs": "Cocina con isla en casa del sur de Georgia — imagen 1",
+        "altEn": "Kitchen with island in a South Georgia home — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: archivo local · Lowndes County",
+        "captionEn": "Photo: local archive · Lowndes County"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260901/cocina-isla-1.jpg",
+          "altEs": "Cocina con isla en casa del sur de Georgia — imagen 1",
+          "altEn": "Kitchen with island in a South Georgia home — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: archivo local · Lowndes County",
+          "captionEn": "Photo: local archive · Lowndes County"
+        }
+      ],
+      "titleEs": "Cocinas con isla en casas del sur de Georgia: cuándo sí vale el cambio",
+      "titleEn": "Kitchen Islands in South Georgia Homes: When the Change Is Worth It",
+      "seoTitleEs": "Cocina isla casas sur Georgia | Leey",
+      "seoTitleEn": "Kitchen island south Georgia homes | Leey",
+      "seoDescriptionEs": "Una isla no siempre es necesaria ni posible. Aquí te explicamos cuándo sí conviene instalarla en casas del sur de Georgia y cómo evitar errores comunes en el remodel.",
+      "seoDescriptionEn": "An island isn't always necessary or possible. Here we explain when it makes sense to install one in south Georgia homes and how to avoid common remodel mistakes.",
+      "excerptEs": "Antes de abrir un muro o cambiar la distribución de tu cocina, revisa el espacio, la ventilación y el flujo de trabajo. Una isla bien planeada transforma el ambiente sin comprometer la funcionalidad.",
+      "excerptEn": "Before opening a wall or changing your kitchen layout, check space, ventilation, and workflow. A well-planned island transforms the space without compromising function.",
+      "bodyEs": "**No todas las cocinas del sur de Georgia pueden (o deben) llevar una isla**. El espacio debe permitir circulación libre de al menos 1 metro a cada lado, algo que no siempre es posible en casas construidas antes de los años 90 en Valdosta o Thomasville. **Cuando sí vale la pena**: cuando la cocina es el centro de reuniones familiares y hay espacio real para trabajar.",
+      "bodyEn": "**Not every kitchen in south Georgia can (or should) have an island**. The space must allow free circulation of at least 1 meter on each side, which isn't always possible in homes built before the 1990s in Valdosta or Thomasville. **When it's worth it**: when the kitchen is the center of family gatherings and there's real workspace."
+    },
+    {
+      "slug": "bath-refresh-2026-08-31",
+      "date": "2026-08-31",
+      "updatedAt": "2026-08-31T11:09:12.000Z",
+      "category": "remodel",
+      "readMinutes": 5,
+      "tags": [
+        "update",
+        "do it yourself",
+        "caulk",
+        "faucet",
+        "lighting",
+        "mirror"
+      ],
+      "areas": [
+        "thomasville",
+        "moultrie"
+      ],
+      "cover": {
+        "src": "/assets/blog/20260831/bath-refresh-1.jpg",
+        "altEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — imagen 1",
+        "altEn": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — image 1",
+        "kind": "photo",
+        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+      },
+      "figures": [
+        {
+          "src": "/assets/blog/20260831/bath-refresh-1.jpg",
+          "altEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — imagen 1",
+          "altEn": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — image 1",
+          "kind": "photo",
+          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260831/bath-refresh-2.jpg",
+          "altEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — imagen 2",
+          "altEn": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260831/bath-refresh-3.jpg",
+          "altEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — imagen 3",
+          "altEn": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260831/bath-refresh-4.jpg",
+          "altEs": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — imagen 4",
+          "altEn": "Baño principal sin remodel total: junta, grifo, luz y un espejo decente. — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)"
+        }
+      ],
+      "titleEs": "Refresca tu baño principal sin tener que empezar de cero",
+      "titleEn": "Refresh your main bathroom without starting from scratch",
+      "seoTitleEs": "Refresca tu baño principal sin tener que empezar de cero | Leey",
+      "seoTitleEn": "Refresh your main bathroom without starting from scratch | Leey",
+      "seoDescriptionEs": "Get a new bathroom without starting from scratch. Here's how to update your main bathroom with a new faucet, a fresh layer of caulk, a new light, and a...",
+      "seoDescriptionEn": "Get a new bathroom without starting from scratch. Here's how to update your main bathroom with a new faucet, a fresh layer of caulk, a new light, and a...",
+      "excerptEs": "Refresca tu baño principal sin invertir en un remodelaje completo!",
+      "excerptEn": "Refresh your main bathroom without investing in a full remodel!",
+      "bodyEs": "Bathrooms can look old after years of use. If you're not ready to start from scratch yet\n\n{{figure:0}}\n\nMake sure to check out our design guide to pick the best paint colors, curtains, and flooring for your bathroom!\n\n{{figure:1}}\n\n--- Leey\n\n{{figure:2}}\n\nEn el sur de Georgia cada casa cuenta una historia distinta. Yo miro estructura, trayecto y lo que se siente al llegar. Si quieres, lo vemos juntos con calma.\n\n{{figure:3}}\n\n— Leey",
+      "bodyEn": "Bathrooms can look old after years of use. If you're not ready to start from scratch yet\n\n{{figure:0}}\n\nMake sure to check out our design guide to pick the best paint colors, curtains, and flooring for your bathroom!\n\n{{figure:1}}\n\n--- Leey\n\n{{figure:2}}\n\nIn South Georgia every house tells a different story. I look at structure, the drive, and how it feels to arrive. If you want, we can walk it together without the rush.\n\n{{figure:3}}\n\n— Leey",
+      "pipeline": {
+        "topicId": "bath-refresh",
+        "reviewScore": 85,
+        "sourceDay": "2026-08-31"
+      }
+    },
     {
       "slug": "list-before-paint-2026-08-29",
       "date": "2026-08-30",
