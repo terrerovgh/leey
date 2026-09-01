@@ -30,6 +30,7 @@ LEEY_BLOG_DAY="$DAY" bash scripts/blog_agents/03b-image-download.sh
 
 python3 - <<PY
 import json
+import re
 from pathlib import Path
 from datetime import datetime, timezone
 from PIL import Image
@@ -66,6 +67,33 @@ for post in feed.get("posts") or []:
     if post.get("slug") != slug:
         continue
     found = True
+    # Keep only as many images as there are figure markers in the post body
+    marker_counts = [
+        len(re.findall(r"\{\{figure:\d+\}\}", post.get(k) or ""))
+        for k in ("bodyEs", "bodyEn")
+    ]
+    max_figs = max(marker_counts) if marker_counts else 4
+    max_figs = max(max_figs, 1)
+
+    # Enforce a mix of GAMLS listings + web images when both are available.
+    listings = [im for im in imgs if im.get("source") == "listing"]
+    web = [im for im in imgs if im.get("source") != "listing"]
+    mixed: list[dict] = []
+    li, wi = 0, 0
+    while len(mixed) < max_figs and (li < len(listings) or wi < len(web)):
+        # Prefer to alternate, starting with the stronger source by score.
+        if li < len(listings) and (len(mixed) % 2 == 0 or wi >= len(web)):
+            mixed.append(listings[li])
+            li += 1
+        elif wi < len(web):
+            mixed.append(web[wi])
+            wi += 1
+        elif li < len(listings):
+            mixed.append(listings[li])
+            li += 1
+        else:
+            break
+    imgs = mixed
     figs = []
     for im in imgs:
         addr = im.get("address") or im.get("city") or "South Georgia"

@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-01T14:59:30.000Z",
+  "updatedAt": "2026-09-01T16:42:44.000Z",
   "posts": [
     {
       "slug": "price-drop-talk-2026-09-01",
       "date": "2026-09-01",
-      "updatedAt": "2026-09-01T14:48:47.000Z",
+      "updatedAt": "2026-09-01T16:37:12.000Z",
       "category": "selling",
       "readMinutes": 5,
       "tags": [
@@ -19,44 +19,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260901/price-drop-talk-1.jpg",
-        "altEs": "Casa en Tifton, Georgia — imagen 1",
-        "altEn": "Home in Tifton, Georgia — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Tifton",
-        "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Tifton"
+        "altEs": "Casa en inventario · 11 S Harney Street, Camilla, GA, 31730",
+        "altEn": "Inventory home · 11 S Harney Street, Camilla, GA, 31730"
       },
       "figures": [
         {
           "src": "/assets/blog/20260901/price-drop-talk-1.jpg",
-          "altEs": "Casa en Tifton, Georgia — imagen 1",
-          "altEn": "Home in Tifton, Georgia — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Tifton",
-          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Tifton"
-        },
-        {
-          "src": "/assets/blog/20260901/price-drop-talk-2.jpg",
-          "altEs": "Casa en Nashville, Georgia — imagen 2",
-          "altEn": "Home in Nashville, Georgia — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory) · Nashville",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory) · Nashville"
-        },
-        {
-          "src": "/assets/blog/20260901/price-drop-talk-3.jpg",
-          "altEs": "Casa en Camilla, Georgia — imagen 3",
-          "altEn": "Home in Camilla, Georgia — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Camilla",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Camilla"
+          "altEs": "Casa en inventario · 11 S Harney Street, Camilla, GA, 31730",
+          "altEn": "Inventory home · 11 S Harney Street, Camilla, GA, 31730",
+          "captionEs": "Foto listing · Will Wright · Camilla",
+          "captionEn": "Listing photo · Will Wright · Camilla"
         },
         {
           "src": "/assets/blog/20260901/price-drop-talk-4.jpg",
-          "altEs": "Casa en Pelham, Georgia — imagen 4",
-          "altEn": "Home in Pelham, Georgia — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Pelham",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Pelham"
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-2.jpg",
+          "altEs": "Casa en inventario · 176 Walker Street, Camilla, GA, 31730",
+          "altEn": "Inventory home · 176 Walker Street, Camilla, GA, 31730",
+          "captionEs": "Foto listing · Will Wright · Camilla",
+          "captionEn": "Listing photo · Will Wright · Camilla"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-5.png",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         }
       ],
       "titleEs": "Cuándo bajar el precio y cómo decirlo sin drama",
@@ -96,10 +89,7 @@
       "cover": {
         "src": "/assets/blog/20260831/bath-refresh-1.jpg",
         "altEs": "Refresca tu baño principal sin tener que empezar de cero — imagen 1",
-        "altEn": "Refresh your main bathroom without starting from scratch — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Smtzzz · CC BY-SA 4.0 (Wikimedia Commons)",
-        "captionEn": "Photo: Smtzzz · CC BY-SA 4.0 (Wikimedia Commons)"
+        "altEn": "Refresh your main bathroom without starting from scratch — image 1"
       },
       "figures": [
         {
@@ -154,7 +144,7 @@
     {
       "slug": "list-before-paint-2026-08-29",
       "date": "2026-08-30",
-      "updatedAt": "2026-09-01T14:59:30.000Z",
+      "updatedAt": "2026-09-01T16:39:25.000Z",
       "category": "first_home",
       "readMinutes": 7,
       "tags": [
@@ -167,45 +157,38 @@
         "thomasville"
       ],
       "cover": {
-        "src": "/assets/blog/20260829/list-before-paint-1.jpg",
-        "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-        "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+        "src": "/assets/blog/20260830/list-before-paint-3.jpg",
+        "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
+        "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260829/list-before-paint-1.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 1",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory)"
+          "src": "/assets/blog/20260830/list-before-paint-3.jpg",
+          "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
+          "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744",
+          "captionEs": "Foto listing · Ginny Henry · Doerun",
+          "captionEn": "Listing photo · Ginny Henry · Doerun"
         },
         {
-          "src": "/assets/blog/20260829/list-before-paint-2.jpg",
-          "altEs": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — imagen 2",
-          "altEn": "Ayuda de pago inicial en Georgia: cómo comprar tu primera casa en Valdosta con menos ahorros — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+          "src": "/assets/blog/20260830/list-before-paint-4.webp",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         },
         {
-          "src": "/assets/blog/20260829/list-before-paint-3.jpg",
-          "altEs": "Casa en Blackshear, Georgia — imagen 3",
-          "altEn": "Home in Blackshear, Georgia — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Blackshear",
-          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Blackshear"
+          "src": "/assets/blog/20260830/list-before-paint-6.jpg",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         },
         {
-          "src": "/assets/blog/20260829/list-before-paint-4.jpg",
-          "altEs": "Casa en Leesburg, Georgia — imagen 4",
-          "altEn": "Home in Leesburg, Georgia — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Sherry Royal · listing photo (Lock & Key / GAMLS inventory) · Leesburg",
-          "captionEn": "Photo: Sherry Royal · listing photo (Lock & Key / GAMLS inventory) · Leesburg"
+          "src": "/assets/blog/20260830/list-before-paint-5.jpg",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         }
       ],
       "titleEs": "Ayuda de pago inicial en Georgia: Compra tu primera casa en Valdosta con menos ahorros",
@@ -244,45 +227,38 @@
         "sparks"
       ],
       "cover": {
-        "src": "/assets/blog/20260830/adel-value-1.jpg",
-        "altEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — imagen 1",
-        "altEn": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-        "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
+        "src": "/assets/blog/20260828/yard-weekend-7.jpg",
+        "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
+        "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779"
       },
       "figures": [
         {
+          "src": "/assets/blog/20260828/yard-weekend-7.jpg",
+          "altEs": "Casa en inventario · 375 Palmer Street Sw, Pelham, GA, 31779",
+          "altEn": "Inventory home · 375 Palmer Street Sw, Pelham, GA, 31779",
+          "captionEs": "Foto listing · Will Wright · Pelham",
+          "captionEn": "Listing photo · Will Wright · Pelham"
+        },
+        {
+          "src": "/assets/blog/20260827/termite-south-ga-3.webp",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-6.jpg",
+          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
+          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
+          "captionEs": "Foto listing · Madison Hewett · Nashville",
+          "captionEn": "Listing photo · Madison Hewett · Nashville"
+        },
+        {
           "src": "/assets/blog/20260830/adel-value-1.jpg",
-          "altEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — imagen 1",
-          "altEn": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260830/adel-value-2.jpg",
-          "altEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — imagen 2",
-          "altEn": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY-SA 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY-SA 4.0"
-        },
-        {
-          "src": "/assets/blog/20260830/adel-value-3.jpg",
-          "altEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — imagen 3",
-          "altEn": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY 4.0"
-        },
-        {
-          "src": "/assets/blog/20260830/adel-value-4.jpg",
-          "altEs": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — imagen 4",
-          "altEn": "Adel y Sparks cuando quieres más casa por el dinero — y qué mirar en el lote. — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Michael Rivera · CC BY 4.0",
-          "captionEn": "Photo: Michael Rivera · CC BY 4.0"
+          "altEs": "Foto relacionada · casa unifamiliar del sur de Georgia",
+          "altEn": "Related photo · South Georgia single-family home",
+          "captionEs": "Foto: web · web search result (verify usage rights)",
+          "captionEn": "Photo: web · web search result (verify usage rights)"
         }
       ],
       "titleEs": "Descubre el valor real de Adel, Georgia — Tu primera casa te está esperando",
@@ -304,7 +280,7 @@
     {
       "slug": "yard-weekend-2026-08-28",
       "date": "2026-08-28",
-      "updatedAt": "2026-08-29T00:13:03.000Z",
+      "updatedAt": "2026-09-01T16:40:24.000Z",
       "category": "decor",
       "readMinutes": 5,
       "tags": [
@@ -319,44 +295,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260828/yard-weekend-1.jpg",
-        "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 1",
-        "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+        "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
+        "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639"
       },
       "figures": [
         {
           "src": "/assets/blog/20260828/yard-weekend-1.jpg",
-          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 1",
-          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
+          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
+          "captionEs": "Foto listing · Madison Hewett · Nashville",
+          "captionEn": "Listing photo · Madison Hewett · Nashville"
+        },
+        {
+          "src": "/assets/blog/20260828/yard-weekend-W-9.jpg",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         },
         {
           "src": "/assets/blog/20260828/yard-weekend-2.jpg",
-          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 2",
-          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
+          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
+          "captionEs": "Foto listing · Madison Hewett · Nashville",
+          "captionEn": "Listing photo · Madison Hewett · Nashville"
         },
         {
           "src": "/assets/blog/20260828/yard-weekend-3.jpg",
-          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 3",
-          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
-        },
-        {
-          "src": "/assets/blog/20260828/yard-weekend-4.jpg",
-          "altEs": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — imagen 4",
-          "altEn": "Patio grande de pueblo: un fin de semana de orden vale más que un jardín de revista. — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Madison Hewett · listing photo (Lock & Key / GAMLS inventory)"
+          "altEs": "Casa en inventario · 408 Janice Avenue, Nashville, GA, 31639",
+          "altEn": "Inventory home · 408 Janice Avenue, Nashville, GA, 31639",
+          "captionEs": "Foto listing · Madison Hewett · Nashville",
+          "captionEn": "Listing photo · Madison Hewett · Nashville"
         }
       ],
       "titleEs": "Fin de semana en el patio: ideas para mejorar tu hogar en…",
@@ -378,7 +347,7 @@
     {
       "slug": "termite-south-ga-2026-08-27",
       "date": "2026-08-27",
-      "updatedAt": "2026-09-01T14:59:30.000Z",
+      "updatedAt": "2026-09-01T16:41:28.000Z",
       "category": "buying",
       "readMinutes": 3,
       "tags": [
@@ -392,45 +361,38 @@
         "thomasville"
       ],
       "cover": {
-        "src": "/assets/blog/20260827/termite-south-ga-1.jpg",
-        "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 1",
-        "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        "src": "/assets/blog/20260828/yard-weekend-5.jpg",
+        "altEs": "Casa en inventario · 179 Baker Street, Quitman, GA, 31643",
+        "altEn": "Inventory home · 179 Baker Street, Quitman, GA, 31643"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260827/termite-south-ga-1.jpg",
-          "altEs": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — imagen 1",
-          "altEn": "Termitas y humedad en el sur de Georgia: qué pido en inspección y por qué. — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+          "src": "/assets/blog/20260828/yard-weekend-5.jpg",
+          "altEs": "Casa en inventario · 179 Baker Street, Quitman, GA, 31643",
+          "altEn": "Inventory home · 179 Baker Street, Quitman, GA, 31643",
+          "captionEs": "Foto listing · Peyton Clark · Quitman",
+          "captionEn": "Listing photo · Peyton Clark · Quitman"
+        },
+        {
+          "src": "/assets/blog/20260827/termite-south-ga-9.jpg",
+          "altEs": "Foto relacionada · casa unifamiliar del sur de Georgia",
+          "altEn": "Related photo · South Georgia single-family home",
+          "captionEs": "Foto: web · web search result (verify usage rights)",
+          "captionEn": "Photo: web · web search result (verify usage rights)"
+        },
+        {
+          "src": "/assets/blog/20260828/yard-weekend-6.jpg",
+          "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
+          "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744",
+          "captionEs": "Foto listing · Ginny Henry · Doerun",
+          "captionEn": "Listing photo · Ginny Henry · Doerun"
         },
         {
           "src": "/assets/blog/20260827/termite-south-ga-2.jpg",
-          "altEs": "Casa en Chula, Georgia — imagen 2",
-          "altEn": "Home in Chula, Georgia — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Peyton Clark · listing photo (Lock & Key / GAMLS inventory) · Chula",
-          "captionEn": "Photo: Peyton Clark · listing photo (Lock & Key / GAMLS inventory) · Chula"
-        },
-        {
-          "src": "/assets/blog/20260827/termite-south-ga-3.jpg",
-          "altEs": "Casa en Hampton, Georgia — imagen 3",
-          "altEn": "Home in Hampton, Georgia — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory) · Hampton",
-          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory) · Hampton"
-        },
-        {
-          "src": "/assets/blog/20260827/termite-south-ga-4.jpg",
-          "altEs": "Casa en Pelham, Georgia — imagen 4",
-          "altEn": "Home in Pelham, Georgia — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Pelham",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory) · Pelham"
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         }
       ],
       "titleEs": "¿Qué pido en una inspección de termitas y por qué es importante en Valdosta y Georgia del Sur",
@@ -452,7 +414,7 @@
     {
       "slug": "list-before-paint-2026-08-26",
       "date": "2026-08-26",
-      "updatedAt": "2026-09-01T14:59:30.000Z",
+      "updatedAt": "2026-09-01T16:42:44.000Z",
       "category": "selling",
       "readMinutes": 5,
       "tags": [
@@ -467,52 +429,37 @@
       ],
       "cover": {
         "src": "/assets/blog/20260826/list-before-paint-1.jpg",
-        "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 1",
-        "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
-        "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
+        "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744"
       },
       "figures": [
         {
           "src": "/assets/blog/20260826/list-before-paint-1.jpg",
-          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 1",
-          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+          "altEs": "Casa en inventario · 408 N Broad Street, Doerun, GA, 31744",
+          "altEn": "Inventory home · 408 N Broad Street, Doerun, GA, 31744",
+          "captionEs": "Foto listing · Ginny Henry · Doerun",
+          "captionEn": "Listing photo · Ginny Henry · Doerun"
         },
         {
-          "src": "/assets/blog/20260826/list-before-paint-2.jpg",
-          "altEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — imagen 2",
-          "altEn": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado. — image 2",
-          "kind": "photo",
-          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
-          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+          "src": "/assets/blog/20260830/list-before-paint-7.jpg",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         },
         {
-          "src": "/assets/blog/20260826/list-before-paint-3.jpg",
-          "altEs": "Casa en Screven, Georgia — imagen 3",
-          "altEn": "Home in Screven, Georgia — image 3",
-          "kind": "photo",
-          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Screven",
-          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Screven"
+          "src": "/assets/blog/20260826/list-before-paint-7.jpg",
+          "altEs": "Casa en inventario · 174 Baskins Road, Lakeland, GA, 31635",
+          "altEn": "Inventory home · 174 Baskins Road, Lakeland, GA, 31635",
+          "captionEs": "Foto listing · Ginny Henry · Lakeland",
+          "captionEn": "Listing photo · Ginny Henry · Lakeland"
         },
         {
-          "src": "/assets/blog/20260826/list-before-paint-4.jpg",
-          "altEs": "Casa en Hampton, Georgia — imagen 4",
-          "altEn": "Home in Hampton, Georgia — image 4",
-          "kind": "photo",
-          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory) · Hampton",
-          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory) · Hampton"
-        },
-        {
-          "src": "/assets/blog/20260826/list-before-paint-5.jpg",
-          "altEs": "Casa en Blackshear, Georgia — imagen 5",
-          "altEn": "Home in Blackshear, Georgia — image 5",
-          "kind": "photo",
-          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Blackshear",
-          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory) · Blackshear"
+          "src": "/assets/blog/20260826/list-before-paint-8.jpg",
+          "altEs": "Casa en inventario · 141 Caldwell Drive, Hampton, GA, 30228",
+          "altEn": "Inventory home · 141 Caldwell Drive, Hampton, GA, 30228",
+          "captionEs": "Foto listing · Ginny Henry · Hampton",
+          "captionEn": "Listing photo · Ginny Henry · Hampton"
         }
       ],
       "titleEs": "Antes de pintar toda la casa para vender: tres cosas que sí mueven el listado",
@@ -548,9 +495,9 @@
         "thomasville"
       ],
       "cover": {
-        "src": "/assets/blog/20260825/florida-to-georgia-i75.jpg",
-        "altEs": "Carretera I-75 llegando a Downtown Valdosta Historic District, Exit 16",
-        "altEn": "I-75 highway approaching Downtown Valdosta Historic District, Exit 16"
+        "src": "/assets/blog/20260825/florida-to-georgia-moultrie.jpg",
+        "altEs": "Downtown Pocket Park, Moultrie, Georgia",
+        "altEn": "Downtown Pocket Park, Moultrie, Georgia"
       },
       "figures": [
         {
@@ -678,11 +625,11 @@
           "captionEn": "Listing photo · Tyler Boatright · Tifton"
         },
         {
-          "src": "/assets/blog/20260816/first-offer-nerves-2.jpg",
-          "altEs": "Casa en inventario · 601 40th Street, Tifton, GA, 31794",
-          "altEn": "Inventory home · 601 40th Street, Tifton, GA, 31794",
-          "captionEs": "Foto listing · Tyler Boatright · Tifton",
-          "captionEn": "Listing photo · Tyler Boatright · Tifton"
+          "src": "/assets/blog/20260827/termite-south-ga-5.webp",
+          "altEs": "Foto relacionada · Unknown",
+          "altEn": "Related photo · Unknown",
+          "captionEs": "Foto: Unknown · web search result (verify usage rights)",
+          "captionEn": "Photo: Unknown · web search result (verify usage rights)"
         },
         {
           "src": "/assets/blog/20260816/first-offer-nerves-3.jpg",

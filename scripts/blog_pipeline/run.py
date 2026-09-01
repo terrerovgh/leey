@@ -43,6 +43,7 @@ TOPICS_PATH = ROOT / "data/blog/topics.json"
 QUEUE_PATH = ROOT / "data/blog/queue.json"
 WORK_ROOT = ROOT / "data/blog/pipeline"
 ASSETS_PUB = ROOT / "public/assets/blog"
+USED_HASHES_PATH = WORK_ROOT / ".used_image_hashes.json"
 UA = "LeeyBlogPipeline/2.0 (+https://leeyrealty.com; free-edu-use)"
 
 # Omni-route model tiers. Decision agents get strong models first; creative/vision
@@ -1448,6 +1449,75 @@ def unsplash_search(query: str, limit: int = 5) -> list[dict]:
     return out
 
 
+def bing_image_search(query: str, limit: int = 10) -> list[dict]:
+    """Search Bing images and parse result URLs (best-effort, no API key)."""
+    if os.environ.get("LEEY_BLOG_NO_BING", "").strip():
+        return []
+    import html as html_module
+
+    url = "https://www.bing.com/images/search?" + urllib.parse.urlencode(
+        {"q": query, "form": "HDRSC2", "first": "1"}
+    )
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                ),
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            raw = r.read().decode("utf-8", "replace")
+    except Exception as e:
+        log(f"[assets] bing fail: {e}")
+        return []
+
+    # Bing HTML-escapes JSON quotes as &quot;; decode them so regexes work.
+    html = html_module.unescape(raw)
+    out = []
+    seen: set[str] = set()
+    # Bing embeds results as JSON objects with murl (image) and purl (page) fields.
+    for m in re.finditer(r'murl\":\"(https?://[^\"]+)\"', html):
+        img_url = m.group(1).replace("\\", "")
+        if not img_url.startswith("http"):
+            continue
+        if img_url in seen:
+            continue
+        seen.add(img_url)
+        # Try to find the nearest purl (source page) before this murl
+        page_url = ""
+        before = html[:m.start()]
+        pm = re.search(r'purl\":\"(https?://[^\"]+)\"[^\"]*\"$', before)
+        if pm:
+            page_url = pm.group(1).replace("\\", "")
+        cand = {
+            "url": img_url,
+            "full": img_url,
+            "title": query,
+            "license": "web search result (verify usage rights)",
+            "artist": "Unknown",
+            "source": "bing",
+            "page": page_url,
+            "date": "",
+            "description": query,
+        }
+        if looks_archival_or_old(cand):
+            continue
+        # Reject obvious non-photos / spam domains
+        host = urllib.parse.urlparse(img_url).netloc.lower()
+        if any(x in host for x in ("pinimg.com", "pinterest", "vecteezy", "freepik", "shutterstock", "dreamstime", "gettyimages", "istockphoto")):
+            continue
+        out.append(cand)
+        if len(out) >= limit:
+            break
+    log(f"[assets] bing {query[:40]} -> {len(out)}")
+    return out
+
+
 def _score_listing_photos(
     items: list[dict],
     areas: list[str],
@@ -1598,6 +1668,10 @@ def relevance_score(candidate: dict, topic: dict) -> float:
         "university campus", "college building", "stadium", "gym", "storefront",
         "restaurant", "shop", "commercial", "industrial", "warehouse", "parking lot",
         "highway", "interstate", "road sign", "billboard", "car lot", "dealership",
+        # Retail / big-box / seasonal displays that match place names but are not homes
+        "home depot", "lowe's", "walmart", "target store", "costco", "halloween decorations",
+        "christmas decorations", "store display", "retail display", "shop interior",
+        "aisle", "shelves", "merchandise", "cash register", "shopping cart",
     )
     if any(b in title for b in bad):
         return -100.0
@@ -1608,7 +1682,7 @@ def relevance_score(candidate: dict, topic: dict) -> float:
     elif source == "wikimedia":
         score += 25.0
     elif source == "listing":
-        score += 15.0
+        score += 30.0  # Real GAMLS/Lock & Key inventory is highly relevant
 
     good = (
         "beautiful", "charming", "lovely", "attractive", "modern",
@@ -1639,13 +1713,13 @@ def relevance_score(candidate: dict, topic: dict) -> float:
             place_hit = True
 
     cat = (topic.get("category") or "").lower()
-    # For topics that must show homes, require residential cues in web photos.
+    # For topics that must show homes, require strong residential cues in web photos.
     # Listing photos are homes by definition, so skip this penalty for them.
     must_be_home = cat in ("buying", "selling", "first_home", "moving_guide")
-    residential_cues = ("house", "home", "residential", "exterior", "porch", "yard", "ranch", "bungalow", "cottage")
+    residential_cues = ("house", "residential", "exterior", "porch", "yard", "ranch", "bungalow", "cottage", "suburban home")
     has_home_cue = any(w in title for w in residential_cues)
     if must_be_home and source != "listing" and not has_home_cue:
-        score -= 60.0
+        score -= 80.0
     # For neighborhood/place posts, web photos without place tokens are near-useless
     if cat == "neighborhoods" and candidate.get("source") != "listing" and not place_hit:
         score -= 20.0
@@ -1799,6 +1873,10 @@ def collect_web_candidates(topic: dict, queries: list[str] | None = None) -> lis
                 batch.extend(unsplash_search(q, limit=5))
             except Exception as e:
                 log(f"[assets] unsplash fail {q}: {e}")
+        try:
+            batch.extend(bing_image_search(q, limit=8))
+        except Exception as e:
+            log(f"[assets] bing fail {q}: {e}")
 
         _image_cache_set(q, batch)
         candidates.extend(batch)
@@ -1850,7 +1928,7 @@ def stage_image_search(day: str, topic: dict, force: bool = False) -> dict:
             "total": len(pool),
         },
         "policy": {
-            "prefer_listings": True,
+            "prefer_listings": False,
             "reject_bw": True,
             "reject_archival": True,
             "min_year_hint": 2015,
@@ -1906,23 +1984,25 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         title = f"{c.get('title') or ''} {c.get('description') or ''}".lower()
         kws = [k.lower() for k in brief.get("keywords") or []]
         meta_hit = any(k in title for k in kws if len(str(k)) >= 4)
-        # For porch/kitchen: prefer web/metadata hits that name the subject over random listing heroes
+        # For porch/kitchen: prefer web/metadata hits that name the subject, but keep
+        # listings competitive. Score is the main ranker; source is secondary.
         if strict and brief.get("label") in ("porch", "kitchen"):
             return (
                 0 if meta_hit else 1,
-                0 if c.get("source") != "listing" and meta_hit else 1,
-                0 if c.get("source") == "listing" and meta_hit else 1,
                 -(float(c.get("_score") or 0)),
+                0 if c.get("source") != "listing" else 1,
             )
         if strict and brief.get("label") == "place":
             return (
                 0 if meta_hit else 1,
-                0 if c.get("source") == "listing" else 1,
                 -(float(c.get("_score") or 0)),
+                0 if c.get("source") == "listing" else 1,
             )
+        # Default: rank by relevance score, with a tiny tie-breaker that slightly favors
+        # curated web sources over listings so posts get a mix of GAMLS + internet.
         return (
-            0 if c.get("source") == "listing" else 1,
             -(float(c.get("_score") or 0)),
+            0 if c.get("source") != "listing" else 1,
         )
 
     pool.sort(key=_pool_key)
@@ -1994,6 +2074,21 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         elif dest_pub.suffix.lower() in (".jpg", ".jpeg"):
             # recompressed in place
             pass
+        # Cross-day dedup on the FINAL bytes (compression changes the raw hash,
+        # so the in-memory raw-bytes set is not enough across runs/days).
+        final_hash = hashlib.sha1(dest_pub.read_bytes()).hexdigest()
+        used = load_json(USED_HASHES_PATH, {}) or {}
+        owner = used.get(final_hash)
+        if owner and owner != day:
+            log(f"[image-download] reject {dest_pub.name}: already used by {owner}")
+            dest_pub.unlink(missing_ok=True)
+            try:
+                seen_hashes.discard(h)
+            except Exception:
+                pass
+            return False
+        used[final_hash] = day
+        save_json(USED_HASHES_PATH, used)
         rel = f"/assets/blog/{day.replace('-', '')}/{dest_pub.name}"
         saved.append({**c, "local": rel, "file": dest_pub.name})
         log(
@@ -2004,24 +2099,26 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
 
     TARGET_MIN = 3
     TARGET_IDEAL = 5
-    TARGET_MAX = 6
+    TARGET_MAX = 8
 
-    # For porch/kitchen, walk full sorted pool (metadata-first). Else listings first.
-    if strict and brief.get("label") in ("porch", "kitchen"):
+    # Walk the fully sorted pool (score-first). This lets the best web images
+    # compete with GAMLS listing photos so posts get a natural mix.
+    for c in pool:
+        try_save(c, f"{topic.get('id') or 'img'}")
+        if len(saved) >= TARGET_MAX:
+            break
+
+    # Force a mix: ensure at least one listing and one web image when available.
+    has_listing = any(s.get("source") == "listing" for s in saved)
+    has_web = any(s.get("source") != "listing" for s in saved)
+    if not has_listing:
         for c in pool:
-            try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= TARGET_IDEAL:
+            if c.get("source") == "listing" and try_save(c, f"{topic.get('id') or 'img'}-L"):
                 break
-    else:
-        for c in [x for x in pool if x.get("source") == "listing"]:
-            try_save(c, f"{topic.get('id') or 'img'}")
-            if len(saved) >= TARGET_IDEAL:
+    if not has_web:
+        for c in pool:
+            if c.get("source") != "listing" and try_save(c, f"{topic.get('id') or 'img'}-W"):
                 break
-        if len(saved) < TARGET_MIN:
-            for c in [x for x in pool if x.get("source") != "listing"]:
-                try_save(c, f"{topic.get('id') or 'img'}")
-                if len(saved) >= TARGET_MAX:
-                    break
 
     if len(saved) < TARGET_MIN:
         append_log(wd, "assets.retry_broad", {"have": len(saved)})
@@ -2094,7 +2191,7 @@ def stage_image_download(day: str, topic: dict, force: bool = False) -> dict:
         "photo_count": sum(1 for s in saved if s.get("source") not in ("generated", "chart-en")),
         "listing_photo_count": listing_n,
         "policy": {
-            "prefer_listings": True,
+            "prefer_listings": False,
             "reject_bw": True,
             "reject_archival": True,
         },
