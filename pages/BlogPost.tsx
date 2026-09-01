@@ -60,7 +60,7 @@ export function BlogPostPage() {
       <article>
         <header className="border-b border-ink-900/5 bg-ivory-50">
           <div className="mx-auto max-w-3xl px-6 py-14 sm:py-16">
-            <Link to="/blog" className="text-sm text-ink-500 transition hover:text-clay-700">
+            <Link to="/blog" className="inline-flex min-h-11 items-center text-sm text-ink-500 transition hover:text-clay-700">
               ← {t.blog.back}
             </Link>
             <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-clay-600">

@@ -62,7 +62,7 @@ export function Contact() {
               type="submit"
               disabled={sending || sent}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2 bg-ink-900 px-7 py-3.5 text-sm font-medium tracking-wide text-ivory-50 transition hover:bg-clay-600 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 bg-ink-900 px-7 py-3.5 text-sm font-medium tracking-wide text-ivory-50 transition hover:bg-clay-600 disabled:opacity-50"
             >
               {sent ? (
                 <>
@@ -89,7 +89,7 @@ export function Contact() {
               </div>
               <a
                 href={`tel:${SITE.agent.phoneTel}`}
-                className="mt-2 inline-flex items-center gap-2 text-lg font-medium text-ink-900 transition hover:text-clay-600"
+                className="mt-2 inline-flex min-h-11 items-center gap-2 text-lg font-medium text-ink-900 transition hover:text-clay-600"
               >
                 <Phone className="h-4 w-4 text-clay-500" />
                 {SITE.agent.phoneDisplay}
@@ -101,7 +101,7 @@ export function Contact() {
               </div>
               <a
                 href={`mailto:${SITE.agent.email}`}
-                className="mt-2 inline-flex items-center gap-2 text-base font-medium text-ink-900 transition hover:text-clay-600"
+                className="mt-2 inline-flex min-h-11 items-center gap-2 text-base font-medium text-ink-900 transition hover:text-clay-600"
               >
                 <Mail className="h-4 w-4 text-clay-500" />
                 {SITE.agent.email}

@@ -190,6 +190,13 @@ body {
 .foot-link:hover {
   color: var(--color-clay-300);
 }
+@media (max-width: 639px) {
+  .foot-link {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+}
 
 /* Cinematic hero background — slow ken burns */
 .hero-kenburns {

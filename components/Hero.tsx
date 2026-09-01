@@ -50,7 +50,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08, duration: 0.95, ease: easing }}
-            className="font-display mt-5 max-w-xl text-[2.6rem] font-medium leading-[1.05] tracking-[-0.03em] text-ivory-50 sm:text-5xl lg:text-[3.5rem] xl:text-[3.85rem]"
+            className="font-display mt-5 max-w-xl text-[2.25rem] font-medium leading-[1.05] tracking-[-0.03em] text-ivory-50 sm:text-5xl lg:text-[3.5rem] xl:text-[3.85rem]"
           >
             {t.hero.title}
           </motion.h1>
@@ -81,14 +81,14 @@ export function Hero() {
           >
             <a
               href="/properties"
-              className="group inline-flex items-center gap-2 bg-clay-500 px-7 py-3.5 text-sm font-semibold tracking-wide text-ivory-50 transition hover:bg-clay-400"
+              className="group inline-flex min-h-11 items-center gap-2 bg-clay-500 px-7 py-3.5 text-sm font-semibold tracking-wide text-ivory-50 transition hover:bg-clay-400"
             >
               {t.hero.cta1}
               <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center gap-2 border border-ivory-50/30 bg-ivory-50/5 px-7 py-3.5 text-sm font-medium tracking-wide text-ivory-50 backdrop-blur-[2px] transition hover:border-ivory-50/60 hover:bg-ivory-50/10"
+              className="inline-flex min-h-11 items-center gap-2 border border-ivory-50/30 bg-ivory-50/5 px-7 py-3.5 text-sm font-medium tracking-wide text-ivory-50 backdrop-blur-[2px] transition hover:border-ivory-50/60 hover:bg-ivory-50/10"
             >
               {t.hero.cta2}
             </a>

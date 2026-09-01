@@ -61,11 +61,11 @@ export function AreaPage() {
   const body = isEs ? area.bodyEs : area.bodyEn;
 
   return (
-    <main className="bg-ivory-50 pt-28 pb-24">
+    <main className="bg-ivory-50 pt-24 pb-20 sm:pt-28 sm:pb-24">
       <div className="mx-auto max-w-7xl px-6">
         <Link
           to="/#areas"
-          className="group inline-flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink-500 transition-colors hover:text-clay-500"
+          className="group inline-flex min-h-11 items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink-500 transition-colors hover:text-clay-500"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           {isEs ? "Zonas" : "Areas"}
@@ -83,7 +83,7 @@ export function AreaPage() {
             <span className="text-ink-300">·</span>
             <span>{area.state}</span>
           </div>
-          <h1 className="mt-4 font-display text-5xl font-light leading-[1.04] tracking-[-0.02em] sm:text-6xl">
+          <h1 className="mt-4 break-words font-display text-4xl font-light leading-[1.04] tracking-[-0.02em] sm:text-6xl">
             {isEs ? `Realtor en ${area.city}` : `${area.city} Realtor`}
           </h1>
           <p className="mt-4 text-lg text-ink-500 sm:text-xl">
@@ -121,7 +121,7 @@ export function AreaPage() {
         )}
 
         {/* CTA */}
-        <section className="mt-20 rounded-3xl bg-pine-700 p-10 text-ivory-50">
+        <section className="mt-20 rounded-3xl bg-pine-700 p-6 text-ivory-50 sm:p-10">
           <h2 className="font-display text-3xl font-light">
             {isEs ? `¿Buscas en ${area.city}?` : `Looking in ${area.city}?`}
           </h2>

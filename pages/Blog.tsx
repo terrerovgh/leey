@@ -44,7 +44,7 @@ export function BlogPage() {
             <p className="mt-3 text-ink-500">{t.blog.emptyHint}</p>
             <a
               href={`tel:${SITE.agent.phoneTel}`}
-              className="mt-8 inline-flex bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50"
+              className="mt-8 inline-flex min-h-11 items-center bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50"
             >
               {SITE.agent.phoneDisplay}
             </a>
@@ -78,7 +78,7 @@ export function BlogPage() {
               </p>
               <Link
                 to={`/blog/${featured.slug}`}
-                className="mt-8 inline-flex w-fit bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition hover:bg-clay-600"
+                className="mt-8 inline-flex min-h-11 w-fit items-center bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition hover:bg-clay-600"
               >
                 {t.blog.readMore}
               </Link>

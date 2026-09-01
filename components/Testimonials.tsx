@@ -17,7 +17,7 @@ export function Testimonials() {
           <Reveal
             key={item.name}
             delay={i * 0.05}
-            className="bg-pine-700 p-8 lg:p-10"
+            className="bg-pine-700 p-6 sm:p-8 lg:p-10"
           >
             <blockquote className="font-display text-xl font-normal leading-snug text-ivory-50 lg:text-2xl">
               “{item.quote}”

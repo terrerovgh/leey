@@ -141,7 +141,7 @@ export function ListingsPage() {
         : t.listings.previewLabel;
 
   return (
-    <main className="bg-ivory-50 pt-32 pb-24">
+    <main className="bg-ivory-50 pt-24 pb-20 sm:pt-32 sm:pb-24">
       <section className="px-6">
         <div className="mx-auto max-w-7xl">
           <motion.div
@@ -185,7 +185,7 @@ export function ListingsPage() {
             </div>
             <button
               onClick={() => setFiltersOpen(true)}
-              className="flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-ivory-50 transition-colors hover:bg-pine-700"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink-900 px-6 py-3 text-sm font-medium uppercase tracking-[0.12em] text-ivory-50 transition-colors hover:bg-pine-700"
             >
               <SlidersHorizontal className="h-4 w-4" /> {t.listings.filters}
             </button>

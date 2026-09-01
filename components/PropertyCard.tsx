@@ -55,23 +55,23 @@ export function PropertyCard({ property, variant = "default" }: PropertyCardProp
         </span>
       </div>
 
-      <div className="p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+      <div className="p-5 sm:p-6">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+          <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.25em] text-clay-500">
               {property.city}
               {property.neighborhood && property.neighborhood !== property.city
                 ? ` · ${property.neighborhood}`
                 : ""}
             </div>
-            <h3 className="mt-2 font-display text-2xl font-light leading-tight text-ink-900">
+            <h3 className="mt-2 break-words font-display text-2xl font-light leading-tight text-ink-900">
               {property.title}
             </h3>
             {property.tagline && (
               <p className="mt-2 text-sm text-ink-500">{property.tagline}</p>
             )}
           </div>
-          <div className="whitespace-nowrap text-right text-xl font-medium tracking-tight text-pine-700">
+          <div className="whitespace-nowrap text-left text-lg font-medium tracking-tight text-pine-700 sm:text-right sm:text-xl">
             {property.priceUsd > 0
               ? formatPrice(property.priceUsd)
               : t.listings.contactForPrice}

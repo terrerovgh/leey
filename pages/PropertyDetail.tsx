@@ -85,12 +85,12 @@ export function PropertyDetailPage() {
     .slice(0, 3);
 
   return (
-    <main className="bg-ivory-50 pt-28 pb-24">
+    <main className="bg-ivory-50 pt-24 pb-20 sm:pt-28 sm:pb-24">
       {/* Breadcrumb / back */}
       <div className="mx-auto max-w-7xl px-6">
         <button
           onClick={() => navigate(-1)}
-          className="group inline-flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink-500 transition-colors hover:text-clay-500"
+          className="group inline-flex min-h-11 items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink-500 transition-colors hover:text-clay-500"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           {isEs ? "Volver" : "Back"}
@@ -122,14 +122,14 @@ export function PropertyDetailPage() {
               )}
             </div>
 
-            <h1 className="mt-4 font-display text-5xl font-light leading-[1.04] tracking-[-0.02em] sm:text-6xl">
+            <h1 className="mt-4 break-words font-display text-4xl font-light leading-[1.04] tracking-[-0.02em] sm:text-6xl">
               {property.title}
             </h1>
 
             <p className="mt-4 max-w-3xl text-lg text-ink-500 sm:text-xl">{property.tagline}</p>
 
             <div className="mt-8 flex flex-wrap items-end justify-between gap-6 border-y hairline py-6">
-              <div className="font-display text-5xl font-medium tracking-tight text-pine-700 lg:text-6xl">
+              <div className="font-display text-4xl font-medium tracking-tight text-pine-700 sm:text-5xl lg:text-6xl">
                 {formatPrice(property.priceUsd)}
               </div>
               <div className="flex flex-wrap items-center gap-5 text-sm text-ink-700">

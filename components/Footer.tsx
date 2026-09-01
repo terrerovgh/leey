@@ -9,24 +9,24 @@ export function Footer() {
 
   return (
     <footer className="bg-pine-700 text-ivory-50">
-      <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
+      <div className="mx-auto max-w-6xl px-6 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-5">
             <Logo tone="pine" size="lg" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ivory-100/70">
               {t.footer.tagline}
             </p>
-            <div className="mt-8 flex flex-col gap-2 text-sm">
+            <div className="mt-8 flex flex-col gap-1 text-sm">
               <a
                 href={`tel:${SITE.agent.phoneTel}`}
-                className="inline-flex items-center gap-2 text-ivory-100/85 transition hover:text-clay-300"
+                className="inline-flex min-h-11 items-center gap-2 text-ivory-100/85 transition hover:text-clay-300"
               >
                 <Phone className="h-3.5 w-3.5" />
                 {SITE.agent.phoneDisplay}
               </a>
               <a
                 href={`mailto:${SITE.agent.email}`}
-                className="inline-flex items-center gap-2 text-ivory-100/85 transition hover:text-clay-300"
+                className="inline-flex min-h-11 items-center gap-2 text-ivory-100/85 transition hover:text-clay-300"
               >
                 <Mail className="h-3.5 w-3.5" />
                 {SITE.agent.email}
@@ -87,7 +87,7 @@ function Col({ title, children }: { title: string; children: React.ReactNode }) 
       <h4 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-clay-300/90">
         {title}
       </h4>
-      <div className="flex flex-col gap-2.5">{children}</div>
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 }
