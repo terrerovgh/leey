@@ -1,148 +1,79 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-31T11:09:12.000Z",
+  "updatedAt": "2026-09-01T13:36:19.000Z",
   "posts": [
     {
-      "slug": "adel-primer-ano-2026-09-01",
+      "slug": "price-drop-talk-2026-09-01",
       "date": "2026-09-01",
-      "updatedAt": "2026-09-01T10:00:00.000Z",
-      "category": "neighborhoods",
-      "readMinutes": 6,
-      "tags": [
-        "Adel",
-        "primer año",
-        "sur de Georgia",
-        "comprar casa",
-        "Leey"
-      ],
-      "areas": [
-        "adel",
-        "spark",
-        "lowndes-county"
-      ],
-      "cover": {
-        "src": "/assets/blog/20260901/adel-primer-ano-1.jpg",
-        "altEs": "Adel, Georgia: primer año en el sur — imagen 1",
-        "altEn": "Adel, Georgia: first year in the South — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: archivo local · Adel, Lowndes County",
-        "captionEn": "Photo: local archive · Adel, Lowndes County"
-      },
-      "figures": [
-        {
-          "src": "/assets/blog/20260901/adel-primer-ano-1.jpg",
-          "altEs": "Adel, Georgia: primer año — imagen 1",
-          "altEn": "Adel, Georgia: first year — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: archivo local · Adel, Lowndes County",
-          "captionEn": "Photo: local archive · Adel, Lowndes County"
-        }
-      ],
-      "titleEs": "Adel, Georgia: qué esperar del primer año en el sur (y por qué vale la pena)",
-      "titleEn": "Adel, Georgia: What to Expect Your First Year in the South (and Why It's Worth It)",
-      "seoTitleEs": "Adel Georgia primer año: qué esperar | Leey",
-      "seoTitleEn": "Adel GA first year: what to expect | Leey",
-      "seoDescriptionEs": "Adel ofrece casas amplias a menor costo que Valdosta, con acceso rápido al sur de Georgia y una comunidad en crecimiento. Descubre qué esperar el primer año.",
-      "seoDescriptionEn": "Adel offers larger homes at lower cost than Valdosta, with quick access to south Georgia and a growing community. Discover what to expect the first year.",
-      "excerptEs": "Adel, Georgia combina precios accesibles con acceso al sur del estado. Aquí te contamos qué esperar del primer año: comunidad, servicios y el ritmo real del lugar.",
-      "excerptEn": "Adel, Georgia combines affordable prices with access to the south of the state. Here's what to expect your first year: community, services, and the real pace of the place.",
-      "bodyEs": "**Adel** no es Valdosta ni Hahira, y eso es precisamente lo que lo hace interesante. A solo 20 minutos del centro de Lowndes County, ofrece casas más amplias a precios que aún permiten entrar sin estirar el presupuesto al límite. **Las familias que se mudan desde Florida** suelen encontrar lotes más grandes, impuestos más bajos y un ritmo de vida menos acelerado.",
-      "bodyEn": "**Adel** is not Valdosta or Hahira, and that's exactly what makes it interesting. Just 20 minutes from the center of Lowndes County, it offers larger homes at prices that still allow entry without stretching the budget to the limit. **Families moving from Florida** often find larger lots, lower taxes, and a less rushed pace of life."
-    },
-    {
-      "slug": "ahorro-impuestos-florida-georgia-2026-09-01",
-      "date": "2026-09-01",
-      "updatedAt": "2026-09-01T10:00:00.000Z",
-      "category": "moving_guide",
-      "readMinutes": 6,
-      "tags": [
-        "mudanza",
-        "Florida",
-        "impuestos",
-        "seguros",
-        "ahorro",
-        "Leey"
-      ],
-      "areas": [
-        "moultrie",
-        "valdosta",
-        "thomasville"
-      ],
-      "cover": {
-        "src": "/assets/blog/20260901/ahorro-impuestos-1.jpg",
-        "altEs": "Comparación de impuestos entre Florida y Georgia — imagen 1",
-        "altEn": "Tax comparison between Florida and Georgia — image 1",
-        "kind": "photo",
-        "captionEs": "Foto: archivo local · Lowndes County",
-        "captionEn": "Photo: local archive · Lowndes County"
-      },
-      "figures": [
-        {
-          "src": "/assets/blog/20260901/ahorro-impuestos-1.jpg",
-          "altEs": "Tax comparison Florida vs Georgia — image 1",
-          "altEn": "Tax comparison Florida vs Georgia — image 1",
-          "kind": "photo",
-          "captionEs": "Foto: archivo local · Lowndes County",
-          "captionEn": "Photo: local archive · Lowndes County"
-        }
-      ],
-      "titleEs": "Mudarse de Florida al sur de Georgia: cuánto ahorras realmente en impuestos y seguros",
-      "titleEn": "Moving from Florida to South Georgia: How Much You Really Save in Taxes and Insurance",
-      "seoTitleEs": "Mudarse Florida a Georgia: ahorro impuestos | Leey",
-      "seoTitleEn": "Moving Florida to Georgia: real savings | Leey",
-      "seoDescriptionEs": "Comparamos el costo real de vivir en Florida versus el sur de Georgia. Menos impuestos estatales, seguros más bajos y una diferencia que suma más de lo esperado.",
-      "seoDescriptionEn": "We compare the real cost of living in Florida versus south Georgia. Lower state taxes, lower insurance, and a difference that adds up more than expected.",
-      "excerptEs": "El cambio de Florida al sur de Georgia no es solo por el clima: los números en impuestos, seguros y servicios públicos muestran una diferencia clara que favorece al comprador.",
-      "excerptEn": "Moving from Florida to south Georgia isn't just about climate: numbers in taxes, insurance, and utilities show a clear difference that favors the buyer.",
-      "bodyEs": "**El sur de Georgia no solo ofrece casas más accesibles**, también un sistema fiscal que favorece al comprador. Sin impuesto estatal sobre la renta en Florida parece atractivo, pero el costo combinado de seguros de propiedad, tasas locales y el precio de las viviendas cambia completamente la ecuación. **En Lowndes y Thomasville** se observan ahorros anuales significativos.",
-      "bodyEn": "**South Georgia doesn't just offer more affordable homes**, it also has a tax system that favors buyers. No state income tax in Florida seems attractive, but the combined cost of property insurance, local fees, and home prices completely changes the equation. **In Lowndes and Thomasville** significant annual savings are observed."
-    },
-    {
-      "slug": "cocina-isla-casas-sur-georgia-2026-09-01",
-      "date": "2026-09-01",
-      "updatedAt": "2026-09-01T10:00:00.000Z",
-      "category": "remodel",
+      "updatedAt": "2026-09-01T13:36:19.000Z",
+      "category": "selling",
       "readMinutes": 5,
       "tags": [
-        "cocina",
-        "isla",
-        "remodel",
-        "sur de Georgia",
+        "market",
+        "Valdosta",
+        "Georgia",
         "Leey"
       ],
       "areas": [
-        "valdosta",
-        "thomasville",
-        "moultrie"
+        "valdosta"
       ],
       "cover": {
-        "src": "/assets/blog/20260901/cocina-isla-1.jpg",
-        "altEs": "Cocina con isla en casa del sur de Georgia — imagen 1",
-        "altEn": "Kitchen with island in a South Georgia home — image 1",
+        "src": "/assets/blog/20260901/price-drop-talk-1.jpg",
+        "altEs": "Cuándo bajar el precio y cómo decirlo sin drama. — imagen 1",
+        "altEn": "Cuándo bajar el precio y cómo decirlo sin drama. — image 1",
         "kind": "photo",
-        "captionEs": "Foto: archivo local · Lowndes County",
-        "captionEn": "Photo: local archive · Lowndes County"
+        "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+        "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
       },
       "figures": [
         {
-          "src": "/assets/blog/20260901/cocina-isla-1.jpg",
-          "altEs": "Cocina con isla en casa del sur de Georgia — imagen 1",
-          "altEn": "Kitchen with island in a South Georgia home — image 1",
+          "src": "/assets/blog/20260901/price-drop-talk-1.jpg",
+          "altEs": "Cuándo bajar el precio y cómo decirlo sin drama. — imagen 1",
+          "altEn": "Cuándo bajar el precio y cómo decirlo sin drama. — image 1",
           "kind": "photo",
-          "captionEs": "Foto: archivo local · Lowndes County",
-          "captionEn": "Photo: local archive · Lowndes County"
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-2.jpg",
+          "altEs": "Cuándo bajar el precio y cómo decirlo sin drama. — imagen 2",
+          "altEn": "Cuándo bajar el precio y cómo decirlo sin drama. — image 2",
+          "kind": "photo",
+          "captionEs": "Foto: Will Wright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Will Wright · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-3.jpg",
+          "altEs": "Cuándo bajar el precio y cómo decirlo sin drama. — imagen 3",
+          "altEn": "Cuándo bajar el precio y cómo decirlo sin drama. — image 3",
+          "kind": "photo",
+          "captionEs": "Foto: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Ginny Henry · listing photo (Lock & Key / GAMLS inventory)"
+        },
+        {
+          "src": "/assets/blog/20260901/price-drop-talk-4.jpg",
+          "altEs": "Cuándo bajar el precio y cómo decirlo sin drama. — imagen 4",
+          "altEn": "Cuándo bajar el precio y cómo decirlo sin drama. — image 4",
+          "kind": "photo",
+          "captionEs": "Foto: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)",
+          "captionEn": "Photo: Tyler Boatright · listing photo (Lock & Key / GAMLS inventory)"
         }
       ],
-      "titleEs": "Cocinas con isla en casas del sur de Georgia: cuándo sí vale el cambio",
-      "titleEn": "Kitchen Islands in South Georgia Homes: When the Change Is Worth It",
-      "seoTitleEs": "Cocina isla casas sur Georgia | Leey",
-      "seoTitleEn": "Kitchen island south Georgia homes | Leey",
-      "seoDescriptionEs": "Una isla no siempre es necesaria ni posible. Aquí te explicamos cuándo sí conviene instalarla en casas del sur de Georgia y cómo evitar errores comunes en el remodel.",
-      "seoDescriptionEn": "An island isn't always necessary or possible. Here we explain when it makes sense to install one in south Georgia homes and how to avoid common remodel mistakes.",
-      "excerptEs": "Antes de abrir un muro o cambiar la distribución de tu cocina, revisa el espacio, la ventilación y el flujo de trabajo. Una isla bien planeada transforma el ambiente sin comprometer la funcionalidad.",
-      "excerptEn": "Before opening a wall or changing your kitchen layout, check space, ventilation, and workflow. A well-planned island transforms the space without compromising function.",
-      "bodyEs": "**No todas las cocinas del sur de Georgia pueden (o deben) llevar una isla**. El espacio debe permitir circulación libre de al menos 1 metro a cada lado, algo que no siempre es posible en casas construidas antes de los años 90 en Valdosta o Thomasville. **Cuando sí vale la pena**: cuando la cocina es el centro de reuniones familiares y hay espacio real para trabajar.",
-      "bodyEn": "**Not every kitchen in south Georgia can (or should) have an island**. The space must allow free circulation of at least 1 meter on each side, which isn't always possible in homes built before the 1990s in Valdosta or Thomasville. **When it's worth it**: when the kitchen is the center of family gatherings and there's real workspace."
+      "titleEs": "Cuándo bajar el precio y cómo decirlo sin drama",
+      "titleEn": "When to drop price and how to say it without drama",
+      "seoTitleEs": "Cuándo bajar el precio de casa y cómo decirlo sin drama | Leey",
+      "seoTitleEn": "When to drop house price and how to say it without drama | Leey",
+      "seoDescriptionEs": "Leey de Lock & Key Realty explica cuándo conviene ajustar el precio de tu casa en Valdosta y cómo comunicarlo sin generar drama ni perder posición.",
+      "seoDescriptionEn": "Leey of Lock & Key Realty explains when to adjust your home price in Valdosta and how to communicate it without drama or losing position.",
+      "excerptEs": "Bajar el precio no es perder; es volver a competir. Leey te cuenta cómo saber cuándo ajustar y cómo decirlo sin drama en el sur de Georgia.",
+      "excerptEn": "Dropping the price is not losing; it is getting back in the game. Leey explains when to adjust and how to say it without drama in south Georgia.",
+      "bodyEs": "**Bajar el precio de una casa** no es una derrota; es una herramienta más de mercado. En Valdosta y el sur de Georgia, donde los compradores comparan docenas de opciones en línea antes de salir a ver, un precio que se queda quieto demasiado tiempo puede hacer que pasen de largo sin mirar lo demás.\n\n{{figure:0}}\n\nEl primer paso es mirar los números con honestidad. Si la casa lleva más de 30 días en el mercado sin visitas serias, o si los comentarios de compradores y agentes repiten “me gusta, pero está cara”, el mercado ya está hablando. Escucharlo antes que las estadísticas generales del país suele ser la mejor estrategia.\n\n{{figure:1}}\n\n**La forma de decirlo importa tanto como el ajuste.** En lugar de anunciar una “rebaja”, se puede presentar como una actualización del precio a los valores actuales del área. Esa palabra cambia la narrativa: no es una casa que no vendió, es una casa que ahora compite mejor. Y eso reduce el drama tanto para el vendedor como para los compradores.\n\n{{figure:2}}\n\nUn precio ajustado no garantiza una oferta al día siguiente, pero sí devuelve visibilidad. En un mercado como el de Lowndes County, donde muchas familias se mueven desde Florida buscando más espacio por menos, estar en el rango correcto puede ser la diferencia entre una visita y un clic perdido.\n\n{{figure:3}}\n\nSi tu casa está lista, se ve bien y sigue sin llamar la atención, hablemos antes de que el tiempo en mercado empiece a jugar en contra. A veces una pequeña corrección hoy evita una rebaja más grande mañana.\n\n— Leey",
+      "bodyEn": "**Dropping the price is not a defeat**; it is just another market tool. In Valdosta and south Georgia, where buyers compare dozens of options online before scheduling a showing, a listing that sits still too long can get passed over before they ever see the rest.\n\n{{figure:0}}\n\nThe first step is to look at the numbers honestly. If the home has been on the market for more than 30 days without serious interest, or if feedback from buyers and agents keeps saying “we like it, but it feels high,” the market is already talking. Listening to it before national headlines is usually the smarter move.\n\n{{figure:1}}\n\n**How you say it matters as much as the adjustment.** Instead of announcing a “price cut,” present it as an updated price that reflects current area values. That word changes the story: this is not a home that failed to sell; it is a home that now competes better. That framing reduces drama for both sellers and buyers.\n\n{{figure:2}}\n\nAn adjusted price does not guarantee an offer the next day, but it does restore visibility. In a market like Lowndes County, where many families move from Florida looking for more space for less, being in the right range can be the difference between a showing and a missed click.\n\n{{figure:3}}\n\nIf your home is ready, shows well, and still is not getting attention, let’s talk before days-on-market starts working against you. Sometimes a small correction today prevents a bigger drop tomorrow.\n\n— Leey",
+      "pipeline": {
+        "topicId": "price-drop-talk",
+        "reviewScore": 82,
+        "sourceDay": "2026-09-01"
+      }
     },
     {
       "slug": "bath-refresh-2026-08-31",

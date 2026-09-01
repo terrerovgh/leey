@@ -1,8 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-28T11:02:28.000Z",
+  "updatedAt": "2026-09-01T13:36:39.000Z",
   "target": 10,
   "posts": [
+    {
+      "slug": "price-drop-talk-2026-09-01",
+      "date": "2026-09-01",
+      "topicId": "price-drop-talk",
+      "status": "published",
+      "score": 82,
+      "path": "data/blog/pipeline/2026-09-01",
+      "addedAt": "2026-09-01T13:36:39.000Z",
+      "reviewedAt": "2026-09-01T13:36:39.000Z"
+    },
     {
       "slug": "yard-weekend-2026-08-27",
       "date": "2026-08-27",
